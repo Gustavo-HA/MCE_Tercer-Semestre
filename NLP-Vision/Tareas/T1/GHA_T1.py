@@ -1,6 +1,6 @@
 import pandas as pd
 from nltk.tokenize import RegexpTokenizer
-from nltk.corpus.stopwords import 
+from nltk.corpus import stopwords
 
 class Tarea1:
     def __init__(self, data_filename):

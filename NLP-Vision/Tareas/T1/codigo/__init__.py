@@ -1,0 +1,1 @@
+from codigo import config  # noqa: F401

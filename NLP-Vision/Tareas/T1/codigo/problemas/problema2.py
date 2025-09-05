@@ -39,22 +39,22 @@ def graficar(log_freq_palabras, log_ranking, y_pred, savefig=False):
     sns.lineplot(x=log_ranking, y=y_pred.flatten(), color='red', ax=ax, label="Regresión")
 
     if savefig:
-        plt.savefig("../figures/zipf_law_regression.pdf", bbox_inches='tight')
+        plt.savefig("./figures/zipf_law_regression.pdf", bbox_inches='tight')
 
 def main(fdist: nltk.FreqDist, savefig=False):
     log_freq_palabras, log_ranking = obtener_logs(fdist)
     modelo, r2, y_pred = ajuste_lineal(log_freq_palabras, log_ranking)
     graficar(log_freq_palabras, log_ranking, y_pred, savefig)
 
-    print(f"s: {-modelo.coef_[0][0]}")
-    print(f"C: {np.exp(modelo.intercept_[0])}")
-    print(f"R^2: {r2}")
+    print(f"s: {-modelo.coef_[0]:.3f}")
+    print(f"C: {np.exp(modelo.intercept_):.1f}")
+    print(f"R^2: {r2:.3f}")
 
     return modelo
 
 if __name__ == "__main__":
-    from problema1 import main as p1
-    from ..config import DATA_FILE
+    from codigo.problemas.problema1 import main as p1
+    from codigo.config import DATA_FILE
 
-    tokenizer, spanish_stopwords, fdist, data, documentos, doc_tokens = p1(DATA_FILE, is_test=True)
+    tokenizer, spanish_stopwords, fdist, data, documentos, doc_tokens = p1(DATA_FILE, print_results=False)
     main(fdist, savefig=True)

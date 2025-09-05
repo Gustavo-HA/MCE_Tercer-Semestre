@@ -2,8 +2,6 @@ import numpy as np
 from sklearn.cluster import KMeans
 import pandas as pd
 
-import problema7 as p7
-
 def doc2vec(doc, w2v):
     """Takes tokenized document to vector representation."""
     word_vectors = np.array([w2v.wv[word] for word in doc if word in w2v.wv])
@@ -29,12 +27,13 @@ def main(data:pd.DataFrame, doc_tokens, w2v):
     for i, doc in enumerate(doc_mas_cercanos):
         print(f"\n- Centroide {i}\nPolaridad: {data.loc[doc, 'Polarity']}\nDocumento:\n{data.loc[doc, 'Review']}")
     
-    return data
+    return doc_vectors
 
 if __name__ == "__main__":
-    from problema1 import main as p1
-    from problema7 import main as p7
-    from ..config import DATA_FILE
+    from codigo.problemas.problema1 import main as p1
+    from codigo.problemas.problema7 import main as p7
+    from codigo.config import DATA_FILE
 
-    tokenizer, spanish_stopwords, fdist, data, documentos, doc_tokens = p1(DATA_FILE)
+    tokenizer, spanish_stopwords, fdist, data, documentos, doc_tokens = p1(DATA_FILE, print_results=False)
+    w2v = p7(doc_tokens, print_results=False)
     main(data, doc_tokens, w2v)

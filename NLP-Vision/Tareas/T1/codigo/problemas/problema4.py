@@ -56,7 +56,7 @@ def main(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 if __name__ == "__main__":
-    from ..config import DATA_FILE
+    from codigo.config import DATA_FILE
     
     data = pd.read_csv(DATA_FILE)
     data = data.drop(columns=["Town","Region","Type"])

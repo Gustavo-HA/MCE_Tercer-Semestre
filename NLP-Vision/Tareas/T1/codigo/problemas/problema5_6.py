@@ -40,8 +40,8 @@ def p5(data: pd.DataFrame, k=20, spanish_stopwords=set(nltk.corpus.stopwords.wor
         data
     )
     
-    _, bow_kbest_features = get_k_best_features(X_bow, y, bow_features, k)
-    _, tfidf_kbest_features = get_k_best_features(X_tfidf, y, tfidf_features, k)
+    bow_kbest_features = get_k_best_features(X_bow, y, bow_features, k)
+    tfidf_kbest_features = get_k_best_features(X_tfidf, y, tfidf_features, k)
 
     print(f"Top {k} características más importantes según Chi-cuadrado (TF):")
     for feature in bow_kbest_features:
@@ -115,7 +115,7 @@ def main(data: pd.DataFrame, k=20):
     return 0
 
 if __name__ == "__main__":
-    from ..config import DATA_FILE
+    from codigo.config import DATA_FILE
     
     data = pd.read_csv(DATA_FILE)
     

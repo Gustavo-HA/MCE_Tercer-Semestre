@@ -48,7 +48,7 @@ def graficar_freqs(data_normalizada: pd.DataFrame,
 
         if savefig:
             plt.savefig(f"./figures/palabras_comunes_clase_{clase:.0f}.pdf", bbox_inches='tight', dpi=400)
-
+        plt.clf()
 
 def main(data: pd.DataFrame, 
          tokenizador: nltk.RegexpTokenizer,
@@ -59,8 +59,8 @@ def main(data: pd.DataFrame,
     return data_normalizada
 
 if __name__ == "__main__":
-    from problema1 import main as p1
-    from ..config import DATA_FILE
+    from codigo.problemas.problema1 import main as p1
+    from codigo.config import DATA_FILE
 
-    tokenizer, spanish_stopwords, fdist, data, documentos, doc_tokens = p1(DATA_FILE)
+    tokenizer, spanish_stopwords, fdist, data, documentos, doc_tokens = p1(DATA_FILE, print_results=False)
     main(data, tokenizer, spanish_stopwords, savefig=True)

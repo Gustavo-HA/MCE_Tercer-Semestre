@@ -1174,7 +1174,7 @@ wheels = [
 ]
 
 [[package]]
-name = "nlp-vision"
+name = "nlp-t1"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

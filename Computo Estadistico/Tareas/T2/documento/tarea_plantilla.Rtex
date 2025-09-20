@@ -1,0 +1,1048 @@
+% !TeX recipe = Rtex
+\documentclass[paper=letter, fontsize=11pt]{scrartcl}
+
+% Modifications to layout
+\usepackage[shortlabels]{enumitem} % Incisos
+
+\def\code#1{\texttt{#1}} % \code{} for monospaced text
+
+\newcommand{\RNum}[1]{\footnotesize\uppercase\expandafter{\romannumeral #1\relax\normalsize}} % Roman numbers
+
+\usepackage{subcaption} % 2x2 graphs
+\usepackage{mwe}
+
+\usepackage{float} % [H] in graphics.
+
+\usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
+
+
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{listings}
+
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{theorems}
+\usepackage{cleveref}
+
+% Typography and layout packages
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[spanish]{babel} % Language and hyphenation
+\decimalpoint
+\usepackage{amsmath, amsfonts, amsthm, amssymb} % Math packages
+\newtheorem{definition}{Definición} % definition
+\usepackage{fancyvrb}
+\usepackage{sectsty} % Customize section commands
+\usepackage{geometry} % Modify margins
+\usepackage{titlesec} % Customize section titles
+\geometry{
+    left=3cm, % Left margin
+    right=3cm, % Right margin
+    top=2.5cm, % Top margin
+    bottom=2.5cm, % Bottom margin
+}
+\allsectionsfont{\centering \normalfont\scshape} % Center and style section titles
+
+% Header and footer customization
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead[L]{\slshape} % Remove section title from header
+\fancyhead[C]{} % Header center
+\fancyhead[R]{\thepage} % Header right with page number
+\fancyfoot[L]{} % Footer left
+\fancyfoot[C]{} % Footer center
+\fancyfoot[R]{\small \slshape Gustavo Hernández Angeles} % Footer right
+\renewcommand{\headrulewidth}{0.4pt} % Header rule
+\renewcommand{\footrulewidth}{0.4pt} % Footer rule
+\setlength{\headheight}{14.5pt} % Header height
+
+
+
+\setlength\parindent{0pt} % No paragraph indentation
+\setlength{\parskip}{0.5em} % Space between paragraphs
+
+\usepackage{titlesec}
+
+% Adjust spacing after the chapter title
+\titlespacing*{\chapter}{0cm}{-2.0cm}{0.50cm}
+\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
+
+% Indent 
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex}
+
+% --- Theorems, lemma, corollary, postulate, definition ---
+\definecolor{Pantone209C}{HTML}{64293e}
+
+\newcounter{problemcounter}
+
+\numberwithin{equation}{problemcounter} % Number equations within problems
+\numberwithin{figure}{problemcounter} % Number figures within problems
+\numberwithin{table}{problemcounter} % Number tables within problems
+\numberwithin{subsection}{problemcounter} 
+
+\newtcbtheorem[auto counter]{problem}{Ejercicio}{
+    enhanced,
+    breakable,
+    colback = gray!5,
+    colframe = gray!5,
+    boxrule = 0.5pt,
+    sharp corners,
+    borderline west = {2mm}{0mm}{Pantone209C},
+    fonttitle = \bfseries\sffamily,
+    coltitle = Pantone209C,
+    drop fuzzy shadow,
+    parbox = false,
+    before skip = 3ex,
+    after skip = 3ex
+}{problem}
+\makeatletter
+\renewenvironment{problem}[2][]{%
+    \refstepcounter{problemcounter}%
+    \addcontentsline{toc}{section}{\protect\numberline{\theproblemcounter}Ejercicio \theproblemcounter: #2}%
+    \begin{tcolorbox}[
+        enhanced,
+        breakable,
+        colback = gray!5,
+        colframe = gray!5,
+        boxrule = 0.5pt,
+        sharp corners,
+        borderline west = {2mm}{0mm}{Pantone209C},
+        fonttitle = \bfseries\sffamily,
+        coltitle = Pantone209C,
+        drop fuzzy shadow,
+        parbox = false,
+        before skip = 3ex,
+        after skip = 3ex,
+        title={Ejercicio \theproblemcounter: #2}
+    ]
+}{%
+    \end{tcolorbox}
+}
+\makeatother
+
+
+
+
+\tcbuselibrary{skins, breakable}
+% Custom command for a horizontal rule
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} 
+
+% Custom section titles
+\titleformat{\section}
+{\normalfont\Large\bfseries}{}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Title and author
+\title{	
+    \begin{center}
+        \includegraphics[width=3cm]{cimat-logo.png} % Adjust size as needed
+    \end{center}
+    \vspace{0.5cm}
+    \normalfont \normalsize 
+    \textbf{\Large   Centro de Investigación en Matemáticas} \\
+    \Large Unidad Monterrey \\ [25pt] 
+    \horrule{1pt} \\[0.4cm] % Thin top horizontal rule
+    \huge Cómputo Estadístico\\
+    \huge Tarea 2 \\ 
+    \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{\large Gustavo Hern\'andez Angeles}    
+
+\date{\normalsize\today} % Today's date
+
+\begin{document}
+\maketitle % Print the title
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+<<setup, include=FALSE>>=
+# Configuración global de knitr para mejorar SyncTeX
+library(knitr)
+opts_knit$set(concordance = TRUE)
+opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.path = 'figure/',
+  fig.align = 'center',
+  cache = FALSE
+)
+@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 1 %%%%%%%%%%%
+\begin{problem}{Desempeño del Primer Ministro}
+La siguiente tabla muestra los resultados parciales de dos encuestas que forman parte de un estudio para evaluar el desempeño del Primer Ministro del Canadá. Se tomó una muestra aleatoria de 1600 ciudadanos canadienses mayores de edad. En los renglones se observa que 944 ciudadanos aprobaban el desempeño del funcionario, mientras que las columnas muestran que, seis meses después, sólo 880 aprueban su desempeño:
+
+\begin{center}
+\begin{tabular}{|l|cc|c|}
+\hline
+\textbf{Primera encuesta} & \multicolumn{2}{c|}{\textbf{Segunda encuesta}} & \\
+& \textbf{Y=1 Aprueba} & \textbf{Y=0 Desaprueba} & \textbf{Total} \\
+\hline
+\textbf{x=1 Aprueba} & 150 & 794 & 944 \\
+\textbf{x=0 Desaprueba} & 86 & 570 & 656 \\
+\hline
+\textbf{Total} & 880 & 720 & 1600 \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{enumerate}[a)]
+    \item Considere el modelo de regresión logística
+    $$ \log\frac{P(Y_{i}=1|x_{i})}{1-P(Y_{i}=1|x_{i})}=\beta_{0}+\beta_{1}x_{i} $$
+    Escriba la logverosimilitud correspondiente. Muestre explícitamente (i.e. maximizando la logverosimilitud), que el estimador máximo verosímil para $\beta_1$ es el logaritmo de la tasa de momios de la tabla dada.
+    \item Sea $p_{1}$ la proporción de ciudadanos que aprueban el desempeño del ministro al tiempo inicial y sea $p_2$ la proporción correspondiente seis meses después. Considere la hipótesis $H_0: p_{1}=p_{2}$, ¿Cómo puede hacerse esta prueba?
+\end{enumerate}
+\end{problem}
+
+
+\subsection{\textbf{Solución:}}
+
+\subsubsection*{Inciso a)}
+
+Sea $\pi_x = P(Y=1|x)$. El modelo implica dos ecuaciones, una para cada valor de $x$:
+\begin{itemize}
+    \item Si $x=0$ (desaprobaban en la primera encuesta): $\log \frac{\pi_0}{1-\pi_0} = \beta_0$.
+    \item Si $x=1$ (aprobaban en la primera encuesta): $\log \frac{\pi_1}{1-\pi_1} = \beta_0 + \beta_1$.
+\end{itemize}
+
+Los datos de la tabla se pueden ver como el resultado de dos muestras binomiales independientes: una de $n_1=944$ individuos que aprobaron inicialmente ($x=1$) y otra de $n_0=656$ que desaprobaron ($x=0$). La variable de respuesta $Y$ es si aprueban en la segunda encuesta.
+
+Denotemos las celdas de la tabla como $n_{xy}$, donde $x$ es el resultado de la primera encuesta y $y$ el de la segunda.
+\begin{itemize}
+    \item $n_{11} = 794$ (Aprueba $\rightarrow$ Aprueba)
+    \item $n_{10} = 150$ (Aprueba $\rightarrow$ Desaprueba)
+    \item $n_{01} = 86$ (Desaprueba $\rightarrow$ Aprueba)
+    \item $n_{00} = 570$ (Desaprueba $\rightarrow$ Desaprueba)
+\end{itemize}
+
+La función de log-verosimilitud, agrupando por los valores de $x$:
+\[
+\ell(\beta_0, \beta_1) = \ell(\pi_0, \pi_1) = [n_{01}\log(\pi_0) + n_{00}\log(1-\pi_0)] + [n_{11}\log(\pi_1) + n_{10}\log(1-\pi_1)]
+\]
+Para maximizar $\ell$, podemos maximizar cada parte por separado.
+El estimador de máxima verosimilitud para $\pi_0$ (la probabilidad de aprobar en la segunda encuesta, dado que se desaprobaba en la primera) es la proporción muestral:
+\[
+\hat{\pi}_0 = \frac{n_{01}}{n_{01}+n_{00}} = \frac{86}{86+570} = \frac{86}{656}
+\]
+El EMV para $\pi_1$ (la probabilidad de aprobar en la segunda encuesta, dado que se aprobaba en la primera) es:
+\[
+\hat{\pi}_1 = \frac{n_{11}}{n_{11}+n_{10}} = \frac{794}{794+150} = \frac{794}{944}
+\]
+Usando la propiedad de invarianza de los EMV, podemos estimar $\beta_0$ y $\beta_1$ sustituyendo $\hat{\pi}_0$ y $\hat{\pi}_1$ en las ecuaciones del modelo:
+\[
+\hat{\beta}_0 = \log\left(\frac{\hat{\pi}_0}{1-\hat{\pi}_0}\right)
+\]
+\[
+\hat{\beta}_0 + \hat{\beta}_1 = \log\left(\frac{\hat{\pi}_1}{1-\hat{\pi}_1}\right)
+\]
+Despejando $\hat{\beta}_1$ de la segunda ecuación:
+\[
+\hat{\beta}_1 = \log\left(\frac{\hat{\pi}_1}{1-\hat{\pi}_1}\right) - \hat{\beta}_0 = \log\left(\frac{\hat{\pi}_1}{1-\hat{\pi}_1}\right) - \log\left(\frac{\hat{\pi}_0}{1-\hat{\pi}_0}\right)
+\]
+\[
+\hat{\beta}_1 = \log\left( \frac{\hat{\pi}_1/(1-\hat{\pi}_1)}{\hat{\pi}_0/(1-\hat{\pi}_0)} \right)
+\]
+
+Mostrando así, que el estimador de $\hat{\beta}_1$ es el logaritmo de la tasa de momios de la tabla dada.
+
+\subsubsection*{Inciso b)}
+
+La hipótesis a probar es $H_0: p_1 = p_2$, donde $p_1$ y $p_2$ son las proporciones poblacionales de aprobación en la primera y segunda encuesta, respectivamente.
+Los datos no provienen de muestras independientes, sino que son mediciones repetidas sobre los mismos 1600 individuos. Por lo tanto, se trata de datos pareados. La prueba adecuada para comparar proporciones en muestras pareadas es la \textit{prueba de McNemar}.
+
+Esta prueba se centra en los individuos que cambiaron de opinión entre las dos encuestas, es decir, las celdas discordantes de la tabla:
+\begin{itemize}
+    \item $n_{10} = 150$: Personas que aprobaron en la primera encuesta pero desaprobaron en la segunda.
+    \item $n_{01} = 86$: Personas que desaprobaron en la primera encuesta pero aprobaron en la segunda.
+\end{itemize}
+La hipótesis nula de igualdad de proporciones marginales ($H_0: p_1 = p_2$) es equivalente a la hipótesis de que la probabilidad de cambiar de opinión en una dirección es igual a la probabilidad de cambiar en la dirección opuesta.
+
+El estadístico de prueba de McNemar se calcula como:
+\[
+\chi^2 = \frac{(n_{10} - n_{01})^2}{n_{10} + n_{01}}
+\]
+Bajo la hipótesis nula, este estadístico sigue una distribución Chi-cuadrada ($\chi^2$) con 1 grado de libertad. Calculamos el valor del estadístico $\chi^2$ con los datos de la tabla.
+    \[
+    \chi^2 = \frac{(150 - 86)^2}{150 + 86} = \frac{64^2}{236} = \frac{4096}{236} \approx 17.36
+    \]
+Comparando el valor del estadístico con el valor crítico de una distribución $\chi^2$ con 1 grado de libertad para un nivel de significancia, digamos $\alpha = 0.05$, el valor crítico es 3.841.
+En este caso, $17.36 > 3.841$, lo que indica que se rechaza la hipótesis nula $H_0$ y concluímos que hay una diferencia estadísticamente significativa entre la proporción de aprobación en la primera encuesta y la proporción de aprobación en la segunda.
+
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 2 %%%%%%%%%%%
+\begin{problem}{Ronquidos y Enfermedad Cardíaca}
+Se tiene la siguiente tabla donde se eligen varios niveles de ronquidos y se ponen en relación con una enfermedad cardíaca. Se toman como puntuaciones relativas de ronquidos los valores \{0, 2, 4, 5\}.
+
+\begin{center}
+\begin{tabular}{|l|cc|c|}
+\hline
+\textbf{Ronquido} & \multicolumn{2}{c|}{\textbf{Enfermedad Cardiaca}} & \textbf{Proporción de SI} \\
+& \textbf{NO} & \textbf{SI} & \\
+\hline
+Nunca & 1355 & 24 & 0.017 \\
+Ocasional & 603 & 35 & 0.055 \\
+Casi cada noche & 21 & 192 & 0.099 \\
+Cada noche & 30 & 224 & 0.118 \\
+\hline
+\end{tabular}
+\end{center}
+
+Ajuste un modelo lineal generalizado logit y probit para analizar si existe una relación entre los ronquidos y la posibilidad de tener una enfermedad cardiaca.
+\end{problem}
+
+\subsection{\textbf{Solución:}}
+
+El objetivo es modelar la probabilidad de tener una enfermedad cardíaca en función de una puntuación que cuantifica la frecuencia de los ronquidos. Dado que la respuesta es binaria (SI/NO) y los datos están agrupados, se utiliza un modelo lineal generalizado para datos binomiales.
+
+Primero, preparamos los datos:
+
+<<p2_data>>=
+# Datos del problema
+ronquido_nivel <- c("Nunca", "Ocasional", "Casi cada noche", "Cada noche")
+no_enfermedad <- c(1355, 603, 192, 224)
+si_enfermedad <- c(24, 35, 21, 30)
+ronquido_score <- c(0, 2, 4, 5)
+
+# Crear matriz de respuesta (éxitos, fracasos)
+y <- cbind(si_enfermedad, no_enfermedad)
+@
+
+\subsubsection*{Modelo Logit}
+
+El modelo logit utiliza la función de enlace logit, que modela el logaritmo de los momios de tener la enfermedad. La variable de respuesta se especifica como una matriz de éxitos (casos 'SI') y fracasos (casos 'NO'), y la variable predictora es la puntuación de ronquidos.
+
+<<p2_logit>>=
+# Ajustar modelo logit
+modelo_logit <- glm(y ~ ronquido_score, family = binomial(link = "logit"))
+summary(modelo_logit)
+@
+
+El coeficiente estimado para la puntuación de ronquidos indica que por cada aumento de una unidad en la escala de ronquidos, los momios de padecer una enfermedad cardiaca aumentan significativamente ($\exp(0.397) \approx 1.487$ entonces un aumento de 48.7\%). El p-valor extremadamente pequeño indica que existe una relación estadísticamente muy significativa entre la frecuencia de los ronquidos y la probabilidad de tener una enfermedad cardíaca.
+
+\subsubsection*{Modelo Probit}
+
+El modelo probit es una alternativa al modelo logit que, en lugar de basarse en la distribución logística, se fundamenta en la distribución normal estándar. Su función de enlace es la distribución acumulada normal ($\Phi(p)$), lo que en términos más sencillos equivale a modelar el Z-score asociado a la probabilidad de que ocurra el evento. Es decir
+$$P(Y=1|X) = \Phi(X^T\beta)$$
+
+<<p2_probit>>=
+# Ajustar modelo probit
+modelo_probit <- glm(y ~ ronquido_score, family = binomial(link = "probit"))
+summary(modelo_probit)
+@
+
+El coeficiente estimado para la puntuación de ronquidos indica que por cada aumento de una unidad en la escala de ronquidos, el "índice probit" (el valor Z) aumenta significativamente. Al igual que en el modelo logit, el p-valor muy bajo confirma una fuerte evidencia de la relación entre roncar y la enfermedad cardíaca.
+
+\subsubsection*{Comparación de modelos}
+
+<<p2_comparison>>=
+# Comparar AIC de ambos modelos
+cat("AIC Modelo Logit:", AIC(modelo_logit), "\n")
+cat("AIC Modelo Probit:", AIC(modelo_probit), "\n")
+@
+
+El modelo Probit tiene un AIC ligeramente menor (diferencia de $\sim 0.94$), lo que sugiere que ajusta marginalmente mejor a los datos. Sin embargo, esta diferencia es pequeña y ambos modelos son prácticamente equivalentes en términos de ajuste.
+
+\subsubsection*{Conclusión}
+Ambos modelos, logit y probit, coinciden; existe una fuerte evidencia estadística para afirmar que hay una relación positiva y significativa entre la frecuencia de los ronquidos y la probabilidad de tener una enfermedad cardíaca. A medida que aumenta la puntuación en la escala de ronquidos, también aumenta la probabilidad de padecer dicha enfermedad.
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 3 %%%%%%%%%%%
+\begin{problem}{Cangrejos Cacerola}
+Entre los cangrejos cacerola se sabe que cada hembra tiene un macho en su nido, pero puede tener más machos concubinos. Se considera que la variable respuesta es el número de concubinos y las variables explicativas son: color, estado de la espina central, peso y anchura del caparazón.
+\begin{verbatim}
+Color Spine Width Satellite Weight
+28.3  3     3     8         3050
+22.5  4     3     0         1550
+26.0  1     2     9         2300
+24.8  4     3     0         2100
+26.0  4     3     4         2600
+23.8  3     3     0         2100
+26.5  2     1     0         2350
+\end{verbatim}
+
+Realizar e interpretar los resultados de ajustar un modelo lineal generalizado tipo Poisson.
+\end{problem}
+
+\subsection*{\textbf{Solución:}}
+
+El objetivo es modelar el número de machos concubinos (satélites) de un cangrejo cacerola hembra en función de sus características físicas, utilizando únicamente la muestra de 7 observaciones proporcionada. Dado que la variable respuesta es un conteo, se utiliza un modelo lineal generalizado de tipo \textbf{Poisson}. 
+
+Primero, creamos el conjunto de datos en R. Es crucial convertir las variables \texttt{Color} y \texttt{Spine} a factores para que el modelo las trate como variables categóricas. Además, el peso se convierte de gramos a kilogramos para obtener coeficientes más interpretables.
+
+<<>>=
+# Crear el data.frame a partir de la muestra de 7 observaciones
+crabs <- data.frame(
+  Width = c(28.3, 22.5, 26.0, 24.8, 26.0, 23.8, 26.5),
+  Color = c(3, 4, 1, 4, 4, 3, 2),
+  Spine = c(3, 3, 2, 3, 3, 3, 1),
+  Satellite = c(8, 0, 9, 0, 4, 0, 0),
+  Weight = c(3050, 1550, 2300, 2100, 2600, 2100, 2350)
+)
+@
+
+\subsubsection*{Ajuste del Modelo Poisson}
+
+Ajustamos el modelo de regresión de Poisson. \textbf{Nota importante:} Con solo 7 observaciones y múltiples predictores (incluyendo los niveles de las variables categóricas), el modelo tiene muy poca información para generar estimaciones estables.
+
+<<>>=
+# Ajustar el modelo GLM de tipo Poisson con la muestra
+modelo_poisson <- glm(Satellite ~ Color + Spine + Width + Weight, 
+                             data = crabs, 
+                             family = poisson)
+summary(modelo_poisson)
+@
+
+La interpretación del modelo debe tomarse con cuidado debido al tamaño de la muestra tan pequeña (solo 2 grados de libertad residuales).
+
+Los coeficientes estimados indican cómo cambia el logaritmo del número esperado de concubinos. Para una interpretación más intuitiva, lo convertimos a su forma exponencial.
+
+En este ejercicio, solo el coeficiente de \texttt{Color} es estadísticamente significativo $(\text{p-value} = 0.008 < 0.05)$. Esto sugiere que el color del cangrejo tiene un impacto relevante en el número esperado de concubinos. Mientras que las otras variables no muestran evidencia estadística suficiente para afirmar que influyen en el número de concubinos.
+
+\begin{itemize}
+    \item Color: El valor de este coeficiente es -1.32, lo que sugiere que, manteniendo las demás variables constantes, un aumento en el nivel de color está asociado con una disminución en el número esperado de concubinos. Específicamente, cada unidad de aumento en el nivel de color reduce el número esperado de concubinos en un factor de $\exp(-1.32) \approx 0.267$, es decir, una reducción del 73.3\%.
+\end{itemize}
+
+También debemos tomar en cuenta el valor de la devianza residual (10.152) siendo mayor a sus 2 grados de libertad. Esto es un fuerte indicio de sobredispersión, lo que significa que la variabilidad de los datos es mayor a la que el modelo de Poisson asume. Consecuentemente, los errores estándar y los valores p pueden no ser del todo confiables.
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 4 %%%%%%%%%%%
+\begin{problem}{Regresión Logística y Teorema de Bayes}
+Suponga $(x_{1},y_{1}),...,(x_{n},y_{n})$ observaciones independientes de variables aleatorias definidas como sigue:
+\begin{itemize}
+    \item $Y_{j}\sim \text{Bernoulli}(p), i = 1,\dots,n$
+    \item $X_{i}|\{Y_{i}=1\}\sim N(\mu_{1},\sigma^{2})$
+    \item $X_{i}|\{Y_{i}=0\}\sim N(\mu_{0},\sigma^{2})$
+\end{itemize}
+Usando el Teorema de Bayes, muestre que $P(Y_{i}=1|X_{i})$ satisface el modelo de regresión logística, esto es
+$$ \text{logit}(P(Y_{i}=1|X_{i}))=\alpha+\beta X_{i} $$
+\end{problem}
+\subsection{\textbf{Solución:}}
+
+Podemos aplicar directamente el Teorema de Bayes sobre la probabilidad $P(Y_i=1|X_i)$, tomando en cuenta que al ser $X$ una variable continua, su ``probabilidad'' se calcula con su funcion de densidad de probabilidad $f_X(X_i|Y_i=y)$.
+
+\begin{align*}
+    P(Y_i=1|X_i) = \frac{f_X(X_i|Y_i=1)P(Y_i=1)}{f_X(X_i|Y_i=1)P(Y_i=1) + f_X(X_i|Y_i=0)P(Y_i=0)}
+\end{align*}
+
+Determinamos el momio de esta probabilidad para acercarnos a la forma del logit.
+\begin{align*}
+    \frac{P(Y_i=1|X_i)}{1-P(Y_i=1|X_i)} &= \frac{\frac{f_X(X_i|Y_i=1)P(Y_i=1)}{f_X(X_i|Y_i=1)P(Y_i=1) + f_X(X_i|Y_i=0)P(Y_i=0)}}{\frac{f_X(X_i|Y_i=0)P(Y_i=0)}{f_X(X_i|Y_i=1)P(Y_i=1) + f_X(X_i|Y_i=0)P(Y_i=0)}} \\
+    &=\frac{f_X(X_i|Y_i=1)P(Y_i=1)}{f_X(X_i|Y_i=0)P(Y_i=0)}\\
+    &=\frac{\exp{\left(-(X_i-\mu_1)^2/2\sigma\right)}p}{\exp{\left(-(X_i-\mu_0)^2/2\sigma\right)}(1-p)}\\
+    &=\frac{p}{1-p}\exp\left[( -(X_i - \mu_1)^2 + (X_i - \mu_0)^2 )/2\sigma \right]\\
+    &=\frac{p}{1-p}\exp\left[( (\mu_1-\mu_2)X_i + \mu_0^2 - \mu_1^2 )/2\sigma \right]
+\end{align*}
+
+Ahora aplicamos logaritmo natural para obtener el logit de la probabilidad deseada $\text{logit}\left(P(Y_i=1|X_i)\right)$.
+
+\begin{align*}
+    \text{logit}\left(P(Y_i=1|X_i)\right) &= \log\left(\frac{P(Y_i=1|X_i)}{1-P(Y_i=1|X_i)}\right) \\
+    &=\log\left(\frac{p}{1-p}\right) + \frac{\mu_0^2 - \mu_1^2}{2\sigma} + \frac{\mu_1-\mu_2}{2\sigma}X_i
+\end{align*}
+
+Haciendo $\alpha = \log\left(\frac{p}{1-p}\right) + \frac{\mu_0^2 - \mu_1^2}{2\sigma}$ y $\beta = \frac{\mu_1-\mu_2}{2\sigma}$, finalmente obtenemos:
+
+
+\begin{align*}
+    \text{logit}\left(P(Y_i=1|X_i)\right) = \alpha + \beta X_i
+\end{align*}
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 5 %%%%%%%%%%%
+\begin{problem}{Curva ROC para Daño Coronario}
+Construyan la curva ROC para el problema de daño coronario y su relación con la edad visto en la clase 3 del curso.
+\begin{verbatim}
+# Hosmer, D.W. & Lemeshow, S. (1989) Applied logistic regression. Wiley
+# Edad y Coronaria (daño significativo en coronaria)
+edad <- c(
+    20, 23, 24, 25, 25, 26, 26, 28, 28, 29, 30, 30, 30, 30, 30, 30, 
+    32, 32, 33, 33, 34, 34, 34, 34, 34, 35, 35, 36, 36, 36, 37, 37, 
+    37, 38, 38, 39, 39, 40, 40, 41, 41, 42, 42, 42, 42, 43, 43, 43, 
+    44, 44, 44, 44, 45, 45, 46, 46, 47, 47, 47, 48, 48, 48, 49, 49, 
+    49, 50, 50, 51, 52, 52, 53, 53, 54, 55, 55, 55, 56, 56, 56, 57, 
+    57, 57, 57, 57, 57, 58, 58, 58, 59, 59, 60, 60, 61, 62, 62, 63, 
+    64, 64, 65, 69)
+
+coro <- c(
+    0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,
+    0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,1,0,1,0,1,0,0,1,0,
+    1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,
+    0,1,1,1,1,1,0,1,1,1)
+\end{verbatim}
+\end{problem}
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%% PROBLEMA 6 %%%%%%%%%%%
+% !TeX recipe = Rtex
+\begin{problem}{Conteos de Células T4}
+La siguiente tabla muestra conteos de células $T_{4}$ por $mm^{3}$ en muestras de sangre de 20 pacientes con enfermedad de Hodgkin y 20 pacientes en remisión de otras enfermedades. Se busca determinar si existen diferencias en las distribuciones de conteos en ambos grupos.
+
+\begin{center}
+\begin{tabular}{|l|cccccccccc|}
+\hline
+H & 396 & 568 & 1212 & 171 & 554 & 1104 & 257 & 435 & 295 & 397 \\
+No-H & 375 & 375 & 752 & 208 & 151 & 116 & 736 & 192 & 315 & 1252 \\
+\hline
+H & 288 & 1004 & 795 & 431 & 1621 & 1378 & 902 & 958 & 1283 & 2415 \\
+No-H & 675 & 700 & 440 & 771 & 688 & 426 & 410 & 979 & 377 & 503 \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{enumerate}[a)]
+    \item Haga una comparación gráfica exploratoria de estos datos.
+    \item Ajuste un modelo de Poisson apropiado.
+    \item Usando la normalidad asintótica de los estimadores de máxima verosimilitud, dé un intervalo del 90\% de confianza para la diferencia en medias. ¿Hay evidencia de diferencias en los dos grupos en cuanto a las medias de los conteos?.
+\end{enumerate}
+\end{problem}
+
+
+\subsection{\textbf{Solución:}}
+
+\subsubsection*{Inciso a)}
+
+Primero leemos los datos. Estableceremos la variable binaria \textit{has\_h} para especificar los pacientes con enfermedad de Hodgkin.
+
+<<>>=
+library(ggplot2)
+
+h_counts <- c(396, 568, 1212, 171, 554, 1104, 257, 435, 295, 397,
+              288, 1004, 431, 795, 1621, 1378, 902, 958, 1283, 2415)
+noh_counts <- c(375, 375, 752, 208, 151, 116, 736, 192, 315, 1252,
+                675, 700, 440, 771, 688, 426, 410, 979, 377, 503)
+
+df <- data.frame(
+group = factor(c(rep("H", length(h_counts)), rep("No-H", length(noh_counts)))),
+  counts = c(h_counts, noh_counts)
+)
+@
+
+Podemos comparar las distribuciones del conteo de células de los pacientes con y sin la enfermedad de Hodgkin mediante Kernel Density Estimation (KDE) (Figura \ref{fig:p1_kde}) y Boxplot (Figura \ref{fig:p1_box}).
+
+
+<<p1_kde, fig.height=3, fig.width=4, fig.cap="Gráfico de densidad de la distribución del conteo de células $T_4$ por $mm^3$ para pacientes con la enfermedad de Hodgkin (color rojo) y sin ella (color azul)", fig.align="center">>=
+ggplot(data = df) +
+  geom_density(aes(x = counts, fill = group), alpha = 0.5) +
+  labs(x = "Número de células", y = "Densidad", fill = "Grupos") +
+    theme(legend.position="inside",legend.position.inside = c(0.9, 0.9))
+@
+
+<<p1_box, fig.height=4, fig.width=4, fig.cap="Gráfico de caja de la distribución del conteo de células $T_4$ por $mm^3$ para pacientes con la enfermedad de Hodgkin y sin ella.", fig.align="center">>=
+boxplot(counts ~ group, data=df, ylab="Número de células", xlab="Grupos")
+@
+
+El gráfico de densidad muestra una distribución más sesgada "hacia la derecha" para los pacientes con la enfermedad de Hodgkin que se traduce en una mayor varianza y una media muestral mayor respecto al grupo de pacientes sin la enfermedad.
+
+El gráfico de caja muestra los cuartiles y la mediana de las distribuciones. La comparación visual sugiere también una mayor mediana en el conteo de las células $T_4$.
+\subsubsection*{Inciso b)}
+
+En este inciso codificamos la variable binaria para que posea valores 0 y 1, en donde 1 representa a los pacientes con la enfermedad de Hodgkin.
+
+<<>>=
+df <- data.frame(
+  has_h = factor(c(rep(1, length(h_counts)), rep(0, length(noh_counts)))),
+  counts = c(h_counts, noh_counts)
+)
+poisson_model <- glm(counts ~ has_h, data = df, family = poisson)
+summary(poisson_model)
+@
+
+El modelo de regresión de Poisson ajustado se especifica de la siguiente manera:
+$$
+\ln(\mathbb{E}[\text{conteo}]) = \beta_0 + \beta_1 \cdot \text{has\_h}
+$$
+Los resultados del modelo, proporcionados en el \texttt{summary} de R, nos dan las estimaciones de los coeficientes:
+\begin{itemize}
+    \item \textbf{Coeficiente del Intercepto ($\beta_0$)}: 6.257763
+    \item \textbf{Coeficiente para \texttt{has\_h1} ($\beta_1$)}: 0.455436
+\end{itemize}
+Estos coeficientes tienen la siguiente interpretación:
+\begin{itemize}
+    \item \textbf{El Intercepto}: El valor de 6.257763 es el logaritmo del conteo promedio de células $T_4$ para el grupo de pacientes sin la enfermedad de Hodgkin (cuando \texttt{has\_h = 0}). Para obtener el conteo promedio en la escala original, se calcula $e^{6.257763} \approx 522.2$.
+    \item \textbf{El Coeficiente \texttt{has\_h1}}: El valor de 0.455436 representa el \textbf{cambio} en el logaritmo del conteo promedio de células cuando se pasa del grupo sin la enfermedad de Hodgkin (\texttt{has\_h = 0}) al grupo con la enfermedad (\texttt{has\_h = 1}). Este valor indica un incremento en el logaritmo de la media.
+\end{itemize}
+Para una interpretación más intuitiva, se puede calcular la \textit{Razón de Tasa de Incidencia (RTI)}, la cual se obtiene exponentiando el coeficiente: $e^{0.455436} \approx 1.577$. Esto significa que el conteo promedio de células $T_4$ en los pacientes con la enfermedad de Hodgkin es aproximadamente 1.577 veces mayor que en los pacientes sin la enfermedad.
+
+\noindent\textbf{Dispersión del Modelo:}
+Es crucial notar que el modelo presenta sobredispersión. Esto se evidencia al comparar la devianza residual (9965) con los grados de libertad residuales (38). El valor de la devianza es mucho mayor que los grados de libertad, lo que indica que la varianza de los datos es significativamente mayor que la media.
+Aunque el modelo de Poisson muestra una diferencia significativa, los errores estándar pueden estar subestimados, lo que infla el valor del estadístico $z$ y, por lo tanto, reduce el $p$-valor de manera artificial. 
+
+\subsubsection*{Inciso c)}
+
+Para completar el inciso, se utiliza la propiedad de normalidad asintótica de los estimadores de máxima verosimilitud para construir un intervalo de confianza del 90\% para la diferencia en las medias. En el modelo de Poisson, esta diferencia se modela a través del coeficiente $\beta_1$ que representa el logaritmo de la razón de las medias.
+
+Del resumen de los resultados del modelo de regresión de Poisson, se extraen los siguientes valores para el coeficiente $\beta_1$ (\texttt{has\_h1}):
+\begin{itemize}
+    \item Estimación ($\hat{\beta}_1$): 0.455436
+    \item Error Estándar ($\text{SE}(\hat{\beta}_1)$): 0.012511
+\end{itemize}
+El valor crítico para un intervalo de confianza del 90\% en una distribución normal estándar es $Z_{0.95} = 1.645$. El intervalo de confianza se calcula usando la fórmula de normalidad asintótica:
+$$
+\text{IC}_{90\%}(\beta_1) = \hat{\beta}_1 \pm Z_{0.95} \cdot \text{SE}(\hat{\beta}_1)
+$$
+Sustituyendo los valores:
+\begin{align*}
+\text{IC}_{90\%}(\beta_1) &= 0.455436 \pm 1.645 \cdot (0.012511) \\
+&= 0.455436 \pm 0.02058 \\
+&= [0.434856, 0.476016]
+\end{align*}
+Este intervalo corresponde al logaritmo natural de la razón de las medias, $\ln(\lambda_{\text{H}} / \lambda_{\text{No-H}})$. Para obtener el intervalo en la escala original, se aplica la función exponencial a los límites del intervalo anterior:
+$$
+\text{IC}_{90\%}(\lambda_\text{H} / \lambda_{\text{No-H}}) = [e^{0.434856}, e^{0.476016}] = [1.545, 1.609]
+$$
+
+El intervalo de confianza del 90\% para la razón de las medias de los conteos de células $T_4$ es $[1.545, 1.609]$. Dado que este intervalo no contiene el valor 1, se concluye que existe evidencia estadística de que las medias de los conteos entre los dos grupos son significativamente diferentes. Específicamente, se estima con un 90\% de confianza que la media de conteo para los pacientes con la enfermedad de Hodgkin es entre 1.545 y 1.609 veces mayor que para los pacientes sin la enfermedad.
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 7 %%%%%%%%%%%
+\begin{problem}{Reclamos de Pólizas de Seguros}
+Los datos de la tabla son números, $n$, de pólizas de seguros y los correspondientes números, $y$, de reclamos. Las variables son CAR (clase de carro), EDAD (edad del titular) y DIST (distrito).
+
+\begin{enumerate}[a)]
+    \item Calcule la tasa de reclamos, $y/n,$ para cada categoría y grafique estas tasas contra las diferentes variables para tener una idea de los efectos principales.
+    \item Use regresión logística para estimar los efectos principales (cada variable tratada como categórica) así como sus interacciones.
+    \item Basados en resultados previos, se decidió que ninguna interacción era importante y que CAR y EDAD podían ser tratadas como variables continuas. Ajuste un modelo incorporando estas observaciones y compárelo con el obtenido en (b). ¿Cuáles son las conclusiones?.
+\end{enumerate}
+
+\begin{center}
+\begin{tabular}{|c|c|cc|cc|}
+\hline
+& & \multicolumn{2}{c|}{\textbf{DIST=0}} & \multicolumn{2}{c|}{\textbf{DIST=1}} \\
+\textbf{CAR} & \textbf{EDAD} & \textbf{y} & \textbf{n} & \textbf{y} & \textbf{n} \\
+\hline
+1 & 1 & 65 & 317 & 2 & 20 \\
+1 & 2 & 65 & 476 & 33 & 5 \\
+1 & 3 & 52 & 486 & 40 & 4 \\
+1 & 4 & 310 & 3259 & 36 & 316 \\ \hline
+2 & 1 & 98 & 486 & 31 & 7 \\
+2 & 2 & 159 & 1004 & 81 & 10 \\
+2 & 3 & 175 & 1355 & 122 & 22 \\
+2 & 4 & 7660 & 877 & 102 & 724 \\ \hline
+3 & 1 & 41 & 223 & 5 & 18 \\
+3 & 2 & 117 & 539 & 7 & 39 \\
+3 & 3 & 137 & 697 & 68 & 16 \\
+3 & 4 & 3442 & 477 & 344 & 63 \\ \hline
+4 & 1 & 40 & 11 & 3 & 0 \\
+4 & 2 & 148 & 35 & 6 & 16 \\
+4 & 3 & 39 & 214 & 8 & 25 \\
+4 & 4 & 1019 & 167 & 33 & 114 \\
+\hline
+\end{tabular}
+\end{center}
+\end{problem}
+
+
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 8 %%%%%%%%%%%
+\begin{problem}{Estimación por Mínima Ji-Cuadrada}
+El método de la mínima ji-cuadrada consiste en estimar $\theta$ mediante el valor que minimice el estadístico de Pearson:
+$$ \chi^{2}=\sum\frac{(\text{obs-esp})^{2}}{\text{esp}}=\sum_{j=1}^{K}\frac{(y_{j}-n\pi_{j}(\theta))^{2}}{n\pi_{j}(\theta)} $$
+Considere una población con tres categorías A, B y C. Se toman 3 muestras de tamaños $n_1, n_2, n_3$ y se registra:
+\begin{itemize}
+    \item Número de A's en la muestra de tamaño $n_{1}=y_{1}$
+    \item Número de B's en la muestra de tamaño $n_{2}=y_{2}$
+    \item Número de C's en la muestra de tamaño $n_{3}=y_{3}$
+\end{itemize}
+Estime $\pi_{1}$, $\pi_{2}$ y $\pi_{3}$ usando el método de la mínima ji-cuadrada, suponiendo $n_{1}=100, y_{1}=22, n_{2}=150, y_{2}=52, n_{3}=200, y_{3}=77$. Es decir, minimice:
+$$ \frac{(y_{1}-n_{1}\pi_{1})^{2}}{n_{1}\pi_{1}}+\frac{[(n_{1}-y_{1})-n_{1}(1-\pi_{1})]^{2}}{n_{1}(1-\pi_{1})}+\dots+\frac{(y_{3}-n_{3}\pi_{3})^{2}}{n_{3}\pi_{3}}+\frac{[(n_{3}-y_{3})-n_{3}(1-\pi_{3})]^{2}}{n_{3}(1-\pi_{3})} $$
+con la restricción $\pi_{3}=1-\pi_{1}-\pi_{2}$.
+\end{problem}
+
+
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% Problema 9 %%%%%%%%%%%
+\begin{problem}{Modelo Log-Lineal para el Titanic}
+Se analizan los datos del hundimiento del Titanic. Las variables son Class (1, 2, 3, Tripulación), Sex (Male, Female), Age (Child, Adult), y Survived (No, Yes). En R, usar la librería \texttt{titanic} y los datos del objeto \texttt{Titanic}.
+Considerar un modelo log-lineal para analizar los siguientes efectos y sus interacciones:
+\begin{itemize}
+    \item Class
+    \item Sex
+    \item Age
+    \item Survived
+    \item Class $\times$ Sex
+    \item Class $\times$ Age
+    \item Class $\times$ Survived
+    \item Sex $\times$ Age
+    \item Sex $\times$ Survived
+    \item Age $\times$ Survived
+    \item Interacciones triples y cuádruples.
+\end{itemize}
+\end{problem}
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 10 %%%%%%%%%%%
+
+\begin{problem}{Ácido Ascórbico y la Gripe Común}
+Se realizó un análisis sobre el valor terapéutico del ácido ascórbico (vitamina C) en relación a su efecto sobre la gripe común. Se tiene una tabla $2\times2$ con los recuentos para una muestra de 279 personas:
+
+\begin{center}
+\begin{tabular}{|l|cc|c|}
+\hline
+ & \textbf{Gripe} & \textbf{No Gripe} & \textbf{Totales} \\
+\hline
+Placebo & 31 & 109 & 140 \\
+Ácido Ascórbico & 17 & 122 & 139 \\
+\hline
+Totales & 48 & 231 & 279 \\
+\hline
+\end{tabular}
+\end{center}
+
+Aplicar un modelo lineal para determinar si existe evidencia suficiente para asegurar que el ácido ascórbico ayuda a tener menos gripe.
+\end{problem}
+
+
+
+
+% \nocite{*}
+% \bibliographystyle{plainnat} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+% \bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+
+\end{document}
+                                                                                                                                                                                                                                                                                                                                                        

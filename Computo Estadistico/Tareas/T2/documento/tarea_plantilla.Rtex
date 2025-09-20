@@ -11,7 +11,7 @@
 \usepackage{subcaption} % 2x2 graphs
 \usepackage{mwe}
 
-\usepackage{float} % [H] in graphics.
+\usepackage{float} % [H] in graphics
 
 \usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
 
@@ -485,7 +485,7 @@ Color Spine Width Satellite Weight
 Realizar e interpretar los resultados de ajustar un modelo lineal generalizado tipo Poisson.
 \end{problem}
 
-\subsection*{\textbf{Solución:}}
+\subsection{\textbf{Solución:}}
 
 El objetivo es modelar el número de machos concubinos (satélites) de un cangrejo cacerola hembra en función de sus características físicas, utilizando únicamente la muestra de 7 observaciones proporcionada. Dado que la variable respuesta es un conteo, se utiliza un modelo lineal generalizado de tipo \textbf{Poisson}. 
 
@@ -638,9 +638,18 @@ Haciendo $\alpha = \log\left(\frac{p}{1-p}\right) + \frac{\mu_0^2 - \mu_1^2}{2\s
 %%%%%%%%%%% PROBLEMA 5 %%%%%%%%%%%
 \begin{problem}{Curva ROC para Daño Coronario}
 Construyan la curva ROC para el problema de daño coronario y su relación con la edad visto en la clase 3 del curso.
-\begin{verbatim}
-# Hosmer, D.W. & Lemeshow, S. (1989) Applied logistic regression. Wiley
-# Edad y Coronaria (daño significativo en coronaria)
+\end{problem}
+
+\subsection{\textbf{Solución:}}
+
+<<>>=
+# Si no tienes instalada la librería pROC, primero ejecutas esta línea:
+# install.packages("pROC")
+
+# 1. Cargar la librería necesaria
+library(pROC)
+
+# 2. Definir los datos proporcionados
 edad <- c(
     20, 23, 24, 25, 25, 26, 26, 28, 28, 29, 30, 30, 30, 30, 30, 30, 
     32, 32, 33, 33, 34, 34, 34, 34, 34, 35, 35, 36, 36, 36, 37, 37, 
@@ -655,8 +664,37 @@ coro <- c(
     0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,1,0,1,0,1,0,0,1,0,
     1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,
     0,1,1,1,1,1,0,1,1,1)
-\end{verbatim}
-\end{problem}
+
+# Es una buena práctica trabajar con data frames
+datos <- data.frame(edad = edad, coro = coro)
+
+# 3. Ajustar el modelo de regresión logística
+# La variable 'coro' es la dependiente y 'edad' la independiente
+modelo_logistico <- glm(coro ~ edad, data = datos, family = binomial)
+
+# 4. Obtener las probabilidades predichas por el modelo
+probabilidades <- predict(modelo_logistico, type = "response")
+
+# 5. Calcular la curva ROC
+# Se necesita la respuesta verdadera (datos$coro) y el predictor (las probabilidades)
+roc_curva <- roc(response = datos$coro, predictor = probabilidades)
+
+# 6. Graficar la curva ROC
+plot(roc_curva, 
+     main = "Curva ROC para Daño Coronario por Edad", 
+     col = "#1c61b6", # Color de la línea
+     lwd = 2,         # Grosor de la línea
+     print.auc = TRUE, # Imprimir el valor del AUC en el gráfico
+     auc.polygon = TRUE, # Rellenar el área bajo la curva
+     auc.polygon.col = "#dceafc") # Color del área
+
+# Añadir una línea de referencia (clasificador aleatorio)
+abline(a=0, b=1, lty=2, col="gray")
+
+# Imprimir el valor del AUC en la consola
+print(paste("El valor del Área Bajo la Curva (AUC) es:", round(auc(roc_curva), 4)))
+@
+
 
 
 \newpage

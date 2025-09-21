@@ -61,7 +61,7 @@
 \usepackage{subcaption} % 2x2 graphs
 \usepackage{mwe}
 
-\usepackage{float} % [H] in graphics.
+\usepackage{float} % [H] in graphics
 
 \usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
 
@@ -575,19 +575,19 @@ Ambos modelos, logit y probit, coinciden; existe una fuerte evidencia estadísti
 Entre los cangrejos cacerola se sabe que cada hembra tiene un macho en su nido, pero puede tener más machos concubinos. Se considera que la variable respuesta es el número de concubinos y las variables explicativas son: color, estado de la espina central, peso y anchura del caparazón.
 \begin{verbatim}
 Color Spine Width Satellite Weight
-28.3  3     3     8         3050
-22.5  4     3     0         1550
-26.0  1     2     9         2300
-24.8  4     3     0         2100
-26.0  4     3     4         2600
-23.8  3     3     0         2100
-26.5  2     1     0         2350
+3     3     28.3  8         3050
+4     3     22.5  0         1550
+1     2     26.0  9         2300
+4     3     24.8  0         2100
+4     3     26.0  4         2600
+3     3     23.8  0         2100
+2     1     26.5  0         2350
 \end{verbatim}
 
 Realizar e interpretar los resultados de ajustar un modelo lineal generalizado tipo Poisson.
 \end{problem}
 
-\subsection*{\textbf{Solución:}}
+\subsection{\textbf{Solución:}}
 
 El objetivo es modelar el número de machos concubinos (satélites) de un cangrejo cacerola hembra en función de sus características físicas, utilizando únicamente la muestra de 7 observaciones proporcionada. Dado que la variable respuesta es un conteo, se utiliza un modelo lineal generalizado de tipo \textbf{Poisson}. 
 
@@ -772,25 +772,74 @@ Haciendo $\alpha = \log\left(\frac{p}{1-p}\right) + \frac{\mu_0^2 - \mu_1^2}{2\s
 %%%%%%%%%%% PROBLEMA 5 %%%%%%%%%%%
 \begin{problem}{Curva ROC para Daño Coronario}
 Construyan la curva ROC para el problema de daño coronario y su relación con la edad visto en la clase 3 del curso.
-\begin{verbatim}
-# Hosmer, D.W. & Lemeshow, S. (1989) Applied logistic regression. Wiley
-# Edad y Coronaria (daño significativo en coronaria)
-edad <- c(
-    20, 23, 24, 25, 25, 26, 26, 28, 28, 29, 30, 30, 30, 30, 30, 30, 
-    32, 32, 33, 33, 34, 34, 34, 34, 34, 35, 35, 36, 36, 36, 37, 37, 
-    37, 38, 38, 39, 39, 40, 40, 41, 41, 42, 42, 42, 42, 43, 43, 43, 
-    44, 44, 44, 44, 45, 45, 46, 46, 47, 47, 47, 48, 48, 48, 49, 49, 
-    49, 50, 50, 51, 52, 52, 53, 53, 54, 55, 55, 55, 56, 56, 56, 57, 
-    57, 57, 57, 57, 57, 58, 58, 58, 59, 59, 60, 60, 61, 62, 62, 63, 
-    64, 64, 65, 69)
-
-coro <- c(
-    0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,
-    0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,1,0,1,0,1,0,0,1,0,
-    1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,
-    0,1,1,1,1,1,0,1,1,1)
-\end{verbatim}
 \end{problem}
+
+\subsection{\textbf{Solución:}}
+
+Primero, cargamos los datos de edad y daño coronario. Las curvas ROC grafican las tasas $TPR$ vs $FPR$ para diferentes umbrales de clasificación de nuestro modelo logístico. Es por ello que esta vez nos interesan las probabilidades de tener daño coronario en función de la edad.os proporcionados
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{edad} \hlkwb{<-} \hlkwd{c}\hldef{(}
+    \hlnum{20}\hldef{,} \hlnum{23}\hldef{,} \hlnum{24}\hldef{,} \hlnum{25}\hldef{,} \hlnum{25}\hldef{,} \hlnum{26}\hldef{,} \hlnum{26}\hldef{,} \hlnum{28}\hldef{,} \hlnum{28}\hldef{,} \hlnum{29}\hldef{,} \hlnum{30}\hldef{,} \hlnum{30}\hldef{,} \hlnum{30}\hldef{,} \hlnum{30}\hldef{,} \hlnum{30}\hldef{,} \hlnum{30}\hldef{,}
+    \hlnum{32}\hldef{,} \hlnum{32}\hldef{,} \hlnum{33}\hldef{,} \hlnum{33}\hldef{,} \hlnum{34}\hldef{,} \hlnum{34}\hldef{,} \hlnum{34}\hldef{,} \hlnum{34}\hldef{,} \hlnum{34}\hldef{,} \hlnum{35}\hldef{,} \hlnum{35}\hldef{,} \hlnum{36}\hldef{,} \hlnum{36}\hldef{,} \hlnum{36}\hldef{,} \hlnum{37}\hldef{,} \hlnum{37}\hldef{,}
+    \hlnum{37}\hldef{,} \hlnum{38}\hldef{,} \hlnum{38}\hldef{,} \hlnum{39}\hldef{,} \hlnum{39}\hldef{,} \hlnum{40}\hldef{,} \hlnum{40}\hldef{,} \hlnum{41}\hldef{,} \hlnum{41}\hldef{,} \hlnum{42}\hldef{,} \hlnum{42}\hldef{,} \hlnum{42}\hldef{,} \hlnum{42}\hldef{,} \hlnum{43}\hldef{,} \hlnum{43}\hldef{,} \hlnum{43}\hldef{,}
+    \hlnum{44}\hldef{,} \hlnum{44}\hldef{,} \hlnum{44}\hldef{,} \hlnum{44}\hldef{,} \hlnum{45}\hldef{,} \hlnum{45}\hldef{,} \hlnum{46}\hldef{,} \hlnum{46}\hldef{,} \hlnum{47}\hldef{,} \hlnum{47}\hldef{,} \hlnum{47}\hldef{,} \hlnum{48}\hldef{,} \hlnum{48}\hldef{,} \hlnum{48}\hldef{,} \hlnum{49}\hldef{,} \hlnum{49}\hldef{,}
+    \hlnum{49}\hldef{,} \hlnum{50}\hldef{,} \hlnum{50}\hldef{,} \hlnum{51}\hldef{,} \hlnum{52}\hldef{,} \hlnum{52}\hldef{,} \hlnum{53}\hldef{,} \hlnum{53}\hldef{,} \hlnum{54}\hldef{,} \hlnum{55}\hldef{,} \hlnum{55}\hldef{,} \hlnum{55}\hldef{,} \hlnum{56}\hldef{,} \hlnum{56}\hldef{,} \hlnum{56}\hldef{,} \hlnum{57}\hldef{,}
+    \hlnum{57}\hldef{,} \hlnum{57}\hldef{,} \hlnum{57}\hldef{,} \hlnum{57}\hldef{,} \hlnum{57}\hldef{,} \hlnum{58}\hldef{,} \hlnum{58}\hldef{,} \hlnum{58}\hldef{,} \hlnum{59}\hldef{,} \hlnum{59}\hldef{,} \hlnum{60}\hldef{,} \hlnum{60}\hldef{,} \hlnum{61}\hldef{,} \hlnum{62}\hldef{,} \hlnum{62}\hldef{,} \hlnum{63}\hldef{,}
+    \hlnum{64}\hldef{,} \hlnum{64}\hldef{,} \hlnum{65}\hldef{,} \hlnum{69}\hldef{)}
+
+\hldef{coro} \hlkwb{<-} \hlkwd{c}\hldef{(}
+    \hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}
+    \hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}
+    \hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}
+    \hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{0}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{,}\hlnum{1}\hldef{)}
+
+\hldef{datos} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{edad} \hldef{= edad,} \hlkwc{coro} \hldef{= coro)}
+\hldef{modelo_logistico} \hlkwb{<-} \hlkwd{glm}\hldef{(coro} \hlopt{~} \hldef{edad,} \hlkwc{data} \hldef{= datos,} \hlkwc{family} \hldef{= binomial)}
+\hldef{probabilidades} \hlkwb{<-} \hlkwd{predict}\hldef{(modelo_logistico,} \hlkwc{type} \hldef{=} \hlsng{"response"}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Ahora, usamos la librería \texttt{pROC} para construir y graficar la curva ROC. El área bajo la curva (AUC) es una medida de qué tan bien el modelo discrimina entre las clases. Esta librería facilita el cálculo y la visualización de la curva ROC. La función \texttt{roc()} toma como entrada las respuestas reales y las probabilidades predichas por el modelo, y devuelve un objeto que contiene toda la información necesaria para graficar la curva ROC y calcular el AUC. En la figura \ref{fig:rocCurve} se muestra la curva ROC obtenida.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hldef{(pROC)}
+\hldef{roc_curva} \hlkwb{<-} \hlkwd{roc}\hldef{(}\hlkwc{response} \hldef{= datos}\hlopt{$}\hldef{coro,} \hlkwc{predictor} \hldef{= probabilidades)}\hlcom{#$}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hldef{(roc_curva,}
+     \hlkwc{lwd} \hldef{=} \hlnum{2}\hldef{,}         \hlcom{# Grosor de la línea}
+     \hlkwc{print.auc} \hldef{=} \hlnum{TRUE}\hldef{,} \hlcom{# Imprimir el valor del AUC en el gráfico}
+     \hlkwc{auc.polygon} \hldef{=} \hlnum{TRUE}\hldef{,} \hlcom{# Rellenar el área bajo la curva}
+     \hlkwc{auc.polygon.col} \hldef{=} \hlsng{"#dceafc"}\hldef{,}
+     \hlkwc{col}\hldef{=}\hlsng{"#1c61b6"}\hldef{,}
+     \hlkwc{xlab}\hldef{=}\hlsng{"Tasa de Falsos Positivos (FPR)"}\hldef{,}
+     \hlkwc{ylab}\hldef{=}\hlsng{"Tasa de Verdaderos Positivos (TPR)"}\hldef{,}
+\hldef{)}
+\hlkwd{abline}\hldef{(}\hlkwc{a}\hldef{=}\hlnum{0}\hldef{,} \hlkwc{b}\hldef{=}\hlnum{1}\hldef{,} \hlkwc{lty}\hldef{=}\hlnum{2}\hldef{,} \hlkwc{col}\hldef{=}\hlsng{"gray"}\hldef{)}
+\end{alltt}
+\end{kframe}\begin{figure}[t]
+
+{\centering \includegraphics[width=\maxwidth]{figure/rocCurve-1} 
+
+}
+
+\caption[Curva ROC del modelo logístico para Daño Coronario por Edad]{Curva ROC del modelo logístico para Daño Coronario por Edad}\label{fig:rocCurve}
+\end{figure}
+
+\end{knitrout}
+
+El valor del AUC es aproximadamente 0.8, lo que indica que el modelo tiene una buena capacidad para discriminar entre pacientes con y sin daño coronario basado en la edad. Un AUC de 0.5 indicaría que el modelo no tiene capacidad discriminativa (equivalente a adivinar al azar), mientras que un AUC de 1.0 indicaría una discriminación perfecta.
 
 
 \newpage
@@ -1043,25 +1092,174 @@ Los datos de la tabla son números, $n$, de pólizas de seguros y los correspond
 \textbf{CAR} & \textbf{EDAD} & \textbf{y} & \textbf{n} & \textbf{y} & \textbf{n} \\
 \hline
 1 & 1 & 65 & 317 & 2 & 20 \\
-1 & 2 & 65 & 476 & 33 & 5 \\
-1 & 3 & 52 & 486 & 40 & 4 \\
+1 & 2 & 65 & 476 & 5 & 33 \\
+1 & 3 & 52 & 486 & 4 & 40 \\
 1 & 4 & 310 & 3259 & 36 & 316 \\ \hline
-2 & 1 & 98 & 486 & 31 & 7 \\
-2 & 2 & 159 & 1004 & 81 & 10 \\
-2 & 3 & 175 & 1355 & 122 & 22 \\
-2 & 4 & 7660 & 877 & 102 & 724 \\ \hline
+2 & 1 & 98 & 486 & 7 & 31 \\
+2 & 2 & 159 & 1004 & 10 & 81 \\
+2 & 3 & 175 & 1355 & 22 & 122 \\
+2 & 4 & 877 & 7660 & 102 & 724 \\ \hline
 3 & 1 & 41 & 223 & 5 & 18 \\
 3 & 2 & 117 & 539 & 7 & 39 \\
-3 & 3 & 137 & 697 & 68 & 16 \\
-3 & 4 & 3442 & 477 & 344 & 63 \\ \hline
-4 & 1 & 40 & 11 & 3 & 0 \\
-4 & 2 & 148 & 35 & 6 & 16 \\
+3 & 3 & 137 & 697 & 16 & 68 \\
+3 & 4 & 477 & 3442 & 63 & 344 \\ \hline
+4 & 1 & 11 & 40 & 0 & 3 \\
+4 & 2 & 35 & 148 & 6 & 16 \\
 4 & 3 & 39 & 214 & 8 & 25 \\
-4 & 4 & 1019 & 167 & 33 & 114 \\
+4 & 4 & 167 & 1019 & 33 & 114 \\
 \hline
 \end{tabular}
 \end{center}
 \end{problem}
+
+\subsection{\textbf{Solución:}}
+
+\subsubsection*{Inciso a)}
+Primero, creamos el data frame con los datos proporcionados y calculamos la tasa de reclamos $y/n$ para cada categoría. Luego, graficamos estas tasas contra las diferentes variables para visualizar los efectos principales.
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{seguros}\hlopt{$}\hldef{tasa} \hlkwb{<-} \hldef{seguros}\hlopt{$}\hldef{y} \hlopt{/} \hldef{seguros}\hlopt{$}\hldef{n} \hlcom{# $Tasa de reclamos}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\maxwidth]{figure/p7_a_car-1} 
+
+}
+
+\caption[Tasa de reclamos vs Clase de Carro (CAR)]{Tasa de reclamos vs Clase de Carro (CAR)}\label{fig:p7_a_car}
+\end{figure}
+
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\maxwidth]{figure/p7_a_edad-1} 
+
+}
+
+\caption[Tasa de reclamos vs Grupo de Edad (EDAD)]{Tasa de reclamos vs Grupo de Edad (EDAD)}\label{fig:p7_a_edad}
+\end{figure}
+
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\maxwidth]{figure/p7_a_dist-1} 
+
+}
+
+\caption[Tasa de reclamos vs Grupo de Distrito (DIST)]{Tasa de reclamos vs Grupo de Distrito (DIST)}\label{fig:p7_a_dist}
+\end{figure}
+
+\end{knitrout}
+
+Las figuras \ref{fig:p7_a_car}, \ref{fig:p7_a_edad} y \ref{fig:p7_a_dist} muestran las tasas de reclamos en función de las variables CAR, EDAD y DIST, respectivamente. Se observa que la tasa de reclamos varía significativamente con la clase del carro (CAR) y la edad del titular (EDAD), mientras que la variación con el distrito (DIST) parece menos pronunciada. En particular, los carros de clase 4 y los titulares en el grupo de edad 1 muestran tasas de reclamos más altas, siguiendo una tendencia lineal en ambos casos.
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{modelo_inter_2do_orden} \hlkwb{<-} \hlkwd{glm}\hldef{(}
+    \hlkwd{cbind}\hldef{(y, n} \hlopt{-} \hldef{y)} \hlopt{~} \hldef{(}\hlkwd{as.factor}\hldef{(CAR)} \hlopt{+} \hlkwd{as.factor}\hldef{(EDAD)} \hlopt{+} \hlkwd{as.factor}\hldef{(DIST))}\hlopt{^}\hlnum{2}\hldef{,}
+    \hlkwc{data} \hldef{= seguros,}
+    \hlkwc{family} \hldef{= binomial)}
+
+\hlkwd{summary}\hldef{(modelo_inter_2do_orden)}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = cbind(y, n - y) ~ (as.factor(CAR) + as.factor(EDAD) + 
+##     as.factor(DIST))^2, family = binomial, data = seguros)
+## 
+## Coefficients:
+##                                   Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)                       -1.38483    0.13770 -10.057  < 2e-16 ***
+## as.factor(CAR)2                    0.02125    0.17520   0.121 0.903480    
+## as.factor(CAR)3                   -0.05980    0.21380  -0.280 0.779711    
+## as.factor(CAR)4                    0.28533    0.37617   0.759 0.448135    
+## as.factor(EDAD)2                  -0.43724    0.18875  -2.317 0.020531 *  
+## as.factor(EDAD)3                  -0.75621    0.19787  -3.822 0.000132 ***
+## as.factor(EDAD)4                  -0.86369    0.14909  -5.793 6.91e-09 ***
+## as.factor(DIST)1                  -0.15682    0.33540  -0.468 0.640092    
+## as.factor(CAR)2:as.factor(EDAD)2   0.12035    0.23275   0.517 0.605112    
+## as.factor(CAR)3:as.factor(EDAD)2   0.58884    0.26904   2.189 0.028623 *  
+## as.factor(CAR)4:as.factor(EDAD)2   0.40244    0.43647   0.922 0.356506    
+## as.factor(CAR)2:as.factor(EDAD)3   0.22430    0.23766   0.944 0.345265    
+## as.factor(CAR)3:as.factor(EDAD)3   0.78262    0.27158   2.882 0.003956 ** 
+## as.factor(CAR)4:as.factor(EDAD)3   0.35526    0.43381   0.819 0.412829    
+## as.factor(CAR)2:as.factor(EDAD)4   0.17951    0.18712   0.959 0.337404    
+## as.factor(CAR)3:as.factor(EDAD)4   0.48243    0.22577   2.137 0.032615 *  
+## as.factor(CAR)4:as.factor(EDAD)4   0.33333    0.38819   0.859 0.390522    
+## as.factor(CAR)2:as.factor(DIST)1   0.09790    0.18935   0.517 0.605148    
+## as.factor(CAR)3:as.factor(DIST)1   0.16050    0.20506   0.783 0.433805    
+## as.factor(CAR)4:as.factor(DIST)1   0.57313    0.24923   2.300 0.021469 *  
+## as.factor(EDAD)2:as.factor(DIST)1 -0.07595    0.37813  -0.201 0.840811    
+## as.factor(EDAD)3:as.factor(DIST)1  0.32584    0.35287   0.923 0.355799    
+## as.factor(EDAD)4:as.factor(DIST)1  0.31717    0.31831   0.996 0.319048    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 244.3272  on 31  degrees of freedom
+## Residual deviance:   6.4246  on  9  degrees of freedom
+## AIC: 214.35
+## 
+## Number of Fisher Scoring iterations: 4
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+En el modelo ajustado se utilizan todas las variables como categóricas, incluyendo las interacciones de segundo orden entre ellas. Podemos observar que solo 4 de los más de 15 coeficientes de segundo orden son estadísticamente significativos. Esto sugiere que las interacciones entre las variables no aportan información relevante para explicar la variabilidad en la tasa de reclamos. Además, los coeficientes de las variables CAR y EDAD muestran una tendencia lineal, lo que indica que estas variables podrían ser tratadas como continuas en lugar de categóricas.
+
+\subsubsection*{Inciso c)}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{modelo_sin_interacciones} \hlkwb{<-} \hlkwd{glm}\hldef{(}\hlkwd{cbind}\hldef{(y, n} \hlopt{-} \hldef{y)} \hlopt{~} \hldef{CAR} \hlopt{+} \hldef{EDAD} \hlopt{+} \hlkwd{as.factor}\hldef{(DIST),}
+                                 \hlkwc{data} \hldef{= seguros,}
+                                 \hlkwc{family} \hldef{= binomial)}
+\hlkwd{summary}\hldef{(modelo_sin_interacciones)}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = cbind(y, n - y) ~ CAR + EDAD + as.factor(DIST), 
+##     family = binomial, data = seguros)
+## 
+## Coefficients:
+##                  Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)      -1.66749    0.08748 -19.061  < 2e-16 ***
+## CAR               0.23168    0.02266  10.225  < 2e-16 ***
+## EDAD             -0.20967    0.02040 -10.278  < 2e-16 ***
+## as.factor(DIST)1  0.25891    0.06420   4.033  5.5e-05 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 244.327  on 31  degrees of freedom
+## Residual deviance:  30.086  on 28  degrees of freedom
+## AIC: 200.01
+## 
+## Number of Fisher Scoring iterations: 4
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Los coeficientes del nuevo modelo son todos estadísticamente significativos, lo que indica que cada una de las variables tiene un efecto relevante en la probabilidad de reclamo. En particular, los coeficientes de CAR y vivir en el distrito 1 son positivos, lo que sugiere que a medida que aumenta la clase del carro y si el titular vive en el distrito 1, la probabilidad de reclamo también aumenta. Por otro lado, el coeficiente negativo de EDAD indica que a medida que aumenta la edad del titular, la probabilidad de reclamo disminuye.
+
+También es importante destacar que la medida AIC del nuevo modelo (200) es menor en comparación con el modelo anterior (214), lo que sugiere que este modelo es más parsimonioso. Esto nos indica que, aunque el modelo anterior ajustaba mejor a los datos, el modelo reducido logra un buen desempeño con menos parámetros, lo que es preferible en términos de simplicidad y generalización.
 
 
 
@@ -1102,7 +1300,7 @@ Los datos de la tabla son números, $n$, de pólizas de seguros y los correspond
 \begin{problem}{Estimación por Mínima Ji-Cuadrada}
 El método de la mínima ji-cuadrada consiste en estimar $\theta$ mediante el valor que minimice el estadístico de Pearson:
 $$ \chi^{2}=\sum\frac{(\text{obs-esp})^{2}}{\text{esp}}=\sum_{j=1}^{K}\frac{(y_{j}-n\pi_{j}(\theta))^{2}}{n\pi_{j}(\theta)} $$
-Considere una población con tres categorías A, B y C. Se toman 3 muestras de tamaños $n_1, n_2, n_3$ y se registra:
+Considere una población muy grande con tres categorías A, B y C. Se toman 3 muestras de tamaños $n_1, n_2, n_3$ y se registra:
 \begin{itemize}
     \item Número de A's en la muestra de tamaño $n_{1}=y_{1}$
     \item Número de B's en la muestra de tamaño $n_{2}=y_{2}$
@@ -1113,8 +1311,94 @@ $$ \frac{(y_{1}-n_{1}\pi_{1})^{2}}{n_{1}\pi_{1}}+\frac{[(n_{1}-y_{1})-n_{1}(1-\p
 con la restricción $\pi_{3}=1-\pi_{1}-\pi_{2}$.
 \end{problem}
 
+\subsection{\textbf{Solución:}}
+
+Como el problema sugiere, utilizaremos la utilidad \texttt{nlminb()} de R para minimizar la función objetivo con la restricción dada. Primero, definimos la función objetivo que representa el estadístico de Pearson a minimizar.
 
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{minima_chi_cuadrada} \hlkwb{<-} \hlkwa{function}\hldef{(}\hlkwc{params}\hldef{) \{}
+  \hldef{pi1} \hlkwb{<-} \hldef{params[}\hlnum{1}\hldef{]}
+  \hldef{pi2} \hlkwb{<-} \hldef{params[}\hlnum{2}\hldef{]}
+  \hldef{pi3} \hlkwb{<-} \hlnum{1} \hlopt{-} \hldef{pi1} \hlopt{-} \hldef{pi2} \hlcom{# restriccion}
+
+  \hlcom{# penalizamos prob invalidas}
+  \hlkwa{if} \hldef{(pi1} \hlopt{<=} \hlnum{0} \hlopt{||} \hldef{pi1} \hlopt{>=} \hlnum{1} \hlopt{||} \hldef{pi2} \hlopt{<=} \hlnum{0} \hlopt{||} \hldef{pi2} \hlopt{>=} \hlnum{1} \hlopt{||} \hldef{pi3} \hlopt{<=} \hlnum{0} \hlopt{||} \hldef{pi3} \hlopt{>=} \hlnum{1}\hldef{) \{}
+    \hlkwd{return}\hldef{(}\hlnum{Inf}\hldef{)}
+  \hldef{\}}
+
+  \hldef{chi1} \hlkwb{<-} \hldef{(y1} \hlopt{-} \hldef{n1} \hlopt{*} \hldef{pi1)}\hlopt{^}\hlnum{2} \hlopt{/} \hldef{(n1} \hlopt{*} \hldef{pi1)} \hlopt{+}
+          \hldef{((n1}\hlopt{-}\hldef{y1)} \hlopt{-} \hldef{n1}\hlopt{*}\hldef{(}\hlnum{1}\hlopt{-}\hldef{pi1))}\hlopt{^}\hlnum{2} \hlopt{/} \hldef{(n1} \hlopt{*} \hldef{(}\hlnum{1} \hlopt{-} \hldef{pi1))}
+  \hldef{chi2} \hlkwb{<-} \hldef{(y2} \hlopt{-} \hldef{n2} \hlopt{*} \hldef{pi2)}\hlopt{^}\hlnum{2} \hlopt{/} \hldef{(n2} \hlopt{*} \hldef{pi2)} \hlopt{+}
+          \hldef{((n2}\hlopt{-}\hldef{y2)} \hlopt{-} \hldef{n2}\hlopt{*}\hldef{(}\hlnum{1}\hlopt{-}\hldef{pi2))}\hlopt{^}\hlnum{2} \hlopt{/} \hldef{(n2} \hlopt{*} \hldef{(}\hlnum{1} \hlopt{-} \hldef{pi2))}
+  \hldef{chi3} \hlkwb{<-} \hldef{(y3} \hlopt{-} \hldef{n3} \hlopt{*} \hldef{pi3)}\hlopt{^}\hlnum{2} \hlopt{/} \hldef{(n3} \hlopt{*} \hldef{pi3)} \hlopt{+}
+          \hldef{((n3}\hlopt{-}\hldef{y3)} \hlopt{-} \hldef{n3}\hlopt{*}\hldef{(}\hlnum{1}\hlopt{-}\hldef{pi3))}\hlopt{^}\hlnum{2} \hlopt{/} \hldef{(n3} \hlopt{*} \hldef{(}\hlnum{1} \hlopt{-} \hldef{pi3))}
+
+  \hlkwd{return}\hldef{(chi1} \hlopt{+} \hldef{chi2} \hlopt{+} \hldef{chi3)}
+\hldef{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Para utilizar \texttt{nlminb()}, necesitamos proporcionar un punto inicial para las probabilidades $\pi_1$ y $\pi_2$. Un punto inicial razonable podría ser $(y_1/n_1, y_2/n_2)$, que son las proporciones observadas en las muestras.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{iniciales} \hlkwb{<-} \hlkwd{c}\hldef{(y1}\hlopt{/}\hldef{n1, y2}\hlopt{/}\hldef{n2)}
+
+\hldef{resultado} \hlkwb{<-} \hlkwd{nlminb}\hldef{(}
+    \hlkwc{start} \hldef{= iniciales,}
+    \hlkwc{objective} \hldef{= minima_chi_cuadrada,}
+    \hlkwc{lower} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.0001}\hldef{,} \hlnum{0.0001}\hldef{),}
+    \hlkwc{upper} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.9999}\hldef{,} \hlnum{0.9999}\hldef{)}
+\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Donde finalmente obtuvimos los siguientes resultados:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{pi1_hat} \hlkwb{<-} \hldef{resultado}\hlopt{$}\hldef{par[}\hlnum{1}\hldef{]}
+\hldef{pi2_hat} \hlkwb{<-} \hldef{resultado}\hlopt{$}\hldef{par[}\hlnum{2}\hldef{]}
+\hldef{pi3_hat} \hlkwb{<-} \hlnum{1} \hlopt{-} \hldef{pi1_hat} \hlopt{-} \hldef{pi2_hat}
+
+\hlkwd{cat}\hldef{(}\hlsng{"Valor de Chi-Cuadrada Min:"}\hldef{,} \hlkwd{round}\hldef{(resultado}\hlopt{$}\hldef{objective,} \hlnum{4}\hldef{),} \hlsng{"\textbackslash{}n"}\hldef{)} \hlcom{#$}
+\end{alltt}
+\begin{verbatim}
+## Valor de Chi-Cuadrada Min: 0.5123
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cat}\hldef{(}\hlsng{"Pi 1 estimado:"}\hldef{,} \hlkwd{round}\hldef{(pi1_hat,} \hlnum{4}\hldef{),} \hlsng{"\textbackslash{}n"}\hldef{)}
+\end{alltt}
+\begin{verbatim}
+## Pi 1 estimado: 0.2395
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cat}\hldef{(}\hlsng{"Pi 2 estimado:"}\hldef{,} \hlkwd{round}\hldef{(pi2_hat,} \hlnum{4}\hldef{),} \hlsng{"\textbackslash{}n"}\hldef{)}
+\end{alltt}
+\begin{verbatim}
+## Pi 2 estimado: 0.3629
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cat}\hldef{(}\hlsng{"Pi 3 estimado:"}\hldef{,} \hlkwd{round}\hldef{(pi3_hat,} \hlnum{4}\hldef{),} \hlsng{"\textbackslash{}n"}\hldef{)}
+\end{alltt}
+\begin{verbatim}
+## Pi 3 estimado: 0.3976
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Por lo tanto, las estimaciones obtenidas mediante el método de la mínima ji-cuadrada son:
+\begin{itemize}
+    \item $\hat{\pi}_1 \approx 0.24$
+    \item $\hat{\pi}_2 \approx 0.36$
+    \item $\hat{\pi}_3 \approx 0.40$
+\end{itemize}
 
 \newpage
 
@@ -1159,19 +1443,57 @@ con la restricción $\pi_{3}=1-\pi_{1}-\pi_{2}$.
 Se analizan los datos del hundimiento del Titanic. Las variables son Class (1, 2, 3, Tripulación), Sex (Male, Female), Age (Child, Adult), y Survived (No, Yes). En R, usar la librería \texttt{titanic} y los datos del objeto \texttt{Titanic}.
 Considerar un modelo log-lineal para analizar los siguientes efectos y sus interacciones:
 \begin{itemize}
-    \item Class
-    \item Sex
-    \item Age
-    \item Survived
-    \item Class $\times$ Sex
-    \item Class $\times$ Age
-    \item Class $\times$ Survived
-    \item Sex $\times$ Age
-    \item Sex $\times$ Survived
-    \item Age $\times$ Survived
+    \item Class: Hay más pasajeros en algunas clases que en otras.
+    \item Sex: Hay más pasajeros de un sexo que de otro.
+    \item Age: Hay más pasajeros de un grupo de edad que de otro.
+    \item Survived: Hay más pasajeros que sobrevivieron que los que no.
+    \item Class $\times$ Sex: Class y Sex no son independientes.
+    \item Class $\times$ Age: Class y Age no son independientes.
+    \item Class $\times$ Survived: Class y Survived no son independientes.
+    \item Sex $\times$ Age: Sex y Age no son independientes.
+    \item Sex $\times$ Survived: Sex y Survived no son independientes.
+    \item Age $\times$ Survived: Age y Survived no son independientes.
     \item Interacciones triples y cuádruples.
 \end{itemize}
 \end{problem}
+
+\subsection{\textbf{Solución:}}
+
+
+
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|l|rrr|}
+\hline
+\textbf{Modelo} & \textbf{$\chi^2$} & \textbf{gl} & \textbf{p-valor} \\
+\hline
+Class & 5901.080 & 28 & 0.000 \\
+Sex & 5513.260 & 30 & 0.000 \\
+Age & 3647.270 & 30 & 0.000 \\
+Survived & 6508.320 & 30 & 0.000 \\
+Class x Sex & 3358.040 & 24 & 0.000 \\
+Class x Age & 2164.370 & 24 & 0.000 \\
+Class x Survived & 4354.000 & 24 & 0.000 \\
+Sex x Age & 2140.470 & 28 & 0.000 \\
+Sex x Survived & 3836.730 & 28 & 0.000 \\
+Age x Survived & 2668.090 & 28 & 0.000 \\
+Class x Sex x Age & 844.370 & 16 & 0.000 \\
+Class x Sex x Survived & 1832.180 & 16 & 0.000 \\
+Class x Age x Survived & 1303.150 & 16 & 0.000 \\
+Sex x Age x Survived & 1266.570 & 24 & 0.000 \\
+Independencia & 1637.450 & 25 & 0.000 \\
+Interacciones 2do Orden & 109.650 & 13 & 0.000 \\
+Interacciones 3er Orden & 0.000 & 3 & 1.000 \\
+\hline
+\end{tabular}
+\caption{Análisis de Bondad de Ajuste para Modelos Log-Lineales del Titanic.}
+\label{tab:resumen_modelos}
+\end{table}
+
+En la tabla \ref{tab:resumen_modelos} se resumen los resultados de los modelos ajustados, incluyendo el estadístico de Chi-cuadrado de Pearson, los grados de libertad y el p-valor asociado para cada modelo. Los resultados indican que todos los modelos, excepto el de interacciones de tercer orden, tienen p-valores nulos, lo que sugiere que estos modelos no se ajustan bien a los datos. Todos los modelos con interacciones de segundo orden para abajo son rechazados categóricamente (incluso los que consideran las interacciones de tercer orden aisladas). Ninguno de ellos, por si solo, es capaz de explicar la compleja estructura de dependencias en los datos. 
+
+No obstante, el modelo con interacciones de tercer orden tiene un p-valor de 1, lo que indica un excelente ajuste a los datos, lo que sugiere que este modelo captura adecuadamente las relaciones entre las variables. Por lo tanto, se concluye que el modelo con interacciones de tercer orden es el más adecuado para describir los datos del Titanic entre los modelos considerados.
 
 
 \newpage
@@ -1223,7 +1545,51 @@ Totales & 48 & 231 & 279 \\
 Aplicar un modelo lineal para determinar si existe evidencia suficiente para asegurar que el ácido ascórbico ayuda a tener menos gripe.
 \end{problem}
 
+\subsection{\textbf{Solución:}}
 
+Utilizaremos la regresión logística para modelar la probabilidad de contraer gripe en función del tratamiento recibido (Placebo o Ácido Ascórbico).
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = cbind(gripe, no_gripe) ~ tratamiento, family = binomial(link = "logit"), 
+##     data = datos)
+## 
+## Coefficients:
+##                            Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)                 -1.2574     0.2035  -6.177 6.53e-10 ***
+## tratamientoAcido Ascorbico  -0.7134     0.3293  -2.166   0.0303 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 4.8717e+00  on 1  degrees of freedom
+## Residual deviance: 7.5495e-15  on 0  degrees of freedom
+## AIC: 13.578
+## 
+## Number of Fisher Scoring iterations: 3
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+El modelo resultante confirma que existe una asociación estadísticamente significativa entre el tratamiendo y la incidencia de gripe, con un p-valor de 0.0303. Los coeficientes revelan información acerca del efecto del ácido ascórbico en comparación con el placebo.
+
+\begin{itemize}
+    \item \textbf{Intercepto}: -1.2574. Este valor representa el logaritmo de las probabilidades de contraer gripe en el grupo de referencia, el cual es Placebo. La probabilidad correspondiente es:
+    $$ \frac{e^{-1.2574}}{1 + e^{-1.2574}} \approx 0.222 \quad (\text{o 22.2\%}) $$
+
+    \item \textbf{Tratamiento (Ácido Ascórbico)}: -0.7134. Este coeficiente indica que el log-odds de contraer gripe en el grupo de ácido ascórbico es 0.7134 unidades \textbf{menor} que en el grupo de placebo. Para hallar la probabilidad de este grupo, primero calculamos su log-odds total:
+    \begin{itemize}
+        \item \textit{Log-odds total:} $-1.2574 + (-0.7134) = -1.9708$.
+        \item \textit{Probabilidad:} La probabilidad de gripe para el grupo con ácido ascórbico es:
+              $$ \frac{e^{-1.9708}}{1 + e^{-1.9708}} \approx 0.122 \quad (\text{o 12.2\%}) $$
+    \end{itemize}
+    Una forma más directa de interpretar el coeficiente es con el odds ratio: $e^{-0.7134} \approx 0.49$. Esto significa que las probabilidades de contraer gripe tomando ácido ascórbico son del 49\% de las probabilidades del grupo placebo (una reducción del 51\% en las probabilidades). Por lo tanto, hay evidencia estadística que sugiere que el ácido ascórbico tiene un efecto protector contra la gripe.
+\end{itemize}
 
 
 % \nocite{*}

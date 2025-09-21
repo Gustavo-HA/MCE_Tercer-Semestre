@@ -473,13 +473,13 @@ Ambos modelos, logit y probit, coinciden; existe una fuerte evidencia estadísti
 Entre los cangrejos cacerola se sabe que cada hembra tiene un macho en su nido, pero puede tener más machos concubinos. Se considera que la variable respuesta es el número de concubinos y las variables explicativas son: color, estado de la espina central, peso y anchura del caparazón.
 \begin{verbatim}
 Color Spine Width Satellite Weight
-28.3  3     3     8         3050
-22.5  4     3     0         1550
-26.0  1     2     9         2300
-24.8  4     3     0         2100
-26.0  4     3     4         2600
-23.8  3     3     0         2100
-26.5  2     1     0         2350
+3     3     28.3  8         3050
+4     3     22.5  0         1550
+1     2     26.0  9         2300
+4     3     24.8  0         2100
+4     3     26.0  4         2600
+3     3     23.8  0         2100
+2     1     26.5  0         2350
 \end{verbatim}
 
 Realizar e interpretar los resultados de ajustar un modelo lineal generalizado tipo Poisson.
@@ -642,14 +642,9 @@ Construyan la curva ROC para el problema de daño coronario y su relación con l
 
 \subsection{\textbf{Solución:}}
 
+Primero, cargamos los datos de edad y daño coronario. Las curvas ROC grafican las tasas $TPR$ vs $FPR$ para diferentes umbrales de clasificación de nuestro modelo logístico. Es por ello que esta vez nos interesan las probabilidades de tener daño coronario en función de la edad.os proporcionados
+
 <<>>=
-# Si no tienes instalada la librería pROC, primero ejecutas esta línea:
-# install.packages("pROC")
-
-# 1. Cargar la librería necesaria
-library(pROC)
-
-# 2. Definir los datos proporcionados
 edad <- c(
     20, 23, 24, 25, 25, 26, 26, 28, 28, 29, 30, 30, 30, 30, 30, 30, 
     32, 32, 33, 33, 34, 34, 34, 34, 34, 35, 35, 36, 36, 36, 37, 37, 
@@ -665,36 +660,32 @@ coro <- c(
     1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,
     0,1,1,1,1,1,0,1,1,1)
 
-# Es una buena práctica trabajar con data frames
 datos <- data.frame(edad = edad, coro = coro)
-
-# 3. Ajustar el modelo de regresión logística
-# La variable 'coro' es la dependiente y 'edad' la independiente
 modelo_logistico <- glm(coro ~ edad, data = datos, family = binomial)
-
-# 4. Obtener las probabilidades predichas por el modelo
 probabilidades <- predict(modelo_logistico, type = "response")
+@
 
-# 5. Calcular la curva ROC
-# Se necesita la respuesta verdadera (datos$coro) y el predictor (las probabilidades)
-roc_curva <- roc(response = datos$coro, predictor = probabilidades)
+Ahora, usamos la librería \texttt{pROC} para construir y graficar la curva ROC. El área bajo la curva (AUC) es una medida de qué tan bien el modelo discrimina entre las clases. Esta librería facilita el cálculo y la visualización de la curva ROC. La función \texttt{roc()} toma como entrada las respuestas reales y las probabilidades predichas por el modelo, y devuelve un objeto que contiene toda la información necesaria para graficar la curva ROC y calcular el AUC. En la figura \ref{fig:rocCurve} se muestra la curva ROC obtenida.
 
-# 6. Graficar la curva ROC
+<<>>=
+library(pROC)
+roc_curva <- roc(response = datos$coro, predictor = probabilidades)#$
+@
+
+<<rocCurve, fig.pos='t', fig.height=4, fig.width=4, fig.cap="Curva ROC del modelo logístico para Daño Coronario por Edad", fig.align='center'>>=
 plot(roc_curva, 
-     main = "Curva ROC para Daño Coronario por Edad", 
-     col = "#1c61b6", # Color de la línea
      lwd = 2,         # Grosor de la línea
      print.auc = TRUE, # Imprimir el valor del AUC en el gráfico
      auc.polygon = TRUE, # Rellenar el área bajo la curva
-     auc.polygon.col = "#dceafc") # Color del área
-
-# Añadir una línea de referencia (clasificador aleatorio)
+     auc.polygon.col = "#dceafc",
+     col="#1c61b6",
+     xlab="Tasa de Falsos Positivos (FPR)",
+     ylab="Tasa de Verdaderos Positivos (TPR)",
+)
 abline(a=0, b=1, lty=2, col="gray")
-
-# Imprimir el valor del AUC en la consola
-print(paste("El valor del Área Bajo la Curva (AUC) es:", round(auc(roc_curva), 4)))
 @
 
+El valor del AUC es aproximadamente 0.8, lo que indica que el modelo tiene una buena capacidad para discriminar entre pacientes con y sin daño coronario basado en la edad. Un AUC de 0.5 indicaría que el modelo no tiene capacidad discriminativa (equivalente a adivinar al azar), mientras que un AUC de 1.0 indicaría una discriminación perfecta.
 
 
 \newpage
@@ -895,25 +886,94 @@ Los datos de la tabla son números, $n$, de pólizas de seguros y los correspond
 \textbf{CAR} & \textbf{EDAD} & \textbf{y} & \textbf{n} & \textbf{y} & \textbf{n} \\
 \hline
 1 & 1 & 65 & 317 & 2 & 20 \\
-1 & 2 & 65 & 476 & 33 & 5 \\
-1 & 3 & 52 & 486 & 40 & 4 \\
+1 & 2 & 65 & 476 & 5 & 33 \\
+1 & 3 & 52 & 486 & 4 & 40 \\
 1 & 4 & 310 & 3259 & 36 & 316 \\ \hline
-2 & 1 & 98 & 486 & 31 & 7 \\
-2 & 2 & 159 & 1004 & 81 & 10 \\
-2 & 3 & 175 & 1355 & 122 & 22 \\
-2 & 4 & 7660 & 877 & 102 & 724 \\ \hline
+2 & 1 & 98 & 486 & 7 & 31 \\
+2 & 2 & 159 & 1004 & 10 & 81 \\
+2 & 3 & 175 & 1355 & 22 & 122 \\
+2 & 4 & 877 & 7660 & 102 & 724 \\ \hline
 3 & 1 & 41 & 223 & 5 & 18 \\
 3 & 2 & 117 & 539 & 7 & 39 \\
-3 & 3 & 137 & 697 & 68 & 16 \\
-3 & 4 & 3442 & 477 & 344 & 63 \\ \hline
-4 & 1 & 40 & 11 & 3 & 0 \\
-4 & 2 & 148 & 35 & 6 & 16 \\
+3 & 3 & 137 & 697 & 16 & 68 \\
+3 & 4 & 477 & 3442 & 63 & 344 \\ \hline
+4 & 1 & 11 & 40 & 0 & 3 \\
+4 & 2 & 35 & 148 & 6 & 16 \\
 4 & 3 & 39 & 214 & 8 & 25 \\
-4 & 4 & 1019 & 167 & 33 & 114 \\
+4 & 4 & 167 & 1019 & 33 & 114 \\
 \hline
 \end{tabular}
 \end{center}
 \end{problem}
+
+\subsection{\textbf{Solución:}}
+
+\subsubsection*{Inciso a)}
+Primero, creamos el data frame con los datos proporcionados y calculamos la tasa de reclamos $y/n$ para cada categoría. Luego, graficamos estas tasas contra las diferentes variables para visualizar los efectos principales.
+
+<<echo=F>>=
+library(ggplot2)
+seguros <- data.frame(
+  CAR = rep(1:4, each = 8),
+  EDAD = rep(rep(1:4, each = 2), 4),
+  DIST = rep(0:1, 16),
+  y = c(65, 2, 65, 5, 52, 4, 310, 36,      # CAR 1
+        98, 7, 159, 10, 175, 22, 877, 102,  # CAR 2
+        41, 5, 117, 7, 137, 16, 477, 63,     # CAR 3
+        11, 0, 35, 6, 39, 8, 167, 33),     # CAR 4
+  n = c(317, 20, 476, 33, 486, 40, 3259, 316,
+        486, 31, 1004, 81, 1355, 122, 7660, 724,
+        223, 18, 539, 39, 697, 68, 3442, 344,
+        40, 3, 148, 16, 214, 25, 1019, 114)
+)
+@
+<<>>=
+seguros$tasa <- seguros$y / seguros$n # $Tasa de reclamos
+@
+
+<<p7_a_car, echo=F, fig.pos='H', fig.height=2, fig.width=3, fig.cap="Tasa de reclamos vs Clase de Carro (CAR)", fig.align='center'>>=
+ggplot(seguros, aes(x = as.factor(CAR), y = tasa)) +
+  geom_boxplot(fill = "skyblue") +
+  labs(x = "CAR", y = "Tasa de Reclamos")
+@
+
+<<p7_a_edad, echo=F, fig.pos='H', fig.height=2, fig.width=3, fig.cap="Tasa de reclamos vs Grupo de Edad (EDAD)", fig.align='center'>>=
+ggplot(seguros, aes(x = as.factor(EDAD), y = tasa)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(x = "EDAD", y = "Tasa de Reclamos")
+@
+
+<<p7_a_dist, echo=F, fig.pos='H', fig.height=2, fig.width=3, fig.cap="Tasa de reclamos vs Grupo de Distrito (DIST)", fig.align='center'>>=
+ggplot(seguros, aes(x = as.factor(DIST), y = tasa)) +
+  geom_boxplot(fill = "salmon") +
+  labs(x = "DIST", y = "Tasa de Reclamos")
+@
+
+Las figuras \ref{fig:p7_a_car}, \ref{fig:p7_a_edad} y \ref{fig:p7_a_dist} muestran las tasas de reclamos en función de las variables CAR, EDAD y DIST, respectivamente. Se observa que la tasa de reclamos varía significativamente con la clase del carro (CAR) y la edad del titular (EDAD), mientras que la variación con el distrito (DIST) parece menos pronunciada. En particular, los carros de clase 4 y los titulares en el grupo de edad 1 muestran tasas de reclamos más altas, siguiendo una tendencia lineal en ambos casos.
+
+
+<<>>=
+modelo_inter_2do_orden <- glm(
+    cbind(y, n - y) ~ (as.factor(CAR) + as.factor(EDAD) + as.factor(DIST))^2,
+    data = seguros,
+    family = binomial)
+
+summary(modelo_inter_2do_orden)
+@
+
+En el modelo ajustado se utilizan todas las variables como categóricas, incluyendo las interacciones de segundo orden entre ellas. Podemos observar que solo 4 de los más de 15 coeficientes de segundo orden son estadísticamente significativos. Esto sugiere que las interacciones entre las variables no aportan información relevante para explicar la variabilidad en la tasa de reclamos. Además, los coeficientes de las variables CAR y EDAD muestran una tendencia lineal, lo que indica que estas variables podrían ser tratadas como continuas en lugar de categóricas.
+
+\subsubsection*{Inciso c)}
+<<>>=
+modelo_sin_interacciones <- glm(cbind(y, n - y) ~ CAR + EDAD + as.factor(DIST),
+                                 data = seguros,
+                                 family = binomial)
+summary(modelo_sin_interacciones)
+@
+
+Los coeficientes del nuevo modelo son todos estadísticamente significativos, lo que indica que cada una de las variables tiene un efecto relevante en la probabilidad de reclamo. En particular, los coeficientes de CAR y vivir en el distrito 1 son positivos, lo que sugiere que a medida que aumenta la clase del carro y si el titular vive en el distrito 1, la probabilidad de reclamo también aumenta. Por otro lado, el coeficiente negativo de EDAD indica que a medida que aumenta la edad del titular, la probabilidad de reclamo disminuye.
+
+También es importante destacar que la medida AIC del nuevo modelo (200) es menor en comparación con el modelo anterior (214), lo que sugiere que este modelo es más parsimonioso. Esto nos indica que, aunque el modelo anterior ajustaba mejor a los datos, el modelo reducido logra un buen desempeño con menos parámetros, lo que es preferible en términos de simplicidad y generalización.
 
 
 
@@ -954,7 +1014,7 @@ Los datos de la tabla son números, $n$, de pólizas de seguros y los correspond
 \begin{problem}{Estimación por Mínima Ji-Cuadrada}
 El método de la mínima ji-cuadrada consiste en estimar $\theta$ mediante el valor que minimice el estadístico de Pearson:
 $$ \chi^{2}=\sum\frac{(\text{obs-esp})^{2}}{\text{esp}}=\sum_{j=1}^{K}\frac{(y_{j}-n\pi_{j}(\theta))^{2}}{n\pi_{j}(\theta)} $$
-Considere una población con tres categorías A, B y C. Se toman 3 muestras de tamaños $n_1, n_2, n_3$ y se registra:
+Considere una población muy grande con tres categorías A, B y C. Se toman 3 muestras de tamaños $n_1, n_2, n_3$ y se registra:
 \begin{itemize}
     \item Número de A's en la muestra de tamaño $n_{1}=y_{1}$
     \item Número de B's en la muestra de tamaño $n_{2}=y_{2}$
@@ -965,8 +1025,68 @@ $$ \frac{(y_{1}-n_{1}\pi_{1})^{2}}{n_{1}\pi_{1}}+\frac{[(n_{1}-y_{1})-n_{1}(1-\p
 con la restricción $\pi_{3}=1-\pi_{1}-\pi_{2}$.
 \end{problem}
 
+\subsection{\textbf{Solución:}}
 
+Como el problema sugiere, utilizaremos la utilidad \texttt{nlminb()} de R para minimizar la función objetivo con la restricción dada. Primero, definimos la función objetivo que representa el estadístico de Pearson a minimizar.
 
+<<echo=F>>=
+y1 <- 22; n1 <- 100
+y2 <- 52; n2 <- 150
+y3 <- 77; n3 <- 200
+@
+<<>>=
+minima_chi_cuadrada <- function(params) {
+  pi1 <- params[1]
+  pi2 <- params[2]
+  pi3 <- 1 - pi1 - pi2 # restriccion
+  
+  # penalizamos prob invalidas
+  if (pi1 <= 0 || pi1 >= 1 || pi2 <= 0 || pi2 >= 1 || pi3 <= 0 || pi3 >= 1) {
+    return(Inf)
+  }
+
+  chi1 <- (y1 - n1 * pi1)^2 / (n1 * pi1) + 
+          ((n1-y1) - n1*(1-pi1))^2 / (n1 * (1 - pi1))
+  chi2 <- (y2 - n2 * pi2)^2 / (n2 * pi2) + 
+          ((n2-y2) - n2*(1-pi2))^2 / (n2 * (1 - pi2))
+  chi3 <- (y3 - n3 * pi3)^2 / (n3 * pi3) + 
+          ((n3-y3) - n3*(1-pi3))^2 / (n3 * (1 - pi3))
+
+  return(chi1 + chi2 + chi3)
+}
+@
+
+Para utilizar \texttt{nlminb()}, necesitamos proporcionar un punto inicial para las probabilidades $\pi_1$ y $\pi_2$. Un punto inicial razonable podría ser $(y_1/n_1, y_2/n_2)$, que son las proporciones observadas en las muestras.
+
+<<>>=
+iniciales <- c(y1/n1, y2/n2)
+
+resultado <- nlminb(
+    start = iniciales,
+    objective = minima_chi_cuadrada,
+    lower = c(0.0001, 0.0001),
+    upper = c(0.9999, 0.9999)
+)
+@
+
+Donde finalmente obtuvimos los siguientes resultados:
+<<>>=
+pi1_hat <- resultado$par[1]
+pi2_hat <- resultado$par[2]
+pi3_hat <- 1 - pi1_hat - pi2_hat
+
+cat("Valor de Chi-Cuadrada Min:", round(resultado$objective, 4), "\n") #$
+cat("Pi 1 estimado:", round(pi1_hat, 4), "\n")
+cat("Pi 2 estimado:", round(pi2_hat, 4), "\n")
+cat("Pi 3 estimado:", round(pi3_hat, 4), "\n")
+@
+
+Por lo tanto, las estimaciones obtenidas mediante el método de la mínima ji-cuadrada son:
+\begin{itemize}
+    \item $\hat{\pi}_1 \approx 0.24$
+    \item $\hat{\pi}_2 \approx 0.36$
+    \item $\hat{\pi}_3 \approx 0.40$
+\end{itemize}
 
 \newpage
 
@@ -1011,19 +1131,124 @@ con la restricción $\pi_{3}=1-\pi_{1}-\pi_{2}$.
 Se analizan los datos del hundimiento del Titanic. Las variables son Class (1, 2, 3, Tripulación), Sex (Male, Female), Age (Child, Adult), y Survived (No, Yes). En R, usar la librería \texttt{titanic} y los datos del objeto \texttt{Titanic}.
 Considerar un modelo log-lineal para analizar los siguientes efectos y sus interacciones:
 \begin{itemize}
-    \item Class
-    \item Sex
-    \item Age
-    \item Survived
-    \item Class $\times$ Sex
-    \item Class $\times$ Age
-    \item Class $\times$ Survived
-    \item Sex $\times$ Age
-    \item Sex $\times$ Survived
-    \item Age $\times$ Survived
+    \item Class: Hay más pasajeros en algunas clases que en otras.
+    \item Sex: Hay más pasajeros de un sexo que de otro.
+    \item Age: Hay más pasajeros de un grupo de edad que de otro.
+    \item Survived: Hay más pasajeros que sobrevivieron que los que no.
+    \item Class $\times$ Sex: Class y Sex no son independientes.
+    \item Class $\times$ Age: Class y Age no son independientes.
+    \item Class $\times$ Survived: Class y Survived no son independientes.
+    \item Sex $\times$ Age: Sex y Age no son independientes.
+    \item Sex $\times$ Survived: Sex y Survived no son independientes.
+    \item Age $\times$ Survived: Age y Survived no son independientes.
     \item Interacciones triples y cuádruples.
 \end{itemize}
 \end{problem}
+
+\subsection{\textbf{Solución:}}
+
+<<include=F>>=
+library(titanic)
+@
+<<include=F>>=
+titanic_df <- as.data.frame(Titanic)
+
+
+# --- A) Modelos de variables aisladas ---
+mod_C <- glm(Freq ~ Class, data = titanic_df, family = poisson)
+mod_S <- glm(Freq ~ Sex, data = titanic_df, family = poisson)
+mod_A <- glm(Freq ~ Age, data = titanic_df, family = poisson)
+mod_V <- glm(Freq ~ Survived, data = titanic_df, family = poisson)
+
+# --- B) Modelos de pares de variables aislados ---
+mod_CS <- glm(Freq ~ Class * Sex, data = titanic_df, family = poisson)
+mod_CA <- glm(Freq ~ Class * Age, data = titanic_df, family = poisson)
+mod_CV <- glm(Freq ~ Class * Survived, data = titanic_df, family = poisson)
+mod_SA <- glm(Freq ~ Sex * Age, data = titanic_df, family = poisson)
+mod_SV <- glm(Freq ~ Sex * Survived, data = titanic_df, family = poisson)
+mod_AV <- glm(Freq ~ Age * Survived, data = titanic_df, family = poisson)
+
+# --- C) Modelos de tercias de variables aisladas ---
+mod_CSA <- glm(Freq ~ Class * Sex * Age, data = titanic_df, family = poisson)
+mod_CSV <- glm(Freq ~ Class * Sex * Survived, data = titanic_df, family = poisson)
+mod_CAV <- glm(Freq ~ Class * Age * Survived, data = titanic_df, family = poisson)
+mod_SAV <- glm(Freq ~ Sex * Age * Survived, data = titanic_df, family = poisson)
+
+# --- D) Modelos Jerárquicos Completos ---
+mod_indep <- glm(Freq ~ Class + Sex + Age + Survived, data = titanic_df, family = poisson)
+mod_2way <- glm(Freq ~ (Class + Sex + Age + Survived)^2, data = titanic_df, family = poisson)
+mod_3way <- glm(Freq ~ (Class + Sex + Age + Survived)^3, data = titanic_df, family = poisson)
+
+lista_modelos <- list(
+  # Aislados
+  "Class" = mod_C, "Sex" = mod_S, "Age" = mod_A, "Survived" = mod_V,
+  # Pares
+  "Class x Sex" = mod_CS, "Class x Age" = mod_CA, "Class x Survived" = mod_CV,
+  "Sex x Age" = mod_SA, "Sex x Survived" = mod_SV, "Age x Survived" = mod_AV,
+  # Tercias
+  "Class x Sex x Age" = mod_CSA, "Class x Sex x Survived" = mod_CSV,
+  "Class x Age x Survived" = mod_CAV, "Sex x Age x Survived" = mod_SAV,
+  # Jerárquicos
+  "Independencia" = mod_indep,
+  "Interacciones 2do Orden" = mod_2way,
+  "Interacciones 3er Orden" = mod_3way
+)
+
+tabla_resumen <- data.frame()
+
+for (nombre in names(lista_modelos)) {
+  modelo <- lista_modelos[[nombre]]
+  
+  # Calcular Chi-cuadrado de Pearson
+  chi2 <- sum(residuals(modelo, type = "pearson")^2)
+  # Extraer grados de libertad
+  gl <- df.residual(modelo)
+  # Calcular p-valor (evitar p-valor para gl=0)
+  p_valor <- if (gl > 0) pchisq(chi2, df = gl, lower.tail = FALSE) else NA
+  
+  # Añadir a la tabla
+  tabla_resumen <- rbind(tabla_resumen, 
+                         data.frame(Modelo = nombre,
+                                    `chi2` = round(chi2, 2),
+                                    gl = gl,
+                                    `p-valor` = p_valor))
+}
+
+print(tabla_resumen)
+@
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|l|rrr|}
+\hline
+\textbf{Modelo} & \textbf{$\chi^2$} & \textbf{gl} & \textbf{p-valor} \\
+\hline
+Class & 5901.080 & 28 & 0.000 \\
+Sex & 5513.260 & 30 & 0.000 \\
+Age & 3647.270 & 30 & 0.000 \\
+Survived & 6508.320 & 30 & 0.000 \\
+Class x Sex & 3358.040 & 24 & 0.000 \\
+Class x Age & 2164.370 & 24 & 0.000 \\
+Class x Survived & 4354.000 & 24 & 0.000 \\
+Sex x Age & 2140.470 & 28 & 0.000 \\
+Sex x Survived & 3836.730 & 28 & 0.000 \\
+Age x Survived & 2668.090 & 28 & 0.000 \\
+Class x Sex x Age & 844.370 & 16 & 0.000 \\
+Class x Sex x Survived & 1832.180 & 16 & 0.000 \\
+Class x Age x Survived & 1303.150 & 16 & 0.000 \\
+Sex x Age x Survived & 1266.570 & 24 & 0.000 \\
+Independencia & 1637.450 & 25 & 0.000 \\
+Interacciones 2do Orden & 109.650 & 13 & 0.000 \\
+Interacciones 3er Orden & 0.000 & 3 & 1.000 \\
+\hline
+\end{tabular}
+\caption{Análisis de Bondad de Ajuste para Modelos Log-Lineales del Titanic.}
+\label{tab:resumen_modelos}
+\end{table}
+
+En la tabla \ref{tab:resumen_modelos} se resumen los resultados de los modelos ajustados, incluyendo el estadístico de Chi-cuadrado de Pearson, los grados de libertad y el p-valor asociado para cada modelo. Los resultados indican que todos los modelos, excepto el de interacciones de tercer orden, tienen p-valores nulos, lo que sugiere que estos modelos no se ajustan bien a los datos. Todos los modelos con interacciones de segundo orden para abajo son rechazados categóricamente (incluso los que consideran las interacciones de tercer orden aisladas). Ninguno de ellos, por si solo, es capaz de explicar la compleja estructura de dependencias en los datos. 
+
+No obstante, el modelo con interacciones de tercer orden tiene un p-valor de 1, lo que indica un excelente ajuste a los datos, lo que sugiere que este modelo captura adecuadamente las relaciones entre las variables. Por lo tanto, se concluye que el modelo con interacciones de tercer orden es el más adecuado para describir los datos del Titanic entre los modelos considerados.
 
 
 \newpage
@@ -1075,7 +1300,39 @@ Totales & 48 & 231 & 279 \\
 Aplicar un modelo lineal para determinar si existe evidencia suficiente para asegurar que el ácido ascórbico ayuda a tener menos gripe.
 \end{problem}
 
+\subsection{\textbf{Solución:}}
 
+Utilizaremos la regresión logística para modelar la probabilidad de contraer gripe en función del tratamiento recibido (Placebo o Ácido Ascórbico).
+
+<<include=F>>=
+datos <- data.frame(
+  tratamiento = factor(c("Placebo", "Acido Ascorbico")),
+  gripe = c(31, 17),       # Número de "éxitos" (casos de gripe)
+  no_gripe = c(109, 122)   # Número de "fracasos" (casos sin gripe)
+)
+datos$tratamiento <- relevel(datos$tratamiento, ref = "Placebo")
+modelo <- glm(cbind(gripe, no_gripe) ~ tratamiento, 
+              data = datos, 
+              family = binomial(link = "logit"))
+@
+<<echo=F>>=
+summary(modelo)
+@
+
+El modelo resultante confirma que existe una asociación estadísticamente significativa entre el tratamiendo y la incidencia de gripe, con un p-valor de 0.0303. Los coeficientes revelan información acerca del efecto del ácido ascórbico en comparación con el placebo.
+
+\begin{itemize}
+    \item \textbf{Intercepto}: -1.2574. Este valor representa el logaritmo de las probabilidades de contraer gripe en el grupo de referencia, el cual es Placebo. La probabilidad correspondiente es:
+    $$ \frac{e^{-1.2574}}{1 + e^{-1.2574}} \approx 0.222 \quad (\text{o 22.2\%}) $$
+
+    \item \textbf{Tratamiento (Ácido Ascórbico)}: -0.7134. Este coeficiente indica que el log-odds de contraer gripe en el grupo de ácido ascórbico es 0.7134 unidades \textbf{menor} que en el grupo de placebo. Para hallar la probabilidad de este grupo, primero calculamos su log-odds total:
+    \begin{itemize}
+        \item \textit{Log-odds total:} $-1.2574 + (-0.7134) = -1.9708$.
+        \item \textit{Probabilidad:} La probabilidad de gripe para el grupo con ácido ascórbico es:
+              $$ \frac{e^{-1.9708}}{1 + e^{-1.9708}} \approx 0.122 \quad (\text{o 12.2\%}) $$
+    \end{itemize}
+    Una forma más directa de interpretar el coeficiente es con el odds ratio: $e^{-0.7134} \approx 0.49$. Esto significa que las probabilidades de contraer gripe tomando ácido ascórbico son del 49\% de las probabilidades del grupo placebo (una reducción del 51\% en las probabilidades). Por lo tanto, hay evidencia estadística que sugiere que el ácido ascórbico tiene un efecto protector contra la gripe.
+\end{itemize}
 
 
 % \nocite{*}

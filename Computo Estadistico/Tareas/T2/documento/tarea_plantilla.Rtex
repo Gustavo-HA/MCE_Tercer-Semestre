@@ -1,10 +1,9 @@
 % !TeX recipe = Rtex
-\documentclass[paper=letter, fontsize=11pt]{scrartcl}
+% Optimizado para compilación rápida
+\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}
 
 % Modifications to layout
 \usepackage[shortlabels]{enumitem} % Incisos
-
-\def\code#1{\texttt{#1}} % \code{} for monospaced text
 
 \newcommand{\RNum}[1]{\footnotesize\uppercase\expandafter{\romannumeral #1\relax\normalsize}} % Roman numbers
 
@@ -16,10 +15,7 @@
 \usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
 
 
-\usepackage{booktabs}
-\usepackage{siunitx}
-\usepackage{listings}
-
+\usepackage{booktabs,siunitx,listings}
 \usepackage[most]{tcolorbox}
 \tcbuselibrary{theorems}
 \usepackage{cleveref}
@@ -27,22 +23,15 @@
 % Typography and layout packages
 \usepackage{graphicx}
 \usepackage{verbatim}
-\usepackage{listings}
 \usepackage{xcolor}
-\usepackage[spanish]{babel} % Language and hyphenation
-\decimalpoint
+\usepackage[spanish,es-nodecimaldot]{babel} % Language and hyphenation
 \usepackage{amsmath, amsfonts, amsthm, amssymb} % Math packages
 \newtheorem{definition}{Definición} % definition
 \usepackage{fancyvrb}
 \usepackage{sectsty} % Customize section commands
 \usepackage{geometry} % Modify margins
 \usepackage{titlesec} % Customize section titles
-\geometry{
-    left=3cm, % Left margin
-    right=3cm, % Right margin
-    top=2.5cm, % Top margin
-    bottom=2.5cm, % Bottom margin
-}
+\geometry{margin=3cm,top=2.5cm,bottom=2.5cm} % Simplified geometry
 \allsectionsfont{\centering \normalfont\scshape} % Center and style section titles
 
 % Header and footer customization
@@ -60,18 +49,12 @@
 
 
 
-\setlength\parindent{0pt} % No paragraph indentation
-\setlength{\parskip}{0.5em} % Space between paragraphs
-
-\usepackage{titlesec}
-
-% Adjust spacing after the chapter title
-\titlespacing*{\chapter}{0cm}{-2.0cm}{0.50cm}
-\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
-
-% Indent 
-\setlength{\parindent}{0pt}
+% Paragraph settings
+\setlength\parindent{0pt}
 \setlength{\parskip}{1ex}
+
+% Section spacing
+\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
 
 % --- Theorems, lemma, corollary, postulate, definition ---
 \definecolor{Pantone209C}{HTML}{64293e}
@@ -168,7 +151,7 @@
 \newpage
 
 <<setup, include=FALSE>>=
-# Configuración global de knitr para mejorar SyncTeX
+# Configuración global de knitr para mejorar SyncTeX y velocidad
 library(knitr)
 opts_knit$set(concordance = TRUE)
 opts_chunk$set(
@@ -177,7 +160,11 @@ opts_chunk$set(
   message = FALSE,
   fig.path = 'figure/',
   fig.align = 'center',
-  cache = FALSE
+  cache = TRUE,
+  cache.path = 'cache/',
+  fig.keep = 'high',
+  dev = 'pdf',
+  dpi = 150
 )
 @
 
@@ -767,14 +754,14 @@ group = factor(c(rep("H", length(h_counts)), rep("No-H", length(noh_counts)))),
 Podemos comparar las distribuciones del conteo de células de los pacientes con y sin la enfermedad de Hodgkin mediante Kernel Density Estimation (KDE) (Figura \ref{fig:p1_kde}) y Boxplot (Figura \ref{fig:p1_box}).
 
 
-<<p1_kde, fig.height=3, fig.width=4, fig.cap="Gráfico de densidad de la distribución del conteo de células $T_4$ por $mm^3$ para pacientes con la enfermedad de Hodgkin (color rojo) y sin ella (color azul)", fig.align="center">>=
+<<p1_kde, fig.height=3, fig.width=4, fig.cap="Gráfico de densidad de la distribución del conteo de células $T_4$ por $mm^3$ para pacientes con la enfermedad de Hodgkin (color rojo) y sin ella (color azul)", fig.align="center", cache=TRUE>>=>
 ggplot(data = df) +
   geom_density(aes(x = counts, fill = group), alpha = 0.5) +
   labs(x = "Número de células", y = "Densidad", fill = "Grupos") +
     theme(legend.position="inside",legend.position.inside = c(0.9, 0.9))
 @
 
-<<p1_box, fig.height=4, fig.width=4, fig.cap="Gráfico de caja de la distribución del conteo de células $T_4$ por $mm^3$ para pacientes con la enfermedad de Hodgkin y sin ella.", fig.align="center">>=
+<<p1_box, fig.height=4, fig.width=4, fig.cap="Gráfico de caja de la distribución del conteo de células $T_4$ por $mm^3$ para pacientes con la enfermedad de Hodgkin y sin ella.", fig.align="center", cache=TRUE>>=
 boxplot(counts ~ group, data=df, ylab="Número de células", xlab="Grupos")
 @
 

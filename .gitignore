@@ -211,3 +211,8 @@ __marimo__/
 *.pdf
 *.png
 cache/
+
+# Models
+mlartifacts/
+model/
+

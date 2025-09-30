@@ -190,9 +190,4 @@ def scrape_multiple_artists():
 if __name__ == "__main__":
     print("=== Scraper de Letras para Fine-tuning de LLM ===")
     print("Modo: 3 artistas predefinidos (Kanye West: 33, Jay-Z: 33, Kendrick Lamar: 34)")
-    print("Formato: TSV con metadata preservado para entrenamiento")
-    print("Optimizado para: Mistral, Llama, Qwen u otros LLMs")
-    print("\nPresiona Enter para continuar o Ctrl+C para cancelar...")
-    input()
-    
     scrape_multiple_artists()

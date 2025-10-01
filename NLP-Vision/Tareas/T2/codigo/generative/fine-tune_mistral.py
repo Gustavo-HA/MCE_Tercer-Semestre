@@ -109,11 +109,23 @@ trainer = SFTTrainer(
     ),
 )
 
-gpu_stats = torch.cuda.get_device_properties(0)
-start_gpu_memory = round(torch.cuda.max_memory_reserved() / 1024 / 1024 / 1024, 3)
-max_memory = round(gpu_stats.total_memory / 1024 / 1024 / 1024, 3)
-logger.info(f"GPU = {gpu_stats.name}. Max memory = {max_memory} GB.")
-logger.info(f"{start_gpu_memory} GB of memory reserved.")
+# Log GPU information for all available devices
+num_gpus = torch.cuda.device_count()
+logger.info(f"Number of available GPUs: {num_gpus}")
+
+start_gpu_memory = {}
+max_memory = {}
+
+for device_id in range(num_gpus):
+    gpu_stats = torch.cuda.get_device_properties(device_id)
+    start_mem = round(torch.cuda.max_memory_reserved(device_id) / 1024 / 1024 / 1024, 3)
+    max_mem = round(gpu_stats.total_memory / 1024 / 1024 / 1024, 3)
+    
+    start_gpu_memory[device_id] = start_mem
+    max_memory[device_id] = max_mem
+    
+    logger.info(f"GPU {device_id}: {gpu_stats.name}. Max memory = {max_mem} GB.")
+    logger.info(f"GPU {device_id}: {start_mem} GB of memory reserved.")
 
 trainer_stats = trainer.train()
 logger.info(f"Training metrics: {trainer_stats.metrics}")
@@ -122,15 +134,19 @@ logger.info(f"Training metrics: {trainer_stats.metrics}")
 model.save_pretrained_gguf("model", tokenizer, quantization_method="f16")
 
 # Report GPU memory usage
-used_memory = round(torch.cuda.max_memory_reserved() / 1024 / 1024 / 1024, 3)
-used_memory_for_lora = round(used_memory - start_gpu_memory, 3)
-used_percentage = round(used_memory / max_memory * 100, 3)
-lora_percentage = round(used_memory_for_lora / max_memory * 100, 3)
 logger.info(f"{trainer_stats.metrics['train_runtime']} seconds used for training.")
 logger.info(
     f"{round(trainer_stats.metrics['train_runtime']/60, 2)} minutes used for training."
 )
-logger.info(f"Peak reserved memory = {used_memory} GB.")
-logger.info(f"Peak reserved memory for training = {used_memory_for_lora} GB.")
-logger.info(f"Peak reserved memory % of max memory = {used_percentage} %.")
-logger.info(f"Peak reserved memory for training % of max memory = {lora_percentage} %.")
+
+# Log memory stats for all GPUs
+for device_id in range(num_gpus):
+    used_memory = round(torch.cuda.max_memory_reserved(device_id) / 1024 / 1024 / 1024, 3)
+    used_memory_for_lora = round(used_memory - start_gpu_memory[device_id], 3)
+    used_percentage = round(used_memory / max_memory[device_id] * 100, 3)
+    lora_percentage = round(used_memory_for_lora / max_memory[device_id] * 100, 3)
+    
+    logger.info(f"GPU {device_id} - Peak reserved memory = {used_memory} GB.")
+    logger.info(f"GPU {device_id} - Peak reserved memory for training = {used_memory_for_lora} GB.")
+    logger.info(f"GPU {device_id} - Peak reserved memory % of max memory = {used_percentage} %.")
+    logger.info(f"GPU {device_id} - Peak reserved memory for training % of max memory = {lora_percentage} %.")

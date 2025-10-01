@@ -69,8 +69,8 @@ tokenizer = get_chat_template(
 )
 
 split_map = {
-    "train": "./data/train_lyrics_alpaca.json",
-    "test": "./data/test_lyrics_alpaca.json",
+    "train": "./data/text_gen/train_lyrics_alpaca.json",
+    "test": "./data/text_gen/test_lyrics_alpaca.json",
 }
 
 dataset = load_dataset("json", data_files=split_map)

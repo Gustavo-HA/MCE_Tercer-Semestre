@@ -1,0 +1,28 @@
+{
+  "char_level": {
+    "train": {
+      "num_songs": 80,
+      "total_chars": 310129,
+      "vocab_size": 163
+    },
+    "test": {
+      "num_songs": 20,
+      "total_chars": 75860,
+      "vocab_size": 95
+    }
+  },
+  "word_level": {
+    "train": {
+      "num_songs": 80,
+      "total_words": 59756,
+      "vocab_size": 9776
+    },
+    "test": {
+      "num_songs": 20,
+      "total_words": 14605,
+      "vocab_size": 3497
+    }
+  },
+  "start_tag": "<|song_start|>",
+  "end_tag": "<|song_end|>"
+}

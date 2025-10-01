@@ -178,12 +178,12 @@ def scrape_multiple_artists():
     ]
     
     # Create the data directory if it doesn't exist
-    os.makedirs('./data', exist_ok=True)
+    os.makedirs('./data/text_gen', exist_ok=True)
     
     # Output file paths
-    train_json = './data/train_lyrics_alpaca.json'
-    test_json = './data/test_lyrics_alpaca.json'
-    
+    train_json = './data/text_gen/train_lyrics_alpaca.json'
+    test_json = './data/text_gen/test_lyrics_alpaca.json'
+
     # List to hold all dataset entries
     dataset = []
     
@@ -239,8 +239,8 @@ def scrape_multiple_artists():
     print("  }")
     print("\nPara cargar con HuggingFace:")
     print("  from datasets import load_dataset")
-    print("  train_data = load_dataset('json', data_files='./data/train_lyrics_alpaca.json')")
-    print("  test_data = load_dataset('json', data_files='./data/test_lyrics_alpaca.json')")
+    print("  train_data = load_dataset('json', data_files='./data/text_gen/train_lyrics_alpaca.json')")
+    print("  test_data = load_dataset('json', data_files='./data/text_gen/test_lyrics_alpaca.json')")
 
 if __name__ == "__main__":
     print("=== Scraper de Letras para Fine-tuning de LLM ===")

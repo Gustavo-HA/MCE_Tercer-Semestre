@@ -9,6 +9,7 @@ from trl import (
 )
 from datasets import load_dataset
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(
@@ -18,17 +19,36 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Enable offline mode for HuggingFace
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+
 max_seq_length = 2048
 model_name = "unsloth/mistral-7b-instruct-v0.3-bnb-4bit"
 dtype=None
 load_in_4bit=True
 
-model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name,
-    max_seq_length=max_seq_length,
-    dtype=dtype,
-    load_in_4bit=load_in_4bit,
-)
+logger.info("Loading model in OFFLINE mode...")
+
+try:
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name,
+        max_seq_length=max_seq_length,
+        dtype=dtype,
+        load_in_4bit=load_in_4bit,
+        local_files_only=True,  # Force offline mode
+    )
+    logger.info("Model loaded successfully from cache!")
+except Exception as e:
+    logger.error(f"Failed to load model in offline mode: {e}")
+    logger.error("\n" + "="*80)
+    logger.error("MODEL NOT FOUND IN CACHE!")
+    logger.error("="*80)
+    logger.error("\nTo download the model when you have internet access, run:")
+    logger.error("\n  python -c \"from unsloth import FastLanguageModel; FastLanguageModel.from_pretrained('unsloth/mistral-7b-instruct-v0.3-bnb-4bit', max_seq_length=2048, load_in_4bit=True)\"")
+    logger.error("\nOr create and run the download script: codigo/generative/download_model.py")
+    logger.error("="*80 + "\n")
+    raise
 
 model = FastLanguageModel.get_peft_model(
     model,

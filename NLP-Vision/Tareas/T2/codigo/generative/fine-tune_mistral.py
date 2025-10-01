@@ -8,6 +8,15 @@ from trl import (
     SFTTrainer,
 )
 from datasets import load_dataset
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__)
 
 max_seq_length = 2048
 model_name = "unsloth/mistral-7b-instruct-v0.3-bnb-4bit"
@@ -87,7 +96,8 @@ trainer = SFTTrainer(
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,
         warmup_steps = 5,
-        max_steps = 2, # For testing purposes. Use max_steps or num_train_epochs
+        #max_steps = 2, # For testing purposes. Use max_steps or num_train_epochs
+        num_train_epochs= 3,
         learning_rate = 2e-4,
         logging_steps = 1,
         optim = "adamw_8bit",
@@ -102,8 +112,25 @@ trainer = SFTTrainer(
 gpu_stats = torch.cuda.get_device_properties(0)
 start_gpu_memory = round(torch.cuda.max_memory_reserved() / 1024 / 1024 / 1024, 3)
 max_memory = round(gpu_stats.total_memory / 1024 / 1024 / 1024, 3)
-print(f"GPU = {gpu_stats.name}. Max memory = {max_memory} GB.")
-print(f"{start_gpu_memory} GB of memory reserved.")
+logger.info(f"GPU = {gpu_stats.name}. Max memory = {max_memory} GB.")
+logger.info(f"{start_gpu_memory} GB of memory reserved.")
 
 trainer_stats = trainer.train()
-print(trainer_stats.metrics)
+logger.info(f"Training metrics: {trainer_stats.metrics}")
+
+# Save the model
+model.save_pretrained_gguf("model", tokenizer, quantization_method="f16")
+
+# Report GPU memory usage
+used_memory = round(torch.cuda.max_memory_reserved() / 1024 / 1024 / 1024, 3)
+used_memory_for_lora = round(used_memory - start_gpu_memory, 3)
+used_percentage = round(used_memory / max_memory * 100, 3)
+lora_percentage = round(used_memory_for_lora / max_memory * 100, 3)
+logger.info(f"{trainer_stats.metrics['train_runtime']} seconds used for training.")
+logger.info(
+    f"{round(trainer_stats.metrics['train_runtime']/60, 2)} minutes used for training."
+)
+logger.info(f"Peak reserved memory = {used_memory} GB.")
+logger.info(f"Peak reserved memory for training = {used_memory_for_lora} GB.")
+logger.info(f"Peak reserved memory % of max memory = {used_percentage} %.")
+logger.info(f"Peak reserved memory for training % of max memory = {lora_percentage} %.")

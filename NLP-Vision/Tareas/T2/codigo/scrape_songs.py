@@ -41,7 +41,6 @@ def request_song_url(artist_name, song_cap):
         else:
             page += 1
         
-    print(f'Se encontraron {len(songs)} canciones de {artist_name}.')
     return songs
 
 # Extract song metadata and lyrics separately for LLM training
@@ -72,7 +71,6 @@ def scrape_song_with_metadata(url):
     # Extract lyrics
     lyrics_containers = html.find_all(attrs={"data-lyrics-container": "true"})
     if not lyrics_containers:
-        print("No se encontraron las letras en la página:", url)
         return "", "", "", ""
 
     lyrics_parts = []
@@ -115,9 +113,18 @@ def scrape_song_with_metadata(url):
     
     return song_title, album_info, metadata_content, lyrics_content
 
-def write_lyrics_to_tsv(artist_name: str, song_count: int, tsv_writer):
-    """Write lyrics with metadata for one artist to the TSV file for LLM training"""
+def write_lyrics_to_alpaca(artist_name: str, song_count: int, dataset_list: list):
+    """Write lyrics with metadata in Alpaca instruction format for LLM training"""
     urls = request_song_url(artist_name, song_count)
+    
+    # Variation in instructions to make the model more flexible
+    instruction_templates = [
+        "Write rap lyrics.",
+        "Generate hip-hop song lyrics.",
+        "Create lyrics for a rap song.",
+        "Compose rap/hip-hop lyrics.",
+        "Write song lyrics in hip-hop style."
+    ]
     
     for i, url in enumerate(urls):
         print(f'Scrapeando {artist_name} - canción {i+1} de {len(urls)}: {url}')
@@ -125,24 +132,43 @@ def write_lyrics_to_tsv(artist_name: str, song_count: int, tsv_writer):
         song_title, album_info, metadata, lyrics = scrape_song_with_metadata(url)
         
         if lyrics.strip():  # Only write if we got actual lyrics
-            # Format for LLM training: include metadata as context
-            # This helps the model learn about song structure and music industry
+            # Clean up lyrics (preserve structure but normalize whitespace)
+            lyrics_clean = re.sub(r'\s+', ' ', lyrics).strip()
             
-            # Clean up for TSV format (replace tabs/newlines with spaces)
-            lyrics_clean = re.sub(r'[\t\n\r]+', ' ', lyrics)
-            lyrics_clean = re.sub(r'\s+', ' ', lyrics_clean).strip()
+            # Create Alpaca format entry with proper separation:
+            # instruction = the general task (what to do)
+            # input = specific constraints/context (artist style, album context)
+            # output = the actual lyrics
             
-            metadata_clean = re.sub(r'[\t\n\r]+', ' ', metadata)
-            metadata_clean = re.sub(r'\s+', ' ', metadata_clean).strip()
+            # Rotate through instruction templates for variety
+            instruction = instruction_templates[i % len(instruction_templates)]
             
-            # Write to TSV: Artist \t Metadata \t Lyrics
-            tsv_writer.writerow([artist_name, metadata_clean, lyrics_clean])
+            # Input contains the specific constraints
+            input_parts = [f"Artist style: {artist_name}"]
+            
+            if song_title:
+                input_parts.append(f"Song title: {song_title}")
+            
+            if album_info:
+                input_parts.append(f"Album: {album_info}")
+            
+            input_context = " | ".join(input_parts)
+            
+            # Create the Alpaca format dictionary
+            alpaca_entry = {
+                "instruction": instruction,
+                "input": input_context,
+                "output": lyrics_clean
+            }
+            
+            dataset_list.append(alpaca_entry)
     
-    print(f'✓ Completado: {artist_name} ({len(urls)} canciones procesadas)')
+    print(f'Completado: {artist_name} ({len(urls)} canciones procesadas)')
 
 def scrape_multiple_artists():
-    """Scrape lyrics from 3 artists with specific song counts to total 100 songs and save as TSV"""
-    import csv
+    """Scrape lyrics from 3 artists with specific song counts to total 100 songs and save in Alpaca format"""
+    import json
+    import random
     
     # Define artists and their song counts (33, 33, 34 = 100 total)
     artists_config = [
@@ -154,40 +180,72 @@ def scrape_multiple_artists():
     # Create the data directory if it doesn't exist
     os.makedirs('./data', exist_ok=True)
     
-    # Output file path
-    output_file = './data/lyrics_dataset.tsv'
+    # Output file paths
+    train_json = './data/train_lyrics_alpaca.json'
+    test_json = './data/test_lyrics_alpaca.json'
+    
+    # List to hold all dataset entries
+    dataset = []
     
     total_songs = 0
     print("=== Iniciando scraping de múltiples artistas ===")
-    print(f"Generando archivo TSV: {output_file}")
+    print("Generando dataset en formato Alpaca...")
     
-    with open(output_file, 'w', newline='', encoding='utf-8') as tsvfile:
-        # Create TSV writer
-        tsv_writer = csv.writer(tsvfile, delimiter='\t')
+    for config in artists_config:
+        artist_name = config["name"]
+        song_count = config["song_count"]
         
-        # Write header for LLM training format
-        tsv_writer.writerow(['Artist', 'Metadata', 'Lyrics'])
-        
-        for config in artists_config:
-            artist_name = config["name"]
-            song_count = config["song_count"]
-            
-            print(f"\n--- Procesando {artist_name} ({song_count} canciones) ---")
-            try:
-                write_lyrics_to_tsv(artist_name, song_count, tsv_writer)
-                total_songs += song_count
-            except Exception as e:
-                print(f"✗ Error procesando {artist_name}: {e}")
+        print(f"\n--- Procesando {artist_name} ({song_count} canciones) ---")
+        try:
+            write_lyrics_to_alpaca(artist_name, song_count, dataset)
+            total_songs += song_count
+        except Exception as e:
+            print(f"✗ Error procesando {artist_name}: {e}")
+    
+    # Shuffle dataset for random train/test split
+    random.seed(42)  # For reproducibility
+    random.shuffle(dataset)
+
+    # Split into train (80%) and test (20%)
+    split_idx = int(len(dataset) * 0.8)
+    train_dataset = dataset[:split_idx]
+    test_dataset = dataset[split_idx:]
+    
+    # Save train set
+    with open(train_json, 'w', encoding='utf-8') as f:
+        json.dump(train_dataset, f, ensure_ascii=False, indent=2)
+    
+    # Save test set
+    with open(test_json, 'w', encoding='utf-8') as f:
+        json.dump(test_dataset, f, ensure_ascii=False, indent=2)
     
     print("\n=== Scraping completado ===")
     print(f"Total de canciones procesadas: {total_songs}")
-    print(f"Archivo generado: {output_file}")
-    print("\nFormato del archivo (optimizado para fine-tuning de LLM):")
-    print("Columna 1: Artist (nombre del artista)")
-    print("Columna 2: Metadata (título, álbum, y contexto musical)")
-    print("Columna 3: Lyrics (letras con anotaciones estructurales preservadas)")
+    print("\nDivisión del dataset:")
+    print(f"  - Train: {len(train_dataset)} canciones ({len(train_dataset)/len(dataset)*100:.1f}%)")
+    print(f"  - Test:  {len(test_dataset)} canciones ({len(test_dataset)/len(dataset)*100:.1f}%)")
+    print("\nArchivos generados:")
+    print(f"  - Train: {train_json}")
+    print(f"  - Test:  {test_json}")
+    print("\nFormato Alpaca:")
+    print("  - instruction: Tarea general (ej: 'Write rap lyrics')")
+    print("  - input: Contexto específico (artista, título, álbum)")
+    print("  - output: Letras con anotaciones estructurales preservadas")
+    print("\nEjemplo de entrada:")
+    print("  {")
+    print("    'instruction': 'Write rap lyrics.',")
+    print("    'input': 'Artist style: Kanye West | Song title: Stronger',")
+    print("    'output': '[Verse 1] ...'")
+    print("  }")
+    print("\nPara cargar con HuggingFace:")
+    print("  from datasets import load_dataset")
+    print("  train_data = load_dataset('json', data_files='./data/train_lyrics_alpaca.json')")
+    print("  test_data = load_dataset('json', data_files='./data/test_lyrics_alpaca.json')")
 
 if __name__ == "__main__":
     print("=== Scraper de Letras para Fine-tuning de LLM ===")
-    print("Modo: 3 artistas predefinidos (Kanye West: 33, Jay-Z: 33, Kendrick Lamar: 34)")
+    print("Formato: Alpaca instruction-following (compatible con HuggingFace)")
+    print("Estructura: instruction (tarea) + input (estilo/contexto) -> output (lyrics)")
+    print("Artistas: Kanye West (33), Jay-Z (33), Kendrick Lamar (34)")
+    print("Total: 100 canciones | Split: 80% train, 20% test\n")
     scrape_multiple_artists()

@@ -215,4 +215,7 @@ cache/
 # Models
 mlartifacts/
 model/
+models/
+logs/
+unsloth_compiled_cache/
 

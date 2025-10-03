@@ -107,13 +107,13 @@
 
 % Custom section titles with numbering
 \titleformat{\section}
-{\normalfont\Large\bfseries}{\thesection}{1em}{}
+{\normalfont\Large\bfseries}{}{1em}{}
 
 \titleformat{\subsection}
-{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+{\normalfont\large\bfseries}{}{1em}{}
 
 \titleformat{\subsubsection}
-{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+{\normalfont\normalsize\bfseries}{}{1em}{}
 
 % Title and author
 \title{	
@@ -147,38 +147,90 @@
 %%%%%%%%%%% PROBLEMA 1 %%%%%%%%%%%
 \section{Parte A: Generación de Texto}
 
-\subsection{Script para la compilación de datos}
+\subsection{Datos}
 
-En esta sección se explica el proceso de recopilación y limpieza de datos para entrenar un modelo de generación de texto utilizando letras de canciones. 
+En esta sección se explica el proceso de recopilación y limpieza de datos para entrenar los modelos de generación de texto utilizando letras de canciones.
 
-Se utilizó un script en Python para scrapear las letras de las canciones de un artista específico desde la plataforma \textit{Genius}. El script realiza las siguientes tareas:
+\subsubsection{Recopilación de datos}
+
+Se utilizaron dos scripts de Python para scrapear las letras de las canciones de un artista específico desde la plataforma \textit{Genius}. El primer script (\texttt{scrape\_songs\_alpaca.py}) realiza las siguientes tareas:
 
 \begin{itemize}
     \item Autenticación en la API de Genius.
     \item Búsqueda de canciones (URLs) del artista.
     \item Extracción de las letras de las canciones.
-    \item Limpieza y preprocesamiento de las letras.
+    \item Limpieza y preprocesamiento de las letras en formato Alpaca para Fine-Tuning.
     \item Almacenamiento de las letras en un archivo de texto.
 \end{itemize}
 
-El script contiene el conjunto de artistas y el número de canciones a scrapear directamente en el código (En mi caso particular, elegí a \textit{Kendrick Lamar}, \textit{Kanye West} y \textit{Jay-Z}, cada uno con 33 canciones). El comando para ejecutar el script es el siguiente:
+El segundo script (\texttt{preprocess\_scraped\_songs.py}) se encarga de procesar la salida del primer script para generar un archivo .txt con el formato adecuado para el entrenamiento de los modelos RNN/LSTM/GRU.
+
+La selección de artistas y el número de canciones a scrapear se encuentran configuradas directamente en el código del primer script. En este caso, elegí a \textit{Kendrick Lamar}, \textit{Kanye West} y \textit{Jay-Z} debido al género compartido \textit{Hip-Hop/Rap} y la riqueza lírica de sus canciones. El número de canciones por artista se estableció en 100, lo que da un total aproximado de 300 canciones.
+
+La ejecución de ambos scripts se realiza desde la terminal con la serie de comandos:
 
 \begin{center}
-\texttt{python scrape\_songs.py}
+\texttt{python ./codigo/generative/scrape\_songs\_alpaca.py} \\
+\texttt{python ./codigo/generative/preprocess\_scraped\_songs.py}
 \end{center}
 
 \textbf{Nota:} Es importante asegurarse de tener la clave de API de Genius configurada en un archivo \texttt{.env} en el mismo directorio que el script. Ejemplo: \texttt{GENIUS\_API\_TOKEN="tu\_token\_aqui"}.
 
-\subsection{Limpieza y preprocesamiento del texto}
+Al finalizar la ejecución, obtenemos distintos archivos para ambos formatos de salida particionados en conjuntos de entrenamiento y prueba. Además, también se generan los diccionarios necesarios para el preprocesamiento de texto en los modelos RNN/LSTM/GRU, y estadísticas del conjunto de datos. Los archivos generados son almacenados en el directorio \texttt{./data/text\_gen/} y son los siguientes:
+\begin{itemize}
+    \item \texttt{train\_lyrics\_alpaca.json} y
+    \item  \texttt{test\_lyrics\_alpaca.json} (formato Alpaca).
+    \item \texttt{train\_lyrics.txt} y
+    \item \texttt{test\_lyrics.txt} (formato para RNN/LSTM/GRU).
+    \item \texttt{vocab\_char.json} y
+    \item \texttt{vocab\_word.json} (diccionarios de caracteres y palabras).
+    \item \texttt{dataset\_info.json} (estadísticas del conjunto de datos).
+\end{itemize}
+
+
+
+\subsubsection{Limpieza y preprocesamiento del texto}
 
 Genius provee las letras en formato HTML dentro de \texttt{lyrics containers}, los cuales son etiquetas con el atributo \texttt{data-lyrics-container="true"}. El script extrae el texto de estas etiquetas y realiza las siguientes operaciones de limpieza:
 
 \begin{itemize}
     \item Eliminación de etiquetas HTML.
     \item Eliminación de líneas en blanco y espacios innecesarios.
-    \item Añadir etiquetas especiales al inicio y al final de cada canción para indicar el comienzo y el final del texto ($<|$startsong$|>$, $<|$endsong$|>$).
+    \item Crea cada registro en formato Alpaca para el fine-tuning.
 \end{itemize}
 
+
 He decidido no eliminar las anotaciones de las canciones (como [Coro], [Verso 1], etc.) ya que pueden proporcionar contexto adicional al modelo durante el entrenamiento, además de que pueden ser útiles para la generación de texto (haciendo que el modelo también genere anotaciones). Además, se conservaron los metadatos como nombre de la canción y artista, ya que pueden ser útiles para futuras referencias o análisis.
+
+Al realizar Fine-Tuning sobre el LLM, es conveniente proporcionar contexto adicional (y acorde) al modelo. Debido a que en este caso nos decidimos por utilizar un modelo instructivo, el formato Alpaca es adecuado para este propósito. Este formato contiene campos para la instrucción, entrada y salida, lo que permite al modelo aprender a generar texto basado en instrucciones específicas de un solo turno.
+\begin{verbatim}
+{
+    "instruction": "<INSTRUCCIÓN>",
+    "input": "<ENTRADA>",
+    "output": "<SALIDA>"
+}
+\end{verbatim}
+
+donde:
+\begin{itemize} 
+    \item \texttt{<INSTRUCCIÓN>} es una cadena que indica la tarea a realizar, en este caso: ``You are a hip-hop artist, helping people write lyrics.'' o variantes.
+    \item \texttt{<ENTRADA>} es una cadena que proporciona contexto adicional, en este caso: ``Help me write a song in the style of \texttt{<ARTISTA>}.''
+    \item \texttt{<SALIDA>} es la letra de la canción.
+\end{itemize}
+
+Por otro lado, al utilizar modelos RNN/LSTM/GRU basta con simplemente tener las letras en texto plano, ya que estos modelos no requieren el mismo nivel de contexto que los LLMs. Sin embargo, es importante asegurarse de que el texto esté limpio y bien formateado para evitar problemas durante el entrenamiento. El script de preprocesamiento convierte los textos de formato Alpaca a texto plano, asegurándose de que cada letra esté separada por los delimitadores de cada canción (En este caso \texttt{<|song\_start|>} y \texttt{<song\_end>}).
+
+
+
+\subsection{Modelos y Entrenamiento}
+
+En esta sección se describen los modelos utilizados para la generación de texto, así como los detalles del proceso de entrenamiento.
+
+\subsubsection{Transformers: Mistral 7B Instruct}
+
+
+
+
+
 
 \end{document}

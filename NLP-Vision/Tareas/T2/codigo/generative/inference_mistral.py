@@ -76,11 +76,12 @@ FastLanguageModel.for_inference(model)
 if args.prompt:
     instruction = args.prompt
 else:
-    instruction = f"Write hip-hop lyrics in the style of {args.artist}"
+    instruction = f"""You're a hip-hop artist, create song lyrics.
+    
+    Write hip-hop lyrics in the style of {args.artist}"""
 
 # Format with Alpaca template
-alpaca_prompt = """Below is an instruction that describes a task. Write a response that appropriately completes the request.
-
+alpaca_prompt = """
 ### Instruction:
 {}
 
@@ -127,7 +128,7 @@ print(response)
 logger.info("="*80)
 
 # Save to file
-output_file = f"generated_lyrics_{args.artist.replace(' ', '_').lower()}.txt"
+output_file = f"./data/text_gen/inferences/generated_lyrics_{args.artist.replace(' ', '_').lower()}.txt"
 with open(output_file, 'w') as f:
     f.write(f"Artist Style: {args.artist}\n")
     f.write(f"Prompt: {instruction}\n")

@@ -1,26 +1,26 @@
 {
   "char_level": {
     "train": {
-      "num_songs": 80,
-      "total_chars": 310129,
-      "vocab_size": 163
+      "num_songs": 240,
+      "total_chars": 869092,
+      "vocab_size": 177
     },
     "test": {
-      "num_songs": 20,
-      "total_chars": 75860,
-      "vocab_size": 95
+      "num_songs": 60,
+      "total_chars": 226520,
+      "vocab_size": 115
     }
   },
   "word_level": {
     "train": {
-      "num_songs": 80,
-      "total_words": 59756,
-      "vocab_size": 9776
+      "num_songs": 240,
+      "total_words": 166945,
+      "vocab_size": 19453
     },
     "test": {
-      "num_songs": 20,
-      "total_words": 14605,
-      "vocab_size": 3497
+      "num_songs": 60,
+      "total_words": 43914,
+      "vocab_size": 8018
     }
   },
   "start_tag": "<|song_start|>",

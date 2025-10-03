@@ -76,9 +76,17 @@ def scrape_song_with_metadata(url):
     lyrics_parts = []
     for container in lyrics_containers:
         lyrics_parts.append(container.get_text(separator='\n', strip=True))
-    raw_lyrics = ' '.join(lyrics_parts)
+    raw_lyrics = '\n'.join(lyrics_parts)
 
-    clean_lyrics = ' '.join(line.strip() for line in raw_lyrics.splitlines() if line.strip())
+    # Clean each line but preserve line structure
+    lines = raw_lyrics.splitlines()
+    clean_lines = []
+    for line in lines:
+        line = line.strip()
+        if line:  # Only keep non-empty lines
+            clean_lines.append(line)
+    
+    clean_lyrics = '\n'.join(clean_lines)
 
     # Remove "Read More" and everything before it (this is always junk)
     idx = clean_lyrics.find('Read More')
@@ -98,20 +106,53 @@ def scrape_song_with_metadata(url):
     ]
     
     for pattern in web_junk_patterns:
-        clean_lyrics = re.sub(pattern, '', clean_lyrics, flags=re.IGNORECASE)
+        clean_lyrics = re.sub(pattern, '', clean_lyrics, flags=re.IGNORECASE | re.MULTILINE)
     
     # Keep song structure annotations like [Verse 1], [Chorus], etc.
     # Keep producer credits and featured artists
-    # Only remove excessive repetition of metadata
+    # Preserve line breaks for proper verse structure
     
     # Split into lyrics and metadata
     lyrics_content = clean_lyrics
     metadata_content = f"Title: {song_title}" + (f" | Album: {album_info}" if album_info else "")
     
-    # Clean up extra spaces
-    lyrics_content = re.sub(r'\s+', ' ', lyrics_content).strip()
+    # Fix line breaks in tags and parentheses, add spacing between sections
+    lyrics_content = format_lyrics_structure(lyrics_content)
     
     return song_title, album_info, metadata_content, lyrics_content
+
+def format_lyrics_structure(lyrics_text: str) -> str:
+    """Format lyrics with proper line breaks for tags, parentheses, and section transitions"""
+    
+    # First, clean up extra whitespace while preserving single line breaks
+    lyrics_text = re.sub(r'[ \t]+', ' ', lyrics_text).strip()
+    
+    # Remove line breaks within square brackets (tags like [Chorus: Artist])
+    # Use re.DOTALL to handle multiline cases within brackets
+    lyrics_text = re.sub(r'\[([^\]]*?)\n([^\]]*?)\]', r'[\1 \2]', lyrics_text, flags=re.DOTALL)
+    # Continue until no more line breaks in brackets
+    while re.search(r'\[[^\]]*\n[^\]]*\]', lyrics_text):
+        lyrics_text = re.sub(r'\[([^\]]*?)\n([^\]]*?)\]', r'[\1 \2]', lyrics_text, flags=re.DOTALL)
+    
+    # Remove line breaks within parentheses
+    # Use re.DOTALL to handle multiline cases within parentheses
+    lyrics_text = re.sub(r'\(([^\)]*)\n([^\)]*)\)', r'(\1 \2)', lyrics_text, flags=re.DOTALL)
+    # Continue until no more line breaks in parentheses
+    while re.search(r'\([^\)]*\n[^\)]*\)', lyrics_text):
+        lyrics_text = re.sub(r'\(([^\)]*)\n([^\)]*)\)', r'(\1 \2)', lyrics_text, flags=re.DOTALL)
+    
+    # Add double line breaks before section markers (but not at the start)
+    # Common section markers: [Verse], [Chorus], [Bridge], [Outro], [Intro], etc.
+    section_pattern = r'(?<!^)(?<!\n\n)(\[[A-Za-z][^\]]*\])'
+    lyrics_text = re.sub(section_pattern, r'\n\n\1', lyrics_text)
+    
+    # Clean up excessive empty lines (more than 2 consecutive)
+    lyrics_text = re.sub(r'\n\s*\n\s*\n+', '\n\n', lyrics_text)
+    
+    # Clean up any leading/trailing whitespace
+    lyrics_text = lyrics_text.strip()
+    
+    return lyrics_text
 
 def write_lyrics_to_alpaca(artist_name: str, song_count: int, dataset_list: list):
     """Write lyrics with metadata in Alpaca instruction format for LLM training"""
@@ -119,11 +160,11 @@ def write_lyrics_to_alpaca(artist_name: str, song_count: int, dataset_list: list
     
     # Variation in instructions to make the model more flexible
     instruction_templates = [
-        "Write rap lyrics.",
-        "Generate hip-hop song lyrics.",
-        "Create lyrics for a rap song.",
-        "Compose rap/hip-hop lyrics.",
-        "Write song lyrics in hip-hop style."
+        "You are a hip-hop artist helping people write lyrics.",
+        "As a rap artist, help write song lyrics.",
+        "You are a skilled hip-hop lyricist. Write rap lyrics.",
+        "Acting as a hip-hop artist, create song lyrics.",
+        "You are an experienced rapper. Help write lyrics."
     ]
     
     for i, url in enumerate(urls):
@@ -132,27 +173,20 @@ def write_lyrics_to_alpaca(artist_name: str, song_count: int, dataset_list: list
         song_title, album_info, metadata, lyrics = scrape_song_with_metadata(url)
         
         if lyrics.strip():  # Only write if we got actual lyrics
-            # Clean up lyrics (preserve structure but normalize whitespace)
-            lyrics_clean = re.sub(r'\s+', ' ', lyrics).strip()
+            # Preserve line breaks for proper verse structure
+            # Don't convert to single line - keep the song structure
+            lyrics_clean = lyrics.strip()
             
             # Create Alpaca format entry with proper separation:
             # instruction = the general task (what to do)
             # input = specific constraints/context (artist style, album context)
-            # output = the actual lyrics
+            # output = the actual lyrics with preserved structure
             
             # Rotate through instruction templates for variety
             instruction = instruction_templates[i % len(instruction_templates)]
             
-            # Input contains the specific constraints
-            input_parts = [f"Artist style: {artist_name}"]
-            
-            if song_title:
-                input_parts.append(f"Song title: {song_title}")
-            
-            if album_info:
-                input_parts.append(f"Album: {album_info}")
-            
-            input_context = " | ".join(input_parts)
+            # Input contains the query for the artist style
+            input_context = f"Help me write a song in the style of {artist_name}."
             
             # Create the Alpaca format dictionary
             alpaca_entry = {
@@ -170,11 +204,11 @@ def scrape_multiple_artists():
     import json
     import random
     
-    # Define artists and their song counts (33, 33, 34 = 100 total)
+    # Define artists and their song counts (100 each)
     artists_config = [
-        {"name": "Kanye West", "song_count": 33},
-        {"name": "Jay-Z", "song_count": 33},
-        {"name": "Kendrick Lamar", "song_count": 34}
+        {"name": "Kanye West", "song_count": 100},
+        {"name": "Jay-Z", "song_count": 100},
+        {"name": "Kendrick Lamar", "song_count": 100}
     ]
     
     # Create the data directory if it doesn't exist
@@ -189,7 +223,6 @@ def scrape_multiple_artists():
     
     total_songs = 0
     print("=== Iniciando scraping de múltiples artistas ===")
-    print("Generando dataset en formato Alpaca...")
     
     for config in artists_config:
         artist_name = config["name"]
@@ -221,31 +254,14 @@ def scrape_multiple_artists():
     
     print("\n=== Scraping completado ===")
     print(f"Total de canciones procesadas: {total_songs}")
-    print("\nDivisión del dataset:")
-    print(f"  - Train: {len(train_dataset)} canciones ({len(train_dataset)/len(dataset)*100:.1f}%)")
-    print(f"  - Test:  {len(test_dataset)} canciones ({len(test_dataset)/len(dataset)*100:.1f}%)")
     print("\nArchivos generados:")
     print(f"  - Train: {train_json}")
     print(f"  - Test:  {test_json}")
-    print("\nFormato Alpaca:")
-    print("  - instruction: Tarea general (ej: 'Write rap lyrics')")
-    print("  - input: Contexto específico (artista, título, álbum)")
-    print("  - output: Letras con anotaciones estructurales preservadas")
-    print("\nEjemplo de entrada:")
-    print("  {")
-    print("    'instruction': 'Write rap lyrics.',")
-    print("    'input': 'Artist style: Kanye West | Song title: Stronger',")
-    print("    'output': '[Verse 1] ...'")
-    print("  }")
-    print("\nPara cargar con HuggingFace:")
-    print("  from datasets import load_dataset")
-    print("  train_data = load_dataset('json', data_files='./data/text_gen/train_lyrics_alpaca.json')")
-    print("  test_data = load_dataset('json', data_files='./data/text_gen/test_lyrics_alpaca.json')")
 
 if __name__ == "__main__":
     print("=== Scraper de Letras para Fine-tuning de LLM ===")
     print("Formato: Alpaca instruction-following (compatible con HuggingFace)")
     print("Estructura: instruction (tarea) + input (estilo/contexto) -> output (lyrics)")
-    print("Artistas: Kanye West (33), Jay-Z (33), Kendrick Lamar (34)")
+    print("Artistas: Kanye West (100), Jay-Z (100), Kendrick Lamar (100)")
     print("Total: 100 canciones | Split: 80% train, 20% test\n")
     scrape_multiple_artists()

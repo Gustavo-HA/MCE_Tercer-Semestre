@@ -218,4 +218,6 @@ model/
 models/
 logs/
 unsloth_compiled_cache/
-
+llama.cpp/
+_unsloth_temporary_saved_buffers/
+*.synctex.gz

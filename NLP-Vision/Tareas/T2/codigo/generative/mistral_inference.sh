@@ -57,25 +57,25 @@ PYTHON_SCRIPT="./codigo/generative/inference_mistral.py"
 echo "Ejecutando el script de Python: $PYTHON_SCRIPT"
 
 python "$PYTHON_SCRIPT" --artist="Kanye West" \
-    --model_dir="models/mistral_lr0.0002_ep3_bs2x8_r32_20251001_183935/final_model" \
+    --model_dir="models/mistral_lr0.0002_ep3_bs2x8_r32_20251003_124706/final_model" \
     --max_tokens=256 \
     --temperature=0.8 \
-    --top_p=0.92 \
-    --repetition_penalty=1.4
+    --top_p=0.9 \
+    --repetition_penalty=1.3
 
 python "$PYTHON_SCRIPT" --artist="Kendrick Lamar" \
-    --model_dir="models/mistral_lr0.0002_ep3_bs2x8_r32_20251001_183935/final_model" \
+    --model_dir="models/mistral_lr0.0002_ep3_bs2x8_r32_20251003_124706/final_model" \
     --max_tokens=256 \
     --temperature=0.8 \
-    --top_p=0.92 \
-    --repetition_penalty=1.4
+    --top_p=0.9 \
+    --repetition_penalty=1.3
 
 python "$PYTHON_SCRIPT" --artist="Jay-Z" \
-    --model_dir="models/mistral_lr0.0002_ep3_bs2x8_r32_20251001_183935/final_model" \
+    --model_dir="models/mistral_lr0.0002_ep3_bs2x8_r32_20251003_124706/final_model" \
     --max_tokens=256 \
     --temperature=0.8 \
-    --top_p=0.92 \
-    --repetition_penalty=1.4
+    --top_p=0.9 \
+    --repetition_penalty=1.3
 
 if [ $? -ne 0 ]; then
     echo "ERROR: El script de Python falló."

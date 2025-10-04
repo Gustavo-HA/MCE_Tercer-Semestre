@@ -221,16 +221,48 @@ donde:
 Por otro lado, al utilizar modelos RNN/LSTM/GRU basta con simplemente tener las letras en texto plano, ya que estos modelos no requieren el mismo nivel de contexto que los LLMs. Sin embargo, es importante asegurarse de que el texto esté limpio y bien formateado para evitar problemas durante el entrenamiento. El script de preprocesamiento convierte los textos de formato Alpaca a texto plano, asegurándose de que cada letra esté separada por los delimitadores de cada canción (En este caso \texttt{<|song\_start|>} y \texttt{<song\_end>}).
 
 
+\subsection{Transformers}
 
-\subsection{Modelos y Entrenamiento}
+En este trabajo se utilizó el modelo \texttt{unsloth/mistral-7B-instruct-v0.3-bnb-4bit} como base para el fine-tuning. Este modelo es una variante del modelo creado por Mistral: Mistral-7B \cite{jiang2023mistral7b}, y optimizado por \textit{Unsloth} para tareas de instrucción y cuantizado a 4 bits para reducir el tamaño del modelo.
 
-En esta sección se describen los modelos utilizados para la generación de texto, así como los detalles del proceso de entrenamiento.
+El framework utilizado para el fine-tuning fue \texttt{transformers} de Hugging Face, junto con \texttt{peft} para la implementación de Low-Rank Adaptation (LoRA). La elección de LoRA se debe a su eficiencia en términos de memoria y tiempo de entrenamiento, permitiendo adaptar grandes modelos preentrenados con un costo computacional reducido \cite{hu2022lora}.
 
-\subsubsection{Transformers: Mistral 7B Instruct}
+\textbf{Tokenizador y representación.} El modelo base emplea un tokenizador sub‐palabras basado en SentencePiece con un vocabulario de aproximadamente 32K tokens \cite{kudo2018sentencepiece}. Este enfoque permite manejar adecuadamente la variabilidad léxica propia de letras de rap (slang, contracciones y variaciones estilísticas) sin inflar excesivamente el vocabulario. No se realizó entrenamiento de un tokenizador nuevo, ya que el objetivo fue un ajuste fino instructivo y no la adaptación desde cero a un dominio léxico extremadamente distinto.
+
+\textbf{Formato de datos.} Cada ejemplo del conjunto de entrenamiento se construyó en formato tipo \textit{Alpaca}: \texttt{(instruction, input, output)} y posteriormente convertido a un \emph{chat template} estilo \texttt{alpaca} mediante \texttt{tokenizer.apply\_chat\_template}. Para cada canción se genera típicamente un par instrucción–respuesta, donde la instrucción solicita la generación de letras en el estilo de un artista específico y la salida contiene la letra correspondiente. Tras el mapeo, el campo final consumido por el entrenador es un único texto ya formateado.
+
+\textbf{Tamaño del conjunto.} El corpus curado contiene 239 ejemplos de entrenamiento y 60 de prueba (correspondientes a canciones únicas). Con un tamaño de lote efectivo de 16 secuencias (lote por dispositivo = 2, acumulación de gradientes = 8), el número de pasos por época es:
+\[
+\text{steps/epoch} = \lceil 239 / 16 \rceil = 15.
+\]
+Se entrenaron 3 épocas, resultando en 45 pasos totales (se almacenaron checkpoints intermedios consistentes con este valor). Esto refleja un escenario de ajuste fino ligero, más orientado a estilo que a aprendizaje exhaustivo.
+
+\textbf{Longitud de secuencia.} Se fijó \texttt{max\_seq\_length = 2048}. Dado que las letras individuales rara vez exceden este límite, se deshabilitó el \emph{packing} (\texttt{packing=False}) para evitar mezclar canciones dentro de la misma secuencia y preservar coherencia estructural (secciones como [Verse], [Chorus], etc.).
+
+\textbf{Configuración LoRA.} Se aplicó LoRA con \texttt{r = 32}, \texttt{lora\_alpha = 64}, \texttt{lora\_dropout = 0.0} sobre los módulos de proyección de atención y MLP: \texttt{q\_proj, k\_proj, v\_proj, o\_proj, gate\_proj, up\_proj, down\_proj}. Suponiendo dimensiones del modelo base (d\_model = 4096, tamaño intermedio = 14336, 32 capas), el número aproximado de parámetros entrenables añadidos por LoRA es:
+\[
+\text{por capa} = 4 \times r (4096 + 4096) + 3 \times r (4096 + 14336) = 4(32 \cdot 8192) + 3(32 \cdot 18432) \approx 2{,}818{,}048,
+\]
+\[
+\text{total} \approx 32 \times 2{,}818{,}048 \approx 90.2\text{M},
+\]
+lo que representa ~1.2\% de los =7.3B parámetros totales, pero concentra toda la capacidad de adaptación. Estos pesos LoRA se mantienen en precisión media (FP16/BF16) mientras los pesos base permanecen cuantizados a 4 bits \cite{dettmers2023qloraefficientfinetuningquantized}.
+
+\textbf{Hiperparámetros de entrenamiento.} Se utilizaron: tasa de aprendizaje \texttt{2e-4} (scheduler lineal con calentamiento de 5 pasos), \texttt{epochs = 3}, \texttt{per\_device\_train\_batch\_size = 2}, \texttt{gradient\_accumulation\_steps = 8}, \texttt{weight\_decay = 0.01}, optimizador \texttt{AdamW 8-bit} \cite{dettmers2022optimizers}, y semilla \texttt{3407}. El tamaño de lote efectivo resultante es 16 ejemplos. No se aplicó regularización adicional (\texttt{lora\_dropout = 0}).
+
+\textbf{Gestión de memoria y hardware.} El uso combinado de cuantización 4-bit + LoRA reduce el pico de VRAM necesario a un rango que típicamente cabe en una sola GPU de 12–16 GB manteniendo la ventana de contexto de 2048. El script registra memoria reservada y máxima por dispositivo antes y después del entrenamiento.
+
+\subsubsection{Evaluación de la Generación de Texto}
 
 
 
+\subsection{Modelos RNN/LSTM/GRU}
 
+
+
+\newpage
+\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
 
 
 \end{document}

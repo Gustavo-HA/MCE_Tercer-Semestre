@@ -1,0 +1,26 @@
+\begin{thebibliography}{1}
+
+\bibitem{jiang2023mistral7b}
+Albert~Q. Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford, Devendra~Singh Chaplot, Diego de~las Casas, Florian Bressand, Gianna Lengyel, Guillaume Lample, Lucile Saulnier, Lélio~Renard Lavaud, Marie-Anne Lachaux, Pierre Stock, Teven~Le Scao, Thibaut Lavril, Thomas Wang, Timothée Lacroix, and William~El Sayed.
+\newblock Mistral 7b, 2023.
+
+\bibitem{hu2022lora}
+Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu~Wang, Weizhu Chen, et~al.
+\newblock Lora: Low-rank adaptation of large language models.
+\newblock {\em ICLR}, 1(2):3, 2022.
+
+\bibitem{kudo2018sentencepiece}
+Taku Kudo and John Richardson.
+\newblock Sentencepiece: A simple and language independent subword tokenizer and detokenizer for neural text processing.
+\newblock {\em arXiv preprint arXiv:1808.06226}, 2018.
+
+\bibitem{dettmers2023qloraefficientfinetuningquantized}
+Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer.
+\newblock Qlora: Efficient finetuning of quantized llms, 2023.
+
+\bibitem{dettmers2022optimizers}
+Tim Dettmers, Mike Lewis, Sam Shleifer, and Luke Zettlemoyer.
+\newblock 8-bit optimizers via block-wise quantization.
+\newblock {\em 9th International Conference on Learning Representations, ICLR}, 2022.
+
+\end{thebibliography}

@@ -50,7 +50,7 @@ fi
 
 ####################### EJECUCION DEL SCRIPT DE PYTHON #######################
 
-PYTHON_SCRIPT="./codigo/generative/calculate_perplexity.py"
+PYTHON_SCRIPT="./codigo/generative/mistral/calculate_perplexity.py"
 
 echo "Ejecutando el script de Python: $PYTHON_SCRIPT"
 

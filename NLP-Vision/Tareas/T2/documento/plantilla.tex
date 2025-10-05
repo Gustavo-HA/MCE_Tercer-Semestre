@@ -170,8 +170,8 @@ La selección de artistas y el número de canciones a scrapear se encuentran con
 La ejecución de ambos scripts se realiza desde la terminal con la serie de comandos:
 
 \begin{center}
-\texttt{python ./codigo/generative/scrape\_songs\_alpaca.py} \\
-\texttt{python ./codigo/generative/preprocess\_scraped\_songs.py}
+\texttt{python ./codigo/generative/scraping/scrape\_songs\_alpaca.py} \\
+\texttt{python ./codigo/generative/scraping/preprocess\_scraped\_songs.py}
 \end{center}
 
 \textbf{Nota:} Es importante asegurarse de tener la clave de API de Genius configurada en un archivo \texttt{.env} en el mismo directorio que el script. Ejemplo: \texttt{GENIUS\_API\_TOKEN="tu\_token\_aqui"}.
@@ -250,13 +250,188 @@ lo que representa ~1.2\% de los =7.3B parámetros totales, pero concentra toda l
 
 \textbf{Hiperparámetros de entrenamiento.} Se utilizaron: tasa de aprendizaje \texttt{2e-4} (scheduler lineal con calentamiento de 5 pasos), \texttt{epochs = 3}, \texttt{per\_device\_train\_batch\_size = 2}, \texttt{gradient\_accumulation\_steps = 8}, \texttt{weight\_decay = 0.01}, optimizador \texttt{AdamW 8-bit} \cite{dettmers2022optimizers}, y semilla \texttt{3407}. El tamaño de lote efectivo resultante es 16 ejemplos. No se aplicó regularización adicional (\texttt{lora\_dropout = 0}).
 
-\textbf{Gestión de memoria y hardware.} El uso combinado de cuantización 4-bit + LoRA reduce el pico de VRAM necesario a un rango que típicamente cabe en una sola GPU de 12–16 GB manteniendo la ventana de contexto de 2048. El script registra memoria reservada y máxima por dispositivo antes y después del entrenamiento.
+\textbf{Gestión de memoria y hardware.} El uso combinado de cuantización 4-bit + LoRA reduce el pico de VRAM necesario a un rango que típicamente cabe en una sola GPU de 12–16 GB manteniendo la ventana de contexto de 2048. El script registra memoria reservada y máxima por dispositivo antes y después del entrenamiento. 
+
+\textbf{Hardware utilizado.} El entrenamiento se realizó en un nodo con 2 GPUs NVIDIA RTX TITAN (24 GB VRAM cada una), 128 GB RAM y 24 núcleos de CPU Intel Xeon Silver 4214 (2.2 GHz). Equipo proporcionado por el Laboratorio de Supercómputo del Bajío (Lab-SB) del CIMAT. 
 
 \subsubsection{Evaluación de la Generación de Texto}
 
+\textbf{Perplejidad.} La \emph{perplejidad} (PPL) es una métrica estándar para evaluar modelos de lenguaje, que mide qué tan bien un modelo predice una muestra. Matemáticamente, la perplejidad se define como la exponencial de la entropía cruzada promedio por token:
+\[
+\text{PPL} = \exp\left(-\frac{1}{N} \sum_{i=1}^{N} \log P(w_i | w_{<i})\right),
+\]
+donde \(N\) es el número total de tokens en el conjunto de evaluación, y \(P(w_i | w_{<i})\) es la probabilidad condicional del token \(w_i\) dado el contexto previo \(w_{<i}\). Una perplejidad más baja indica un mejor rendimiento del modelo, ya que sugiere que el modelo está menos "sorprendido" por los datos de evaluación.
+
+Para evaluar el impacto del fine-tuning, se comparó la perplejidad del modelo ajustado con la del modelo base \texttt{mistral-7B-instruct-v0.3-bnb-4bit} sin ajuste fino. Esto permite cuantificar la mejora en la capacidad predictiva del modelo tras el entrenamiento con las letras de canciones. El código para calcular la perplejidad es proporcionado por la misma biblioteca \texttt{Unsloth}, se encuentra en \texttt{codigo/generative/mistral/utils/perplexity\_unsloth.py}. La lógica fue adaptada en el script \texttt{calculate\_perplexity.py} para evaluar ambos modelos (base y fine-tuned) sobre el conjunto de prueba.
+
+El resultado de la evaluación de perplejidad en el conjunto de prueba es el siguiente:
+\begin{itemize}
+    \item Perplejidad del modelo base (sin fine-tuning): 9.35.
+    \item Perplejidad del modelo fine-tuned: 7.20.
+    \item Mejora relativa: \((9.35 - 7.20) / 9.35 \times 100\% \approx 22.93\%\).
+    \item Interpretación: La reducción significativa en la perplejidad indica que el modelo fine-tuned ha mejorado su capacidad para predecir las letras de canciones, adaptándose mejor al estilo y vocabulario específico del dominio. Esto fue logrado a pesar del tamaño relativamente pequeño del conjunto de datos de entrenamiento, demostrando la eficacia del enfoque de fine-tuning con LoRA en un modelo cuantizado.
+\end{itemize}
+
+\textbf{Muestras generadas.} 
+
+Se generaron varias muestras de texto utilizando el modelo fine-tuned para evaluar su capacidad de generación. Todas las muestras se generaron con los siguientes parámetros en la inferencia, por mostrar un mejor balance entre coherencia y diversidad:
+\begin{itemize}
+    \item \texttt{max\_new\_tokens = 256}. Representa la longitud máxima de la secuencia generada.
+    \item \texttt{temperature = 0.8} (0.7 para Kendrick Lamar). Controla la aleatoriedad de la generación; valores más bajos hacen que el modelo sea más conservador.
+    \item \texttt{top\_p = 0.9}. Utiliza muestreo de núcleo para limitar la selección de tokens a los más probables.
+    \item \texttt{repetition\_penalty = 1.3}. Penaliza la repetición de tokens para fomentar la diversidad en la generación.
+\end{itemize}
+
+A continuación se presentan algunos ejemplos representativos:
+
+\textbf{Ejemplo 1: Letra generada en el estilo de Jay-Z}
+
+En este ejemplo, se le pidió al modelo que generara una letra en el estilo de Jay-Z mediante el prompt:
+
+\begin{verbatim}
+    You're a hip-hop artist, create song lyrics. 
+    Write hip-hop lyrics in the style of Jay-Z.
+\end{verbatim}
+
+Y se obtuvo la siguiente salida:
+
+\begin{verbatim}
+    [Intro]
+    Uh huh uh (yeah)
+    Yeah yeah you know my name is Hov', right? Uhh
+    I got this little thing called ``The Blueprint''
+    And I just want to run through some shit for y'all tonight
+    Just have fun with it
+    (Hands up!)
+
+    [Verse 1]
+    Yo, yo, yo, yo, whattup! It's your boy Shawn
+    Back on that bullshit 'cause niggas ain't learn
+    Last time out I burned down the barn
+    Now I'm back and I might burn down another one
+    What do you wanna bet? You can put all ya chips in
+    If he don't win then we all gonna be broke again
+    But if he does win then we gon' get richer than rich men
+    So place your bets now before they stop taking them
+    See me as an investment like Berkley or Microsoft
+    Put ten dollars into me baby watch how far it goes
+    Watch how fast it grows
+\end{verbatim}
+
+Podemos analizar la letra generada entre pilares del estilo de cada artista:
+
+\begin{itemize}
+    \item \textbf{Persona y Autenticidad.} El intro es muy representativo del estilo de Jay-Z, utilizando \textit{ad-libs} (Uh, uh, yeah) y directamente referenciando su nickname (Hov'). También hace referencia a su álbum ``The Blueprint'', lo que refuerza su identidad como artista. El uso de ``Your boy Shawn'' es también auténtico.
+    
+    \item \textbf{Temas y Contenido.} La letra realiza una metáfora sobre invertir en sí mismo como un artista, lo cual es un tema recurrente en la música de Jay-Z.
+
+    \item \textbf{Rimas y Fluidez.} La letra presenta un esquema de rima consistente (AABB), aunque la estructura es predecible y carece de complejidad y expertiz de Jay-Z.
+\end{itemize}
+
+\textbf{Ejemplo 2: Letra generada en el estilo de Kanye West}
+
+Nuevamente, se le pidió al modelo la generación de una letra, ahora en el estilo de Kanye West. Esto fue mediante el prompt:
+
+\begin{verbatim}
+    You're a hip-hop artist, create song lyrics. 
+    Write hip-hop lyrics in the style of Kanye West.
+\end{verbatim}
 
 
-\subsection{Modelos RNN/LSTM/GRU}
+Y se obtuvo la siguiente salida:
+
+\begin{verbatim}
+    [Intro]
+    I know He won’t forsake me
+    He won’t leave me
+    No matter what I do
+    And even if I go through hell tonight
+    He will still be God when it’s all over with
+    (God is) (God is)
+
+    [Verse 1]
+    They say build your own
+    I said fuck that, we gon' buy our way out
+    We ain't finna wait 'til they give us something to celebrate
+    So let's get this bread
+    Fuck up school and just drop out
+    But you can't drop out without dropping some knowledge first
+    Let me teach y'all how to make yourself rich
+    How to stay fly while staying righteous
+    First thing you need is faith as big as Mount Rushmore
+    Then take it from here
+
+    [Chorus]
+    Jesus saved my soul
+    Now I drive Rollies and Bentleys
+    Bought myself a couple chains
+    Spendin' money like I don't owe Him nothin'
+    Everybody want heaven but nobody wanna die
+    Nobody wanna cry no more
+    That means everybody wanna live forever
+    Not ready to meet Your maker
+\end{verbatim}
+
+\begin{itemize}
+    \item \textbf{Persona y Autenticidad.} La letra captura la dualidad central de la persona de Kanye West: la del predicador y el materialista. El intro con temática góspel y las referencias a Dios son muy representativas de su era en los finales de los 10's con el album \textit{Jesus is King}. Esto se contrasta inmediatamente con un tono provocador y egocéntrico (Let me teach y'all'', fuck that''), lo cual es sumamente auténtico a su estilo.
+
+    \item \textbf{Temas y Contenido.} El modelo representa exitosamente la mezcla de temas de Kanye. Se abordan la religión y la fe (``Jesus saved my soul'', ``faith as big as Mount Rushmore'') en conflicto directo con el materialismo extremo y el lujo (``drive Rollies and Bentleys''). Incluye también aforismos y comentarios sociales simplificados, como la línea ``Everybody want heaven but nobody wanna die'', un recurso muy común en sus letras.
+
+    \item \textbf{Rimas y Fluidez.} Kanye a menudo prioriza el mensaje y la emoción sobre la complejidad de la rima. La letra generada refleja esto: el esquema de rima es inconsistente y conversacional. Se apoya más en la cadencia y en la fuerza de las declaraciones que en patrones de rima complejos, lo que resulta en un flujo que se asemeja a un sermón o una declaración apasionada, muy fiel a su estilo de entrega.
+\end{itemize}
+
+
+\textbf{Ejemplo 3: Letra generada en el estilo de Kendrick Lamar}
+
+Esta vez se le pidió al modelo generar una letra para una canción de Hip-Hop al estilo de Kendrick Lamar, mediante el prompt:
+    
+\begin{verbatim}
+    You're a hip-hop artist, create song lyrics. 
+    Write hip-hop lyrics in the style of Kendrick Lamar.
+\end{verbatim}
+
+Y se obtuvo la siguiente salida:
+
+\begin{verbatim}
+    [Intro]
+    I don’t know what they want from me! I gave them my life
+    They wanna see some type of drama? Here it is
+    (Bitch)
+
+    [Verse 1]
+    What up homie? What you writing about today? (Today?)
+    Writing 'bout these niggas that be hating on me (Huh?)
+    And all this fake love that surrounds me (Uh)
+    All this bullshit that goes around me (Yeah)
+    It gets tiring sometimes when you trying to stay positive
+    But negative energy always surrounding you
+    So how can we live with no stress and anxiety?
+    When everybody got something bad to say bout you
+    Everybody wants something but ain't willing to give nothin' back
+    Nobody really cares if you win or lose at shit
+    If your name isn't mentioned then nobody gon' mention you
+    Even though you did more than most people ever done
+    That'll make you feel like you worthless
+    Like you never won
+    Never been number one
+    Always second place even when you first
+    How do you deal with that kind of pressure? How do you cope?
+    Knowin' every move you make will affect your whole family tree
+    Your friends, your enemies, your lovers, haters, neighbors
+    The world, society, everyone expect perfection
+    From an imperfect person
+\end{verbatim}
+\begin{itemize}
+    \item \textbf{Persona y Autenticidad.} Captura a la perfección la persona introspectiva, ansiosa y abrumada que define gran parte de la obra reciente de Kendrick Lamar (DAMN y MM\&BS). La letra se lee como un monólogo interno o una sesión de terapia, explorando la presión de la fama de una manera vulnerable y conflictiva, lo cual es una característica central de su estilo.
+
+    \item \textbf{Temas y Contenido.} Los temas abordados son extremadamente fieles al universo lírico de Kendrick. Se centra en la salud mental (``stress and anxiety''), el peso de las expectativas (``everyone expect perfection''), la falsedad en la industria (``fake love that surrounds me''), y la responsabilidad generacional (``every move you make will affect your whole family tree''). Este enfoque en el conflicto interno y la carga del liderazgo es mucho más representativo que la simple bravuconería.
+
+    \item \textbf{Rimas y Fluidez.} El modelo imita exitosamente la fluidez conversacional y casi de "spoken word" de Kendrick. En lugar de adherirse a un esquema de rima estricto, prioriza el flujo de conciencia y la carga emocional del mensaje. Las líneas son largas y discursivas, construyendo una tensión que culmina en la lista final (``Your friends, your enemies...''). Esta estructura, que favorece el ritmo narrativo sobre la rima perfecta, es una técnica clave en el repertorio de Kendrick.
+\end{itemize}
+
+En los tres ejemplos, el modelo fine-tuned demuestra una capacidad notable para capturar los estilos únicos de cada artista, tanto en términos de contenido temático como la estructura lírica. Aunque no alcanza la complejidad y profundidad de los artistas originales, especialmente en términos de rima y metáforas, el modelo genera letras coherentes y estilísticamente apropiadas para los artistas. Además, el modelo respetó en su mayoría la estructura de las letras basandose en los datos de entrenamiento (por ejemplo, siempre inicio con el [Intro], [Verse 1], etc.). Esto sugiere que el enfoque de fine-tuning con un conjunto de datos relativamente pequeño pero bien curado puede ser efectivo para adaptar un modelo de lenguaje grande a tareas creativas específicas como la generación de letras de canciones.
+
+\subsection{Modelos RNN: LSTM/GRU}
 
 
 

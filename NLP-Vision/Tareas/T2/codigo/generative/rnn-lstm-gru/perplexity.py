@@ -1,11 +1,6 @@
-"""
-RNN Perplexity Calculation Script
-Calculates perplexity of trained RNN models on test dataset.
-Supports both character-level and word-level tokenization.
-"""
-
 import torch
 import torch.nn as nn
+from rnntype import RNNType
 from torch.utils.data import Dataset, DataLoader
 import json
 from pathlib import Path
@@ -57,47 +52,6 @@ class LyricsDataset(Dataset):
         target = self.encoded[idx + self.seq_length]
         
         return torch.tensor(input_seq, dtype=torch.long), torch.tensor(target, dtype=torch.long)
-
-
-class SimpleRNN(nn.Module):
-    """Simple RNN model for text generation (character or word level)."""
-    
-    def __init__(self, vocab_size, embedding_dim=128, hidden_dim=256, num_layers=2, dropout=0.3):
-        """
-        Args:
-            vocab_size: Size of vocabulary
-            embedding_dim: Dimension of token embeddings
-            hidden_dim: Dimension of RNN hidden state
-            num_layers: Number of RNN layers
-            dropout: Dropout probability
-        """
-        super(SimpleRNN, self).__init__()
-        
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.rnn = nn.RNN(
-            embedding_dim,
-            hidden_dim,
-            num_layers,
-            dropout=dropout if num_layers > 1 else 0,
-            batch_first=True
-        )
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(hidden_dim, vocab_size)
-        
-    def forward(self, x, hidden=None):
-        embedded = self.embedding(x)  # (batch_size, seq_length, embedding_dim)
-        rnn_out, hidden = self.rnn(embedded, hidden)  # (batch_size, seq_length, hidden_dim)
-        rnn_out = self.dropout(rnn_out)
-        output = self.fc(rnn_out)  # (batch_size, seq_length, vocab_size)
-        return output, hidden
-    
-    def init_hidden(self, batch_size, device):
-        """Initialize hidden state."""
-        h_0 = torch.zeros(self.num_layers, batch_size, self.hidden_dim).to(device)
-        return h_0
-
 
 def calculate_perplexity(model, dataloader, device):
     """
@@ -297,7 +251,8 @@ def main():
     logger.info(f"\nLoading model from: {args.model_path}")
     checkpoint = torch.load(args.model_path, map_location=device)
     
-    model = SimpleRNN(
+    model = RNNType(
+        rnn_type= checkpoint['rnn_type'],
         vocab_size=checkpoint['vocab_size'],
         embedding_dim=checkpoint['embedding_dim'],
         hidden_dim=checkpoint['hidden_dim'],

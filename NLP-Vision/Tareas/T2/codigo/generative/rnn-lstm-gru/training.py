@@ -1,10 +1,6 @@
-"""
-RNN for lyrics text generation.
-Trains an RNN model to generate lyrics at character or word level.
-"""
-
 import torch
 import torch.nn as nn
+from rnntype import RNNType
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import json
@@ -12,6 +8,7 @@ from pathlib import Path
 import logging
 import argparse
 import os
+import math
 
 # Configure logging
 logging.basicConfig(
@@ -23,8 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 class LyricsDataset(Dataset):
-    """Dataset for text generation at character or word level."""
-    
     def __init__(self, text, token_to_idx, seq_length=100, level='char'):
         """
         Args:
@@ -38,7 +33,6 @@ class LyricsDataset(Dataset):
         self.seq_length = seq_length
         self.level = level
         
-        # Tokenize and encode text
         if level == 'char':
             self.tokens = list(text)
         else:  # word level
@@ -50,53 +44,10 @@ class LyricsDataset(Dataset):
         return len(self.encoded) - self.seq_length
     
     def __getitem__(self, idx):
-        # Input: seq_length characters
-        # Target: next character after the sequence
         input_seq = self.encoded[idx:idx + self.seq_length]
         target = self.encoded[idx + self.seq_length]
         
         return torch.tensor(input_seq, dtype=torch.long), torch.tensor(target, dtype=torch.long)
-
-
-class SimpleRNN(nn.Module):
-    """Simple RNN model for text generation (character or word level)."""
-    
-    def __init__(self, vocab_size, embedding_dim=128, hidden_dim=256, num_layers=2, dropout=0.3):
-        """
-        Args:
-            vocab_size: Size of vocabulary
-            embedding_dim: Dimension of token embeddings
-            hidden_dim: Dimension of RNN hidden state
-            num_layers: Number of RNN layers
-            dropout: Dropout probability
-        """
-        super(SimpleRNN, self).__init__()
-        
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.rnn = nn.RNN(
-            embedding_dim,
-            hidden_dim,
-            num_layers,
-            dropout=dropout if num_layers > 1 else 0,
-            batch_first=True
-        )
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(hidden_dim, vocab_size)
-        
-    def forward(self, x, hidden=None):
-        embedded = self.embedding(x)  # (batch_size, seq_length, embedding_dim)
-        rnn_out, hidden = self.rnn(embedded, hidden)  # (batch_size, seq_length, hidden_dim)
-        rnn_out = self.dropout(rnn_out)
-        output = self.fc(rnn_out)  # (batch_size, seq_length, vocab_size)
-        return output, hidden
-    
-    def init_hidden(self, batch_size, device):
-        """Initialize hidden state."""
-        h_0 = torch.zeros(self.num_layers, batch_size, self.hidden_dim).to(device)
-        return h_0
-
 
 def train_epoch(model, dataloader, criterion, optimizer, device, clip_grad=5.0):
     """Train for one epoch."""
@@ -173,6 +124,8 @@ def main():
     parser = argparse.ArgumentParser(description='Train RNN for lyrics text generation')
     
     # Model architecture
+    parser.add_argument('--rnn_type', type=str, default='LSTM', choices=['RNN', 'LSTM', 'GRU'],
+                        help='Type of RNN: RNN, LSTM, or GRU (default: LSTM)')
     parser.add_argument('--level', type=str, default='char', choices=['char', 'word'],
                         help='Tokenization level: char or word (default: char)')
     parser.add_argument('--embedding_dim', type=int, default=128,
@@ -196,6 +149,14 @@ def main():
     parser.add_argument('--clip_grad', type=float, default=5.0,
                         help='Gradient clipping value (default: 5.0)')
     
+    # Early stopping
+    parser.add_argument('--early_stopping', action='store_true',
+                        help='Enable early stopping')
+    parser.add_argument('--patience', type=int, default=5,
+                        help='Early stopping patience (default: 5)')
+    parser.add_argument('--min_delta', type=float, default=0.001,
+                        help='Minimum change to qualify as improvement (default: 0.001)')
+    
     # Data and output
     parser.add_argument('--data_dir', type=str, default=None,
                         help='Path to data directory (default: auto-detect)')
@@ -213,7 +174,7 @@ def main():
     
     if args.output_dir is None:
         base_dir = Path(__file__).parent.parent.parent.parent
-        output_dir = base_dir / "models" / "rnn" / args.level
+        output_dir = base_dir / "models" / args.rnn_type / args.level
         os.makedirs(output_dir, exist_ok=True)        
     else:
         output_dir = Path(args.output_dir)
@@ -226,21 +187,6 @@ def main():
     
     if torch.cuda.is_available():
         logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
-    
-    logger.info("="*80)
-    logger.info(f"TRAINING {args.level.upper()}-LEVEL RNN FOR LYRICS GENERATION")
-    logger.info("="*80)
-    logger.info("\nHyperparameters:")
-    logger.info(f"  Level: {args.level}")
-    logger.info(f"  Embedding dim: {args.embedding_dim}")
-    logger.info(f"  Hidden dim: {args.hidden_dim}")
-    logger.info(f"  Num layers: {args.num_layers}")
-    logger.info(f"  Dropout: {args.dropout}")
-    logger.info(f"  Batch size: {args.batch_size}")
-    logger.info(f"  Sequence length: {args.seq_length}")
-    logger.info(f"  Learning rate: {args.learning_rate}")
-    logger.info(f"  Epochs: {args.num_epochs}")
-    logger.info(f"  Gradient clipping: {args.clip_grad}")
     
     # Load vocabulary
     logger.info("\nLoading vocabulary...")
@@ -277,6 +223,23 @@ def main():
     else:
         logger.info(f"Training text length: {len(train_text.split()):,} words")
     
+    # Load validation data
+    logger.info("\nLoading validation data...")
+    val_file = data_dir / "test_lyrics.txt"
+    
+    if not val_file.exists():
+        logger.warning(f"Validation file not found: {val_file}")
+        logger.warning("Training without validation set!")
+        val_text = None
+    else:
+        with open(val_file, 'r', encoding='utf-8') as f:
+            val_text = f.read()
+        
+        if args.level == 'char':
+            logger.info(f"Validation text length: {len(val_text):,} characters")
+        else:
+            logger.info(f"Validation text length: {len(val_text.split()):,} words")
+    
     # Create datasets
     logger.info("\nCreating datasets...")
     train_dataset = LyricsDataset(train_text, token_to_idx, seq_length=args.seq_length, level=args.level)
@@ -285,9 +248,18 @@ def main():
     logger.info(f"Number of training sequences: {len(train_dataset):,}")
     logger.info(f"Number of batches per epoch: {len(train_loader):,}")
     
+    # Create validation dataset if available
+    val_loader = None
+    if val_text is not None:
+        val_dataset = LyricsDataset(val_text, token_to_idx, seq_length=args.seq_length, level=args.level)
+        val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=2)
+        logger.info(f"Number of validation sequences: {len(val_dataset):,}")
+        logger.info(f"Number of validation batches: {len(val_loader):,}")
+    
     # Create model
     logger.info("\nInitializing model...")
-    model = SimpleRNN(
+    model = RNNType(
+        rnn_type=args.rnn_type,
         vocab_size=vocab_size,
         embedding_dim=args.embedding_dim,
         hidden_dim=args.hidden_dim,
@@ -309,7 +281,8 @@ def main():
     logger.info("STARTING TRAINING")
     logger.info("="*80)
     
-    best_loss = float('inf')
+    best_val_loss = float('inf')
+    epochs_without_improvement = 0
     
     for epoch in range(args.num_epochs):
         logger.info(f"\nEpoch {epoch + 1}/{args.num_epochs}")
@@ -317,33 +290,74 @@ def main():
         
         # Train
         train_loss = train_epoch(model, train_loader, criterion, optimizer, device, args.clip_grad)
-        logger.info(f"Training Loss: {train_loss:.4f}")
+        train_perplexity = math.exp(train_loss)
+        logger.info(f"Training Loss: {train_loss:.4f} | Perplexity: {train_perplexity:.2f}")
         
-        # Update learning rate
-        scheduler.step(train_loss)
-        
-        # Save best model
-        if train_loss < best_loss:
-            best_loss = train_loss
-            checkpoint = {
-                'epoch': epoch + 1,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': train_loss,
-                'vocab_size': vocab_size,
-                'embedding_dim': args.embedding_dim,
-                'hidden_dim': args.hidden_dim,
-                'num_layers': args.num_layers,
-                'dropout': args.dropout,
-                'level': args.level,
-            }
-            torch.save(checkpoint, output_dir / 'best_model.pt')
-            logger.info(f"✓ Saved best model (loss: {train_loss:.4f})")
+        # Validate
+        if val_loader is not None:
+            val_loss = evaluate(model, val_loader, criterion, device)
+            val_perplexity = math.exp(val_loss)
+            logger.info(f"Validation Loss: {val_loss:.4f} | Perplexity: {val_perplexity:.2f}")
+            
+            # Update learning rate scheduler based on validation loss
+            scheduler.step(val_loss)
+            
+            # Save best model based on validation loss
+            if val_loss < best_val_loss - args.min_delta:
+                best_val_loss = val_loss
+                epochs_without_improvement = 0
+                checkpoint = {
+                    'epoch': epoch + 1,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'train_loss': train_loss,
+                    'val_loss': val_loss,
+                    'vocab_size': vocab_size,
+                    'embedding_dim': args.embedding_dim,
+                    'hidden_dim': args.hidden_dim,
+                    'num_layers': args.num_layers,
+                    'dropout': args.dropout,
+                    'level': args.level,
+                    'rnn_type': args.rnn_type
+                }
+                torch.save(checkpoint, output_dir / 'best_model.pt')
+                logger.info(f"Saved best model (val_loss: {val_loss:.4f}, val_perplexity: {val_perplexity:.2f})")
+            else:
+                epochs_without_improvement += 1
+                logger.info(f"No improvement for {epochs_without_improvement} epoch(s)")
+            
+            # Early stopping check
+            if args.early_stopping and epochs_without_improvement >= args.patience:
+                logger.info(f"\n Early stopping triggered after {epoch + 1} epochs")
+                logger.info(f"No improvement for {args.patience} consecutive epochs")
+                break
+        else:
+            # Usaremos train loss
+            scheduler.step(train_loss)
+            if train_loss < best_val_loss:
+                best_val_loss = train_loss
+                checkpoint = {
+                    'epoch': epoch + 1,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'train_loss': train_loss,
+                    'vocab_size': vocab_size,
+                    'embedding_dim': args.embedding_dim,
+                    'hidden_dim': args.hidden_dim,
+                    'num_layers': args.num_layers,
+                    'dropout': args.dropout,
+                    'level': args.level,
+                    'rnn_type': args.rnn_type
+                }
+                torch.save(checkpoint, output_dir / 'best_model.pt')
+                logger.info(f"Saved best model (loss: {train_loss:.4f})")
     
     logger.info("\n" + "="*80)
     logger.info("✓ TRAINING COMPLETE!")
     logger.info("="*80)
-    logger.info(f"Best loss: {best_loss:.4f}")
+    best_perplexity = math.exp(best_val_loss)
+    logger.info(f"Best validation loss: {best_val_loss:.4f}")
+    logger.info(f"Best validation perplexity: {best_perplexity:.2f}")
     logger.info(f"Model saved to: {output_dir / 'best_model.pt'}")
     logger.info("="*80 + "\n")
 

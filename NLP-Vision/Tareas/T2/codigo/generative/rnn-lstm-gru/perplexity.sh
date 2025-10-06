@@ -4,17 +4,17 @@
 #SBATCH --partition=GPU
 
 # Nombre del trabajo
-#SBATCH --job-name=RNN_Perplexity
+#SBATCH --job-name=RNN-LSTM-GRU_Perplexity
 
 # Número de tareas
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 
 # Archivo de log donde quedará lo que imprima su software por pantalla
-#SBATCH --output="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/rnn_perplexity.log"
+#SBATCH --output="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/perplexity.log"
 
 # Archivo de error donde se guardarán los errores del trabajo
-#SBATCH --error="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/rnn_perplexity.err"
+#SBATCH --error="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/perplexity.err"
 
 # Memoria máxima a utilizar
 #SBATCH --mem=0
@@ -53,17 +53,19 @@ echo "Entorno virtual activado correctamente."
 ####################### CALCULO DE PERPLEJIDAD #######################
 
 # Define model paths - Change these to your actual model paths
-CHAR_MODEL="models/rnn/char/best_model.pt"
-WORD_MODEL="models/rnn/word/best_model.pt"
+CHAR_MODEL="models/RNN/char/best_model.pt"
+WORD_MODEL="models/RNN/word/best_model.pt"
+
+echo "=========================================="
+echo " Simple RNN"
+echo "=========================================="
 
 echo ""
-echo "=========================================="
-echo "CALCULANDO PERPLEJIDAD - MODELO CHAR"
-echo "=========================================="
+echo "MODELO CHAR"
 echo ""
 
 # Calculate perplexity for character-level model
-python codigo/generative/rnn/rnn_perplexity.py \
+python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$CHAR_MODEL" \
     --level char \
     --batch_size 64 \
@@ -71,13 +73,11 @@ python codigo/generative/rnn/rnn_perplexity.py \
     --method dataloader
 
 echo ""
-echo "=========================================="
-echo "CALCULANDO PERPLEJIDAD - MODELO WORD"
-echo "=========================================="
+echo "MODELO WORD"
 echo ""
 
 # Calculate perplexity for word-level model
-python codigo/generative/rnn/rnn_perplexity.py \
+python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$WORD_MODEL" \
     --level word \
     --batch_size 64 \
@@ -86,8 +86,70 @@ python codigo/generative/rnn/rnn_perplexity.py \
 
 echo ""
 echo "=========================================="
-echo "CÁLCULO DE PERPLEJIDAD COMPLETADO"
+echo " RNN LSTM "
 echo "=========================================="
 echo ""
+
+CHAR_MODEL="models/LSTM/char/best_model.pt"
+WORD_MODEL="models/LSTM/word/best_model.pt"
+
+echo ""
+echo "MODELO CHAR"
+echo ""
+
+# Calculate perplexity for character-level model
+python codigo/generative/rnn-lstm-gru/perplexity.py \
+    --model_path "$CHAR_MODEL" \
+    --level char \
+    --batch_size 64 \
+    --seq_length 256 \
+    --method dataloader
+
+echo ""
+echo "MODELO WORD"
+echo ""
+
+# Calculate perplexity for word-level model
+python codigo/generative/rnn-lstm-gru/perplexity.py \
+    --model_path "$WORD_MODEL" \
+    --level word \
+    --batch_size 64 \
+    --seq_length 256 \
+    --method dataloader
+
+
+echo ""
+echo "=========================================="
+echo " RNN GRU "
+echo "=========================================="
+echo ""
+
+CHAR_MODEL="models/GRU/char/best_model.pt"
+WORD_MODEL="models/GRU/word/best_model.pt"
+
+echo ""
+echo "MODELO CHAR"
+echo ""
+
+# Calculate perplexity for character-level model
+python codigo/generative/rnn-lstm-gru/perplexity.py \
+    --model_path "$CHAR_MODEL" \
+    --level char \
+    --batch_size 64 \
+    --seq_length 256 \
+    --method dataloader
+
+echo ""
+echo "MODELO WORD"
+echo ""
+
+# Calculate perplexity for word-level model
+python codigo/generative/rnn-lstm-gru/perplexity.py \
+    --model_path "$WORD_MODEL" \
+    --level word \
+    --batch_size 64 \
+    --seq_length 256 \
+    --method dataloader
+
 
 echo "--- Fin del trabajo de Slurm ---"

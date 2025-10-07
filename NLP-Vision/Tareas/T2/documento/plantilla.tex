@@ -433,21 +433,104 @@ En los tres ejemplos, el modelo fine-tuned demuestra una capacidad notable para 
 
 \newpage
 \subsection{Simple RNN}
+Las RNN simples constituyen la forma canónica de modelar dependencias secuenciales mediante un estado oculto recurrente. Cada paso de tiempo aplica una transformación no lineal sobre la combinación del embedding del token actual y el estado oculto previo. Sin embargo, su profundidad temporal efectiva se ve limitada por el \emph{desvanecimiento} y la \emph{explosión} del gradiente, lo cual dificulta capturar dependencias de largo alcance en secuencias lingüísticas (estructuras repetitivas, coherencia temática, progresión narrativa, etc.).
 
-Las RNNs simples son la forma más básica de redes neuronales recurrentes. Están diseñadas para procesar secuencias de datos, como texto o series temporales, manteniendo un estado oculto que se actualiza en cada paso de tiempo. Sin embargo, las RNNs simples sufren de problemas de desvanecimiento y explosión del gradiente, lo que dificulta el aprendizaje de dependencias a largo plazo.
+	\textbf{Tokenización y representación.} Se entrenaron dos variantes: a nivel carácter y a nivel palabra. El vocabulario carácter contiene 157 símbolos (incluyendo saltos de línea, puntuación y caracteres Unicode presentes en las letras). El vocabulario palabra contiene 19{,}107 tokens (palabras, formas con apóstrofos y algunos préstamos multilingües). Cada token se proyecta a un embedding de dimensión 128.
 
+	\textbf{Formato de datos.} El corpus en texto plano se segmenta en ventanas deslizantes de longitud fija \texttt{seq\_length = 100}. Para cada ventana de 100 tokens (o caracteres) se predice el siguiente token (modelo de lenguaje autoregresivo clásico). No se mezcla información entre canciones más allá de la concatenación lineal del corpus, pero se preservan delimitadores estructurales (\texttt{<|song\_start|>} / \texttt{<song\_end>}), lo que provee señales débiles de segmentación.
+
+	\textbf{Tamaño del conjunto.} El conjunto de entrenamiento contiene 820{,}993 caracteres (nivel de carácter) y 157{,}910 palabras (nivel de palabra). El conjunto de prueba contiene 214{,}957 caracteres y 41{,}889 palabras. El número de secuencias efectivas por nivel es (longitud menos 100). Con \texttt{batch\_size = 64}, esto produce aproximadamente 12.8K batches por época (carácter) y 2.5K batches por época (palabra), lo que impacta la relación señal–ruido de la estimación del gradiente (más estable en la variante palabra, más estocástica en la variante carácter).
+
+	\textbf{Arquitectura.} La celda recurrente implementa la actualización clásica:
+\[
+h_t = \tanh(W_{xh} x_t + W_{hh} h_{t-1} + b),\quad y_t = W_{hy} h_t + c,
+\]
+donde $x_t \in \mathbb{R}^{128}$, $h_t \in \mathbb{R}^{256}$. Se emplean 2 capas apiladas (\texttt{num\_layers = 2}) con \texttt{dropout = 0.3} entre capas (no entre pasos temporales internos de cada capa).
+
+	extbf{Capacidad y parámetros.} Aproximadamente:
+\begin{itemize}
+    \item Variante palabra: $\sim 7.59$M parámetros entrenables (embeddings $\approx$2.45M, núcleo recurrente $\approx$0.23M, proyección de salida $\approx$4.91M).
+    \item Variante carácter: $\sim 0.29$M parámetros (la reducción proviene del vocabulario compacto).
+\end{itemize}
+Esto ilustra la fuerte asimetría de capacidad inducida por el tamaño del vocabulario y la capa de salida softmax.
+
+	\textbf{Hiperparámetros de entrenamiento.} Se usó el optimizador Adam (\texttt{lr = 2e-3}), \texttt{batch\_size = 64}, \texttt{epochs = 20}, \texttt{seq\_length = 100}, \texttt{gradient clipping = 5.0}. El criterio es entropía cruzada categórica. Un scheduler \texttt{ReduceLROnPlateau} reduce la tasa de aprendizaje con factor 0.5 tras 2 épocas sin mejora significativa (\texttt{patience = 2}). La pérdida se reporta en escala log-perplexity y puede re–expresarse como $\text{PPL} = e^{\mathcal{L}}$. Se habilitó opción de \emph{early stopping} configurable.
+
+	\textbf{Regularización y estabilidad.} El \emph{dropout} inter–capas y el \emph{gradient clipping} controlan, respectivamente, sobre–ajuste y explosión de gradientes. Aún así, las limitaciones estructurales (sin mecanismos de compuertas ni memoria explícita) reducen su capacidad para retener contexto semántico más allá de decenas de pasos.
+
+	\textbf{Hardware utilizado.} El mismo entorno descrito en la subsección de Transformers: 2× NVIDIA RTX TITAN (24 GB VRAM), 128 GB RAM y 24 núcleos CPU Intel Xeon Silver 4214, utilizando \texttt{PyTorch} para la implementación y entrenamiento.
 
 
 \newpage
 \subsection{LSTM}
+Las LSTM introducen compuertas que mitigan el desvanecimiento del gradiente y permiten retener información relevante a través de pasos temporales largos. La celda mantiene un estado de memoria $c_t$ separado del estado oculto $h_t$, modulando flujos de información mediante puertas sigmoides.
 
-Las LSTM (Long Short-Term Memory) son una variante de las RNNs diseñadas para abordar los problemas de desvanecimiento y explosión del gradiente. Introducen una arquitectura de celda de memoria que permite a la red aprender a largo plazo, manteniendo información relevante durante períodos prolongados. Esto se logra mediante puertas de entrada, olvido y salida que regulan el flujo de información en la celda de memoria.
+	\textbf{Tokenización y representación.} Se emplean las mismas dos granularidades (carácter y palabra) con embeddings de dimensión 128 inicializados aleatoriamente y aprendidos de forma conjunta. No se reutilizó el tokenizador sub‐palabras del modelo Transformer dado que aquí el foco es analizar arquitecturas recurrentes “clásicas”.
 
+	\textbf{Formato de datos.} Idéntico al de la RNN simple: ventanas deslizantes de longitud 100, objetivo el token siguiente. La preservación de delimitadores de canción actúa como débil frontera semántica, y se espera que la LSTM capture patrones de estructura (introducciones, coros) con mayor robustez que la RNN simple.
+
+	\textbf{Tamaño del conjunto.} Igual a la variante anterior; esto permite comparaciones controladas de arquitectura.
+
+	\textbf{Arquitectura.} Dos capas LSTM (\texttt{hidden\_dim = 256}, \texttt{num\_layers = 2}) con \texttt{dropout = 0.3} entre capas. Ecuaciones de la celda (omitiendo subíndices de capa):
+\[
+\begin{aligned}
+i_t &= \sigma(W_{xi} x_t + W_{hi} h_{t-1} + b_i),\\
+f_t &= \sigma(W_{xf} x_t + W_{hf} h_{t-1} + b_f),\\
+g_t &= \tanh(W_{xg} x_t + W_{hg} h_{t-1} + b_g),\\
+o_t &= \sigma(W_{xo} x_t + W_{ho} h_{t-1} + b_o),\\
+c_t &= f_t \odot c_{t-1} + i_t \odot g_t,\\
+h_t &= o_t \odot \tanh(c_t).
+\end{aligned}
+\]
+
+	extbf{Capacidad y parámetros.} Aprox.:
+\begin{itemize}
+    \item Variante palabra: $\sim 8.28$M parámetros (el incremento sobre RNN simple proviene del factor de 4 en matrices de compuertas).
+    \item Variante carácter: $\sim 0.98$M parámetros.
+\end{itemize}
+El salto de capacidad frente a la RNN simple se concentra en las matrices de compuertas, incrementando la expresividad temporal.
+
+	\textbf{Hiperparámetros de entrenamiento.} Se mantuvieron los mismos valores globales para favorecer comparabilidad: \texttt{Adam} (\texttt{lr = 2e-3}), \texttt{epochs = 20}, \texttt{batch\_size = 64}, \texttt{seq\_length = 100}, \texttt{clip = 5.0}, scheduler adaptativo sobre la pérdida de validación y potencial \emph{early stopping}. La métrica primaria interna es la entropía cruzada; la perplexity derivada sirve para contrastes posteriores (no reportada aquí).
+
+	\textbf{Regularización y estabilidad.} El mecanismo de compuertas (en particular $f_t$) estabiliza el flujo de gradientes y atenúa el desvanecimiento típico. El \emph{dropout} entre capas actúa como regularizador estructural, y el \emph{gradient clipping} asegura control frente a ráfagas de magnitud.
+
+	\textbf{Ventajas observadas conceptualmente.} Mayor retención de contexto largo (estados temáticos, continuidad de narrador) y mejor manejo de secciones donde la progresión semántica se apoya en repeticiones moduladas (p. ej. estribillos). 
+
+	\textbf{Hardware utilizado.} Idéntico al descrito previamente (2× RTX TITAN, etc.), con ejecución en \texttt{PyTorch}.
 
 
 \newpage
 \subsection{GRU}
-Las GRU (Gated Recurrent Units) son otra variante de las RNNs que, al igual que las LSTM, están diseñadas para manejar dependencias a largo plazo. Sin embargo, las GRU tienen una arquitectura más simple que las LSTM, utilizando solo dos puertas (de actualización y de reinicio) en lugar de tres. Esto hace que las GRU sean más eficientes en términos de computación y memoria, mientras mantienen un rendimiento comparable al de las LSTM en muchas tareas.
+Las GRU (Gated Recurrent Units) simplifican la estructura de la LSTM fusionando algunas compuertas y eliminando el estado de memoria separado. Mantienen capacidad para mitigar el desvanecimiento del gradiente con menor costo parametrizable, lo que puede traducirse en entrenamientos más rápidos y menor riesgo de sobre–ajuste en conjuntos moderados.
+
+	\textbf{Tokenización y representación.} Se reutiliza idéntica configuración (carácter y palabra, embeddings de 128). La comparación GRU vs LSTM bajo el mismo espacio de embeddings permite aislar el impacto de la diferencia arquitectónica.
+
+	\textbf{Formato de datos.} Igual que en las dos arquitecturas previas (ventanas de 100 tokens → predicción del siguiente). Esto garantiza que cualquier diferencia empírica futura (perplejidad, estabilidad) se atribuya al diseño de la celda y no a variaciones de entrada.
+
+	\textbf{Arquitectura.} Dos capas GRU de 256 unidades con \texttt{dropout = 0.3} entre capas. Las ecuaciones de la celda:
+\[
+\begin{aligned}
+z_t &= \sigma(W_{xz} x_t + W_{hz} h_{t-1} + b_z) & \text{(puerta de actualización)}\\
+r_t &= \sigma(W_{xr} x_t + W_{hr} h_{t-1} + b_r) & \text{(puerta de reinicio)}\\
+	ilde{h}_t &= \tanh(W_{xh} x_t + W_{hh} (r_t \odot h_{t-1}) + b_h) & \text{(candidato)}\\
+h_t &= (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t.
+\end{aligned}
+\]
+
+	extbf{Capacidad y parámetros.} Aproximadamente:
+\begin{itemize}
+    \item Variante palabra: $\sim 8.05$M parámetros (intermedio entre RNN simple y LSTM; 3 grupos de matrices en lugar de 1 o 4).
+    \item Variante carácter: $\sim 0.75$M parámetros.
+\end{itemize}
+La reducción frente a LSTM puede favorecer menor sobre–ajuste en dominios con variabilidad estilística pero tamaño moderado.
+
+	\textbf{Hiperparámetros de entrenamiento.} Se conservaron los mismos (\texttt{Adam}, \texttt{lr = 2e-3}, \texttt{epochs = 20}, \texttt{batch\_size = 64}, \texttt{seq\_length = 100}, clipping 5.0, scheduler adaptativo). Esta homogeneidad facilita comparaciones directas posteriores de eficiencia y convergencia.
+
+	\textbf{Regularización y estabilidad.} El diseño de la puerta de actualización $z_t$ actúa como interpolador adaptativo entre memoria previa y nuevo contenido, reduciendo la necesidad de un estado separado tipo $c_t$. El \emph{dropout} inter–capas y el clipping complementan el control de generalización y estabilidad numérica.
+
+	\textbf{Consideraciones comparativas.} Conceptualmente, la GRU ofrece un compromiso: menos parámetros que LSTM, más expresión que la RNN simple. En escenarios con ventana de contexto moderada (100 tokens) y un dominio con repeticiones estilísticas claras (estructuras líricas), puede captar patrones de transición (Intro → Verso, Verso → Chorus) sin incurrir en el costo completo de las LSTM.
+
+	\textbf{Hardware utilizado.} Mismo entorno GPU/CPU ya descrito; implementación en \texttt{PyTorch} reutilizando la canalización de datos y bucles de entrenamiento comunes.
 
 
 \newpage

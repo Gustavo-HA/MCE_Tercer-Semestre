@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from rnntype import RNNType
-from torch.utils.data import Dataset, DataLoader
 import json
 from pathlib import Path
 import argparse
@@ -18,168 +17,70 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class LyricsDataset(Dataset):
-    """Dataset for text generation at character or word level."""
-    
-    def __init__(self, text, token_to_idx, seq_length=100, level='char'):
-        """
-        Args:
-            text: Full text string
-            token_to_idx: Dictionary mapping tokens (chars or words) to indices
-            seq_length: Length of input sequences
-            level: 'char' or 'word' tokenization level
-        """
-        self.text = text
-        self.token_to_idx = token_to_idx
-        self.seq_length = seq_length
-        self.level = level
-        
-        # Tokenize and encode text
-        if level == 'char':
-            self.tokens = list(text)
-        else:  # word level
-            self.tokens = text.split()
-        
-        self.encoded = [token_to_idx.get(token, 0) for token in self.tokens]
-        
-    def __len__(self):
-        return len(self.encoded) - self.seq_length
-    
-    def __getitem__(self, idx):
-        # Input: seq_length tokens
-        # Target: next token after the sequence
-        input_seq = self.encoded[idx:idx + self.seq_length]
-        target = self.encoded[idx + self.seq_length]
-        
-        return torch.tensor(input_seq, dtype=torch.long), torch.tensor(target, dtype=torch.long)
-
-def calculate_perplexity(model, dataloader, device):
-    """
-    Calculate perplexity of the model on a dataset.
-    
-    Args:
-        model: Trained RNN model
-        dataloader: DataLoader for test dataset
-        device: Device to run on
-    
-    Returns:
-        perplexity: Perplexity value
-        avg_loss: Average cross-entropy loss
-    """
+def calculate_perplexity_streaming(model, encoded_tokens, device, block_size=100):
     model.eval()
     criterion = nn.CrossEntropyLoss(reduction='sum')
-    
-    total_loss = 0.0
-    total_tokens = 0
-    
-    logger.info("Calculating perplexity...")
-    
-    with torch.no_grad():
-        for inputs, targets in tqdm(dataloader, desc="Processing batches"):
-            inputs = inputs.to(device)
-            targets = targets.to(device)
-            
-            batch_size = inputs.size(0)
-            
-            # Initialize hidden state
-            hidden = model.init_hidden(batch_size, device)
-            
-            # Forward pass
-            outputs, hidden = model(inputs, hidden)
-            
-            # Only use the last output for prediction
-            outputs = outputs[:, -1, :]  # (batch_size, vocab_size)
-            
-            # Compute loss
-            loss = criterion(outputs, targets)
-            
-            total_loss += loss.item()
-            total_tokens += targets.size(0)
-    
-    # Calculate average loss and perplexity
-    avg_loss = total_loss / total_tokens
-    perplexity = np.exp(avg_loss)
-    
-    return perplexity, avg_loss
 
-
-def calculate_perplexity_sliding_window(model, text, token_to_idx, device, seq_length=100, stride=50, level='char'):
-    """
-    Calculate perplexity using sliding window approach on raw text.
-    This method processes the entire text sequence by sequence.
-    
-    Args:
-        model: Trained RNN model
-        text: Test text string
-        token_to_idx: Token to index mapping
-        device: Device to run on
-        seq_length: Length of input sequences
-        stride: Stride for sliding window
-        level: 'char' or 'word' tokenization level
-    
-    Returns:
-        perplexity: Perplexity value
-        avg_loss: Average cross-entropy loss
-    """
-    model.eval()
-    criterion = nn.CrossEntropyLoss()
-    
-    # Tokenize text
-    if level == 'char':
-        tokens = list(text)
-    else:  # word level
-        tokens = text.split()
-    
-    # Encode text
-    encoded = [token_to_idx.get(token, 0) for token in tokens]
-    
-    if len(encoded) <= seq_length:
-        logger.warning(f"Text too short ({len(encoded)} tokens). Need at least {seq_length + 1} tokens.")
+    # Necesitamos al menos 2 tokens para producir una predicción
+    if len(encoded_tokens) < 2:
+        logger.warning("Test sequence too short to compute perplexity.")
         return float('inf'), float('inf')
-    
+
     total_loss = 0.0
-    num_predictions = 0
-    
-    logger.info(f"Calculating perplexity with sliding window (seq_length={seq_length}, stride={stride})...")
-    
+    total_predictions = 0  # Número de tokens realmente predichos
+
+    # Inicializamos hidden una sola vez
+    hidden = model.init_hidden(1, device)
+
+    pos = 0
+    n_tokens = len(encoded_tokens)
+
     with torch.no_grad():
-        # Sliding window over the text
-        for start_idx in tqdm(range(0, len(encoded) - seq_length, stride), desc="Processing windows"):
-            end_idx = start_idx + seq_length
-            
-            if end_idx >= len(encoded):
+        pbar = tqdm(total=n_tokens - 1, desc="Streaming tokens", unit="tok")
+        while pos < n_tokens - 1:
+            # Garantizar que haya al menos (block_size + 1) tokens disponibles;
+            # si no, reducimos el tamaño del bloque para abarcar el final.
+            end = min(pos + block_size + 1, n_tokens)
+            block = encoded_tokens[pos:end]
+
+            # Si el bloque tiene solo 1 token, ya no hay nada que predecir
+            if len(block) < 2:
                 break
-            
-            # Get input sequence and target
-            input_seq = encoded[start_idx:end_idx]
-            target = encoded[end_idx]
-            
-            # Convert to tensors
-            x = torch.tensor([input_seq], dtype=torch.long).to(device)
-            y = torch.tensor([target], dtype=torch.long).to(device)
-            
-            # Initialize hidden state
-            hidden = model.init_hidden(1, device)
-            
-            # Forward pass
-            output, hidden = model(x, hidden)
-            output = output[:, -1, :]  # Get last time step
-            
-            # Compute loss
-            loss = criterion(output, y)
-            
+
+            # Inputs: todos menos el último; Targets: todos menos el primero
+            inputs_block = block[:-1]
+            targets_block = block[1:]
+
+            inputs_tensor = torch.tensor(inputs_block, dtype=torch.long, device=device).unsqueeze(0)  # (1, L)
+            targets_tensor = torch.tensor(targets_block, dtype=torch.long, device=device)  # (L,)
+
+            # Forward
+            outputs, hidden = model(inputs_tensor, hidden)
+            # IMPORTANTE: detach para evitar acumulación del grafo en RNNs (aunque no hay backward)
+            if isinstance(hidden, tuple):  # LSTM: (h, c)
+                hidden = (hidden[0].detach(), hidden[1].detach())
+            else:
+                hidden = hidden.detach()
+
+            logits = outputs.squeeze(0)  # (L, vocab_size)
+            # Pérdida: cada posición i predice targets_block[i]
+            loss = criterion(logits, targets_tensor)
+
             total_loss += loss.item()
-            num_predictions += 1
-    
-    # Calculate average loss and perplexity
-    avg_loss = total_loss / num_predictions
-    perplexity = np.exp(avg_loss)
-    
-    return perplexity, avg_loss
+            total_predictions += len(targets_block)
+            pbar.update(len(targets_block))
+
+            # Avanzamos pos en block_size (no block_size+1) para reutilizar el último token del bloque como primer input siguiente
+            pos += block_size
+        pbar.close()
+
+    avg_loss = total_loss / total_predictions
+    ppl = float(np.exp(avg_loss))
+    return ppl, avg_loss
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Calculate perplexity of RNN model on test set')
+    parser = argparse.ArgumentParser(description='Streaming perplexity calculation for RNN models')
     
     # Model path
     parser.add_argument('--model_path', type=str, required=True,
@@ -193,16 +94,9 @@ def main():
     parser.add_argument('--vocab_path', type=str, default=None,
                         help='Path to vocabulary file (default: auto-detect)')
     
-    # Evaluation parameters
-    parser.add_argument('--batch_size', type=int, default=64,
-                        help='Batch size for evaluation (default: 64)')
-    parser.add_argument('--seq_length', type=int, default=100,
-                        help='Sequence length (default: 100)')
-    parser.add_argument('--method', type=str, default='dataloader', 
-                        choices=['dataloader', 'sliding_window'],
-                        help='Perplexity calculation method (default: dataloader)')
-    parser.add_argument('--stride', type=int, default=50,
-                        help='Stride for sliding window method (default: 50)')
+    # Streaming block size
+    parser.add_argument('--block_size', type=int, default=100,
+                        help='Block size (number of input tokens per forward pass, default: 100)')
     
     # Output
     parser.add_argument('--output_file', type=str, default=None,
@@ -218,7 +112,7 @@ def main():
         logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
     
     logger.info("="*80)
-    logger.info(f"RNN PERPLEXITY CALCULATION - {args.level.upper()} LEVEL")
+    logger.info(f"RNN PERPLEXITY CALCULATION (STREAMING) - {args.level.upper()} LEVEL")
     logger.info("="*80)
     
     # Determine paths
@@ -263,9 +157,15 @@ def main():
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
     
+    # Recuperar métricas guardadas (compatibilidad con claves posibles)
+    train_loss = checkpoint.get('train_loss')
+    val_loss = checkpoint.get('val_loss')
     logger.info("✓ Model loaded successfully")
-    logger.info(f"  - Trained for {checkpoint['epoch']} epochs")
-    logger.info(f"  - Training loss: {checkpoint['loss']:.4f}")
+    logger.info(f"  - Trained for {checkpoint.get('epoch','?')} epochs")
+    if train_loss is not None:
+        logger.info(f"  - Train loss (last epoch): {train_loss:.4f}")
+    if val_loss is not None:
+        logger.info(f"  - Val   loss (best): {val_loss:.4f}")
     logger.info(f"  - Embedding dim: {checkpoint['embedding_dim']}")
     logger.info(f"  - Hidden dim: {checkpoint['hidden_dim']}")
     logger.info(f"  - Num layers: {checkpoint['num_layers']}")
@@ -286,39 +186,23 @@ def main():
     
     # Calculate perplexity
     logger.info("\n" + "="*80)
-    logger.info(f"CALCULATING PERPLEXITY (Method: {args.method})")
+    logger.info("CALCULATING STREAMING PERPLEXITY")
     logger.info("="*80)
-    
-    if args.method == 'dataloader':
-        # Create test dataset
-        test_dataset = LyricsDataset(
-            test_text, 
-            token_to_idx, 
-            seq_length=args.seq_length, 
-            level=args.level
-        )
-        test_loader = DataLoader(
-            test_dataset, 
-            batch_size=args.batch_size, 
-            shuffle=False,
-            num_workers=2
-        )
-        
-        logger.info(f"Number of test sequences: {len(test_dataset):,}")
-        logger.info(f"Number of batches: {len(test_loader):,}")
-        
-        perplexity, avg_loss = calculate_perplexity(model, test_loader, device)
-    
-    else:  # sliding_window
-        perplexity, avg_loss = calculate_perplexity_sliding_window(
-            model, 
-            test_text, 
-            token_to_idx, 
-            device, 
-            seq_length=args.seq_length,
-            stride=args.stride,
-            level=args.level
-        )
+
+    # Tokenize full test text
+    if args.level == 'char':
+        tokens = list(test_text)
+    else:
+        tokens = test_text.split()
+    encoded = [token_to_idx.get(tok, 0) for tok in tokens]
+    logger.info(f"Encoded test length: {len(encoded):,} tokens ({args.level}-level)")
+
+    perplexity, avg_loss = calculate_perplexity_streaming(
+        model,
+        encoded,
+        device,
+        block_size=args.block_size,
+    )
     
     # Print results
     logger.info("\n" + "="*80)
@@ -330,9 +214,8 @@ def main():
     
     # Save results
     if args.output_file is None:
-        # Save to model directory
         model_dir = Path(args.model_path).parent
-        output_file = model_dir / f"perplexity_results_{args.level}.txt"
+        output_file = model_dir / f"perplexity_streaming_{args.level}.txt"
     else:
         output_file = Path(args.output_file)
     
@@ -346,14 +229,8 @@ def main():
         f.write(f"Test file: {test_file}\n")
         f.write(f"Tokenization level: {args.level}\n")
         f.write(f"Vocabulary size: {vocab_size:,}\n")
-        f.write(f"Sequence length: {args.seq_length}\n")
-        f.write(f"Method: {args.method}\n")
-        
-        if args.method == 'dataloader':
-            f.write(f"Batch size: {args.batch_size}\n")
-            f.write(f"Number of test sequences: {len(test_dataset):,}\n")
-        else:
-            f.write(f"Stride: {args.stride}\n")
+        f.write(f"Block size: {args.block_size}\n")
+        f.write("Evaluation: streaming continuous (state carried across blocks)\n")
         
         f.write("\n" + "-"*80 + "\n")
         f.write("MODEL CONFIGURATION\n")
@@ -364,7 +241,10 @@ def main():
         f.write(f"Dropout: {checkpoint['dropout']}\n")
         f.write(f"Model parameters: {num_params:,}\n")
         f.write(f"Training epochs: {checkpoint['epoch']}\n")
-        f.write(f"Training loss: {checkpoint['loss']:.4f}\n")
+        if train_loss is not None:
+            f.write(f"Training loss (last): {train_loss:.4f}\n")
+        if val_loss is not None:
+            f.write(f"Validation loss (best): {val_loss:.4f}\n")
         
         f.write("\n" + "-"*80 + "\n")
         f.write("PERPLEXITY RESULTS\n")
@@ -373,17 +253,7 @@ def main():
         f.write(f"Perplexity: {perplexity:.4f}\n")
         f.write("\n" + "="*80 + "\n")
     
-    logger.info(f"\n✓ Results saved to: {output_file}")
-    
-    # Interpretation
-    logger.info("\n" + "="*80)
-    logger.info("INTERPRETATION")
-    logger.info("="*80)
-    logger.info("Lower perplexity indicates better model performance.")
-    logger.info("Perplexity represents the average number of choices the model")
-    logger.info("has when predicting the next token (lower is better).")
-    logger.info("="*80 + "\n")
-
+    logger.info(f"\n Results saved to: {output_file}")
 
 if __name__ == "__main__":
     main()

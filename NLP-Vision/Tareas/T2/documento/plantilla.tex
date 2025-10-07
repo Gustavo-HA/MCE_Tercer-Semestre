@@ -432,14 +432,14 @@ Y se obtuvo la siguiente salida:
 En los tres ejemplos, el modelo fine-tuned demuestra una capacidad notable para capturar los estilos únicos de cada artista, tanto en términos de contenido temático como la estructura lírica. Aunque no alcanza la complejidad y profundidad de los artistas originales, especialmente en términos de rima y metáforas, el modelo genera letras coherentes y estilísticamente apropiadas para los artistas. Además, el modelo respetó en su mayoría la estructura de las letras basandose en los datos de entrenamiento (por ejemplo, siempre inicio con el [Intro], [Verse 1], etc.). Esto sugiere que el enfoque de fine-tuning con un conjunto de datos relativamente pequeño pero bien curado puede ser efectivo para adaptar un modelo de lenguaje grande a tareas creativas específicas como la generación de letras de canciones.
 
 \newpage
-\subsection{Simple RNN}
+\subsection{RNN Simple}
 Las RNN simples constituyen la forma canónica de modelar dependencias secuenciales mediante un estado oculto recurrente. Cada paso de tiempo aplica una transformación no lineal sobre la combinación del embedding del token actual y el estado oculto previo. Sin embargo, su profundidad temporal efectiva se ve limitada por el \emph{desvanecimiento} y la \emph{explosión} del gradiente, lo cual dificulta capturar dependencias de largo alcance en secuencias lingüísticas (estructuras repetitivas, coherencia temática, progresión narrativa, etc.).
 
 	\textbf{Tokenización y representación.} Se entrenaron dos variantes: a nivel carácter y a nivel palabra. El vocabulario carácter contiene 157 símbolos (incluyendo saltos de línea, puntuación y caracteres Unicode presentes en las letras). El vocabulario palabra contiene 19{,}107 tokens (palabras, formas con apóstrofos y algunos préstamos multilingües). Cada token se proyecta a un embedding de dimensión 128.
 
-	\textbf{Formato de datos.} El corpus en texto plano se segmenta en ventanas deslizantes de longitud fija \texttt{seq\_length = 100}. Para cada ventana de 100 tokens (o caracteres) se predice el siguiente token (modelo de lenguaje autoregresivo clásico). No se mezcla información entre canciones más allá de la concatenación lineal del corpus, pero se preservan delimitadores estructurales (\texttt{<|song\_start|>} / \texttt{<song\_end>}), lo que provee señales débiles de segmentación.
+	\textbf{Formato de datos.} El corpus en texto plano se segmenta en ventanas deslizantes de longitud fija \texttt{seq\_length = 100}. Para cada ventana de 100 tokens (o caracteres) se predice el siguiente token. No se mezcla información entre canciones más allá de la concatenación lineal del corpus, pero se preservan delimitadores estructurales (\texttt{<|song\_start|>} / \texttt{<song\_end>}), lo que provee señales débiles de segmentación.
 
-	\textbf{Tamaño del conjunto.} El conjunto de entrenamiento contiene 820{,}993 caracteres (nivel de carácter) y 157{,}910 palabras (nivel de palabra). El conjunto de prueba contiene 214{,}957 caracteres y 41{,}889 palabras. El número de secuencias efectivas por nivel es (longitud menos 100). Con \texttt{batch\_size = 64}, esto produce aproximadamente 12.8K batches por época (carácter) y 2.5K batches por época (palabra), lo que impacta la relación señal–ruido de la estimación del gradiente (más estable en la variante palabra, más estocástica en la variante carácter).
+	\textbf{Tamaño del conjunto.} El conjunto de entrenamiento contiene 820{,}993 caracteres (nivel de carácter) y 157{,}910 palabras (nivel de palabra). El conjunto de prueba contiene 214{,}957 caracteres y 41{,}889 palabras, respectivamente. El número de secuencias efectivas por nivel se calculan como (longitud$-$100). Con \texttt{batch\_size = 64}, esto produce aproximadamente 12.8K batches por época (carácter) y 2.5K batches por época (palabra), lo que impacta la relación señal–ruido de la estimación del gradiente (más estable en la variante palabra, más estocástica en la variante carácter).
 
 	\textbf{Arquitectura.} La celda recurrente implementa la actualización clásica:
 \[
@@ -447,14 +447,14 @@ h_t = \tanh(W_{xh} x_t + W_{hh} h_{t-1} + b),\quad y_t = W_{hy} h_t + c,
 \]
 donde $x_t \in \mathbb{R}^{128}$, $h_t \in \mathbb{R}^{256}$. Se emplean 2 capas apiladas (\texttt{num\_layers = 2}) con \texttt{dropout = 0.3} entre capas (no entre pasos temporales internos de cada capa).
 
-	extbf{Capacidad y parámetros.} Aproximadamente:
+\textbf{Capacidad y parámetros.} Aproximadamente:
 \begin{itemize}
     \item Variante palabra: $\sim 7.59$M parámetros entrenables (embeddings $\approx$2.45M, núcleo recurrente $\approx$0.23M, proyección de salida $\approx$4.91M).
     \item Variante carácter: $\sim 0.29$M parámetros (la reducción proviene del vocabulario compacto).
 \end{itemize}
 Esto ilustra la fuerte asimetría de capacidad inducida por el tamaño del vocabulario y la capa de salida softmax.
 
-	\textbf{Hiperparámetros de entrenamiento.} Se usó el optimizador Adam (\texttt{lr = 2e-3}), \texttt{batch\_size = 64}, \texttt{epochs = 20}, \texttt{seq\_length = 100}, \texttt{gradient clipping = 5.0}. El criterio es entropía cruzada categórica. Un scheduler \texttt{ReduceLROnPlateau} reduce la tasa de aprendizaje con factor 0.5 tras 2 épocas sin mejora significativa (\texttt{patience = 2}). La pérdida se reporta en escala log-perplexity y puede re–expresarse como $\text{PPL} = e^{\mathcal{L}}$. Se habilitó opción de \emph{early stopping} configurable.
+	\textbf{Hiperparámetros de entrenamiento.} Se usó el optimizador Adam (\texttt{lr = 2e-3}), 20 épocas, \texttt{batch\_size = 64}, \texttt{seq\_length = 100}, \texttt{gradient clipping = 5.0}. La función de pérdida es la entropía cruzada. Un scheduler \texttt{ReduceLROnPlateau} reduce la tasa de aprendizaje con factor 0.5 tras 2 épocas sin mejora significativa (\texttt{patience = 2}). La pérdida se reporta en escala log-perplexity y puede re–expresarse como $\text{PPL} = e^{\mathcal{L}}$. Se habilitó opción de \emph{early stopping} configurable.
 
 	\textbf{Regularización y estabilidad.} El \emph{dropout} inter–capas y el \emph{gradient clipping} controlan, respectivamente, sobre–ajuste y explosión de gradientes. Aún así, las limitaciones estructurales (sin mecanismos de compuertas ni memoria explícita) reducen su capacidad para retener contexto semántico más allá de decenas de pasos.
 
@@ -483,20 +483,20 @@ h_t &= o_t \odot \tanh(c_t).
 \end{aligned}
 \]
 
-	extbf{Capacidad y parámetros.} Aprox.:
+\textbf{Capacidad y parámetros.} Aprox.:
 \begin{itemize}
     \item Variante palabra: $\sim 8.28$M parámetros (el incremento sobre RNN simple proviene del factor de 4 en matrices de compuertas).
     \item Variante carácter: $\sim 0.98$M parámetros.
 \end{itemize}
 El salto de capacidad frente a la RNN simple se concentra en las matrices de compuertas, incrementando la expresividad temporal.
 
-	\textbf{Hiperparámetros de entrenamiento.} Se mantuvieron los mismos valores globales para favorecer comparabilidad: \texttt{Adam} (\texttt{lr = 2e-3}), \texttt{epochs = 20}, \texttt{batch\_size = 64}, \texttt{seq\_length = 100}, \texttt{clip = 5.0}, scheduler adaptativo sobre la pérdida de validación y potencial \emph{early stopping}. La métrica primaria interna es la entropía cruzada; la perplexity derivada sirve para contrastes posteriores (no reportada aquí).
+\textbf{Hiperparámetros de entrenamiento.} Se mantuvieron los mismos valores globales para favorecer comparabilidad: \texttt{Adam}, 20 épocas de entrenamiento, \texttt{batch\_size = 64}, \texttt{seq\_length = 100}, \texttt{clip = 5.0}, scheduler adaptativo sobre la pérdida de validación y potencial \emph{early stopping}. La métrica primaria interna es la entropía cruzada; la perplexity derivada sirve para contrastes posteriores (no reportada aquí).
 
-	\textbf{Regularización y estabilidad.} El mecanismo de compuertas (en particular $f_t$) estabiliza el flujo de gradientes y atenúa el desvanecimiento típico. El \emph{dropout} entre capas actúa como regularizador estructural, y el \emph{gradient clipping} asegura control frente a ráfagas de magnitud.
+\textbf{Regularización y estabilidad.} El mecanismo de compuertas (en particular $f_t$) estabiliza el flujo de gradientes y atenúa el desvanecimiento típico. El \emph{dropout} entre capas actúa como regularizador estructural, y el \emph{gradient clipping} asegura control frente a ráfagas de magnitud.
 
-	\textbf{Ventajas observadas conceptualmente.} Mayor retención de contexto largo (estados temáticos, continuidad de narrador) y mejor manejo de secciones donde la progresión semántica se apoya en repeticiones moduladas (p. ej. estribillos). 
+\textbf{Ventajas observadas conceptualmente.} Mayor retención de contexto largo (estados temáticos, continuidad de narrador) y mejor manejo de secciones donde la progresión semántica se apoya en repeticiones moduladas (p. ej. estribillos). 
 
-	\textbf{Hardware utilizado.} Idéntico al descrito previamente (2× RTX TITAN, etc.), con ejecución en \texttt{PyTorch}.
+\textbf{Hardware utilizado.} Idéntico al descrito previamente (2× RTX TITAN, etc.), con ejecución en \texttt{PyTorch}.
 
 
 \newpage

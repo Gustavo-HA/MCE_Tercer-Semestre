@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 from rnntype import RNNType
+from lyrics_dataset import LyricsDataset
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 import json
 from pathlib import Path
 import logging
@@ -17,37 +18,6 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
-
-
-class LyricsDataset(Dataset):
-    def __init__(self, text, token_to_idx, seq_length=100, level='char'):
-        """
-        Args:
-            text: Full text string
-            token_to_idx: Dictionary mapping tokens (chars or words) to indices
-            seq_length: Length of input sequences
-            level: 'char' or 'word' tokenization level
-        """
-        self.text = text
-        self.token_to_idx = token_to_idx
-        self.seq_length = seq_length
-        self.level = level
-        
-        if level == 'char':
-            self.tokens = list(text)
-        else:  # word level
-            self.tokens = text.split()
-        
-        self.encoded = [token_to_idx.get(token, 0) for token in self.tokens]
-        
-    def __len__(self):
-        return len(self.encoded) - self.seq_length
-    
-    def __getitem__(self, idx):
-        input_seq = self.encoded[idx:idx + self.seq_length]
-        target = self.encoded[idx + self.seq_length]
-        
-        return torch.tensor(input_seq, dtype=torch.long), torch.tensor(target, dtype=torch.long)
 
 def train_epoch(model, dataloader, criterion, optimizer, device, clip_grad=5.0):
     """Train for one epoch."""

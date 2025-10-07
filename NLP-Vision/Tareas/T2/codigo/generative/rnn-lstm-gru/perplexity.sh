@@ -67,10 +67,7 @@ echo ""
 # Calculate perplexity for character-level model
 python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$CHAR_MODEL" \
-    --level char \
-    --batch_size 64 \
-    --seq_length 256 \
-    --method dataloader
+    --level char 
 
 echo ""
 echo "MODELO WORD"
@@ -79,10 +76,7 @@ echo ""
 # Calculate perplexity for word-level model
 python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$WORD_MODEL" \
-    --level word \
-    --batch_size 64 \
-    --seq_length 256 \
-    --method dataloader
+    --level word 
 
 echo ""
 echo "=========================================="
@@ -100,10 +94,7 @@ echo ""
 # Calculate perplexity for character-level model
 python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$CHAR_MODEL" \
-    --level char \
-    --batch_size 64 \
-    --seq_length 256 \
-    --method dataloader
+    --level char
 
 echo ""
 echo "MODELO WORD"
@@ -112,10 +103,7 @@ echo ""
 # Calculate perplexity for word-level model
 python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$WORD_MODEL" \
-    --level word \
-    --batch_size 64 \
-    --seq_length 256 \
-    --method dataloader
+    --level word 
 
 
 echo ""
@@ -134,10 +122,7 @@ echo ""
 # Calculate perplexity for character-level model
 python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$CHAR_MODEL" \
-    --level char \
-    --batch_size 64 \
-    --seq_length 256 \
-    --method dataloader
+    --level char 
 
 echo ""
 echo "MODELO WORD"
@@ -146,10 +131,7 @@ echo ""
 # Calculate perplexity for word-level model
 python codigo/generative/rnn-lstm-gru/perplexity.py \
     --model_path "$WORD_MODEL" \
-    --level word \
-    --batch_size 64 \
-    --seq_length 256 \
-    --method dataloader
+    --level word
 
 
 echo "--- Fin del trabajo de Slurm ---"

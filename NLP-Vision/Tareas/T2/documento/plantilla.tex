@@ -107,13 +107,13 @@
 
 % Custom section titles with numbering
 \titleformat{\section}
-{\normalfont\Large\bfseries}{}{1em}{}
+{\normalfont\Large\bfseries}{\thesection}{1em}{}
 
 \titleformat{\subsection}
-{\normalfont\large\bfseries}{}{1em}{}
+{\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
 \titleformat{\subsubsection}
-{\normalfont\normalsize\bfseries}{}{1em}{}
+{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
 
 % Title and author
 \title{	
@@ -431,8 +431,23 @@ Y se obtuvo la siguiente salida:
 
 En los tres ejemplos, el modelo fine-tuned demuestra una capacidad notable para capturar los estilos únicos de cada artista, tanto en términos de contenido temático como la estructura lírica. Aunque no alcanza la complejidad y profundidad de los artistas originales, especialmente en términos de rima y metáforas, el modelo genera letras coherentes y estilísticamente apropiadas para los artistas. Además, el modelo respetó en su mayoría la estructura de las letras basandose en los datos de entrenamiento (por ejemplo, siempre inicio con el [Intro], [Verse 1], etc.). Esto sugiere que el enfoque de fine-tuning con un conjunto de datos relativamente pequeño pero bien curado puede ser efectivo para adaptar un modelo de lenguaje grande a tareas creativas específicas como la generación de letras de canciones.
 
-\subsection{Modelos RNN, LSTM \& GRU}
+\newpage
+\subsection{Simple RNN}
 
+Las RNNs simples son la forma más básica de redes neuronales recurrentes. Están diseñadas para procesar secuencias de datos, como texto o series temporales, manteniendo un estado oculto que se actualiza en cada paso de tiempo. Sin embargo, las RNNs simples sufren de problemas de desvanecimiento y explosión del gradiente, lo que dificulta el aprendizaje de dependencias a largo plazo.
+
+
+
+\newpage
+\subsection{LSTM}
+
+Las LSTM (Long Short-Term Memory) son una variante de las RNNs diseñadas para abordar los problemas de desvanecimiento y explosión del gradiente. Introducen una arquitectura de celda de memoria que permite a la red aprender a largo plazo, manteniendo información relevante durante períodos prolongados. Esto se logra mediante puertas de entrada, olvido y salida que regulan el flujo de información en la celda de memoria.
+
+
+
+\newpage
+\subsection{GRU}
+Las GRU (Gated Recurrent Units) son otra variante de las RNNs que, al igual que las LSTM, están diseñadas para manejar dependencias a largo plazo. Sin embargo, las GRU tienen una arquitectura más simple que las LSTM, utilizando solo dos puertas (de actualización y de reinicio) en lugar de tres. Esto hace que las GRU sean más eficientes en términos de computación y memoria, mientras mantienen un rendimiento comparable al de las LSTM en muchas tareas.
 
 
 \newpage

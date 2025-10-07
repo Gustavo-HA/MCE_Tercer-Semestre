@@ -1,10 +1,5 @@
-"""
-RNN inference script for lyrics text generation.
-Generates lyrics using a trained RNN model.
-"""
-
 import torch
-import torch.nn as nn
+from rnntype import RNNType
 import json
 from pathlib import Path
 import argparse
@@ -18,63 +13,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-class SimpleRNN(nn.Module):
-    """Simple RNN model for text generation (character or word level)."""
-    
-    def __init__(self, vocab_size, embedding_dim=128, hidden_dim=256, num_layers=2, dropout=0.3):
-        """
-        Args:
-            vocab_size: Size of vocabulary
-            embedding_dim: Dimension of token embeddings
-            hidden_dim: Dimension of RNN hidden state
-            num_layers: Number of RNN layers
-            dropout: Dropout probability
-        """
-        super(SimpleRNN, self).__init__()
-        
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.rnn = nn.RNN(
-            embedding_dim,
-            hidden_dim,
-            num_layers,
-            dropout=dropout if num_layers > 1 else 0,
-            batch_first=True
-        )
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(hidden_dim, vocab_size)
-        
-    def forward(self, x, hidden=None):
-        embedded = self.embedding(x)  # (batch_size, seq_length, embedding_dim)
-        rnn_out, hidden = self.rnn(embedded, hidden)  # (batch_size, seq_length, hidden_dim)
-        rnn_out = self.dropout(rnn_out)
-        output = self.fc(rnn_out)  # (batch_size, seq_length, vocab_size)
-        return output, hidden
-    
-    def init_hidden(self, batch_size, device):
-        """Initialize hidden state."""
-        h_0 = torch.zeros(self.num_layers, batch_size, self.hidden_dim).to(device)
-        return h_0
-
-
 def generate_text(model, start_text, token_to_idx, idx_to_token, device, length=500, temperature=1.0, level='char'):
     """
-    Generate text using the trained model.
-    
-    Args:
-        model: Trained RNN model
-        start_text: Starting prompt text
-        token_to_idx: Token to index mapping
-        idx_to_token: Index to token mapping
-        device: Device to run on
-        length: Number of tokens to generate
-        temperature: Sampling temperature (higher = more random)
-        level: 'char' or 'word' tokenization level
-    
-    Returns:
-        Generated text string
+    Generar texto a partir de un modelo entrenado.
     """
     model.eval()
     
@@ -93,7 +34,7 @@ def generate_text(model, start_text, token_to_idx, idx_to_token, device, length=
     
     with torch.no_grad():
         for _ in range(length):
-            # Prepare input
+            # Preparar input
             x = torch.tensor([current_seq], dtype=torch.long).to(device)
             
             # Forward pass
@@ -103,15 +44,15 @@ def generate_text(model, start_text, token_to_idx, idx_to_token, device, length=
             # Apply temperature
             output = output / temperature
             
-            # Sample from distribution
+            # Muestrear siguiente token
             probs = torch.softmax(output, dim=0)
             next_token_idx = torch.multinomial(probs, 1).item()
             
-            # Add to generated text
+            # Agregar token generado
             next_token = idx_to_token[next_token_idx]
             generated_tokens.append(next_token)
             
-            # Update sequence
+            # Actualizar secuencia total
             current_seq.append(next_token_idx)
             current_seq = current_seq[-100:]  # Keep last 100 tokens
     
@@ -130,14 +71,14 @@ def main():
                         help='Path to trained model checkpoint')
     parser.add_argument('--level', type=str, required=True, choices=['char', 'word'],
                         help='Tokenization level: char or word')
+    parser.add_argument('--rnn_type', type=str, default='LSTM',
+                        help='Type of RNN: LSTM or GRU (default: LSTM)')
     
     # Generation parameters
     parser.add_argument('--length', type=int, default=500,
                         help='Number of tokens to generate (default: 500)')
     parser.add_argument('--temperature', type=float, default=0.8,
                         help='Sampling temperature (default: 0.8)')
-    parser.add_argument('--num_samples', type=int, default=1,
-                        help='Number of samples to generate (default: 1)')
     
     # Vocabulary path
     parser.add_argument('--vocab_path', type=str, default=None,
@@ -178,7 +119,8 @@ def main():
     logger.info(f"Loading model from: {args.model_path}")
     checkpoint = torch.load(args.model_path, map_location=device)
     
-    model = SimpleRNN(
+    model = RNNType(
+        rnn_type=checkpoint['rnn_type'],
         vocab_size=checkpoint['vocab_size'],
         embedding_dim=checkpoint['embedding_dim'],
         hidden_dim=checkpoint['hidden_dim'],
@@ -190,39 +132,36 @@ def main():
     model.eval()
     
     logger.info(f"Model loaded successfully (trained for {checkpoint['epoch']} epochs)")
-    logger.info(f"Best training loss: {checkpoint['loss']:.4f}")
+    logger.info(f"Best training loss: {checkpoint['train_loss']:.4f}")
     
-    # Start prompt
+    # Iniciamos con la etiqueta de inicio de canción
     start_prompt = "<|song_start|>"
     logger.info(f"\nStart prompt: {start_prompt}")
     logger.info(f"Temperature: {args.temperature}")
     logger.info(f"Length: {args.length} tokens")
     logger.info("="*80)
-    
-    # Generate samples
+
+    # Generar muestras
     generated_texts = []
     
-    for i in range(args.num_samples):
-        logger.info(f"\nGenerating sample {i+1}/{args.num_samples}...")
-        
-        generated_text = generate_text(
-            model=model,
-            start_text=start_prompt,
-            token_to_idx=token_to_idx,
-            idx_to_token=idx_to_token,
-            device=device,
-            length=args.length,
-            temperature=args.temperature,
-            level=args.level
-        )
-        
-        generated_texts.append(generated_text)
-        
-        logger.info("\n" + "="*80)
-        logger.info(f"GENERATED SAMPLE {i+1}")
-        logger.info("="*80)
-        print(generated_text)
-        logger.info("="*80)
+    generated_text = generate_text(
+        model=model,
+        start_text=start_prompt,
+        token_to_idx=token_to_idx,
+        idx_to_token=idx_to_token,
+        device=device,
+        length=args.length,
+        temperature=args.temperature,
+        level=args.level
+    )
+    
+    generated_texts.append(generated_text)
+    
+    logger.info("\n" + "="*80)
+    logger.info("CANCION GENERADA:")
+    logger.info("="*80)
+    print(generated_text)
+    logger.info("="*80)
     
     # Save to file if specified
     if args.output_file is not None:

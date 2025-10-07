@@ -3,8 +3,7 @@ import os
 from datetime import datetime
 import argparse
 
-# Set offline mode BEFORE importing any HuggingFace libraries
-# These environment variables must be set before the libraries are imported
+# Offline para cluster Bajio
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 os.environ["HF_DATASETS_OFFLINE"] = "1"
@@ -20,7 +19,7 @@ from trl import (
 )
 from datasets import load_dataset
 
-# Configure logging
+# Logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -28,7 +27,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Parse command-line arguments
+# Parametros
 parser = argparse.ArgumentParser(description='Fine-tune Mistral model with LoRA')
 parser.add_argument('--lr', type=float, default=2e-4, help='Learning rate (default: 2e-4)')
 parser.add_argument('--epochs', type=int, default=3, help='Number of training epochs (default: 3)')
@@ -37,10 +36,8 @@ parser.add_argument('--grad_accum', type=int, default=8, help='Gradient accumula
 parser.add_argument('--lora_r', type=int, default=32, help='LoRA rank (default: 32)')
 parser.add_argument('--output_dir', type=str, default=None, help='Output directory name (default: auto-generated)')
 parser.add_argument('--max_seq_length', type=int, default=2048, help='Maximum sequence length (default: 2048)')
-
 args = parser.parse_args()
 
-# Assign hyperparameters from arguments
 lr = args.lr
 epochs = args.epochs
 batch_size = args.batch_size
@@ -48,7 +45,7 @@ grad_accum = args.grad_accum
 lora_r = args.lora_r
 max_seq_length = args.max_seq_length
 
-# Model configuration
+# Configuracion del modelo
 dtype = None
 load_in_4bit = True
 model_name = "unsloth/mistral-7b-instruct-v0.3-bnb-4bit"
@@ -65,16 +62,11 @@ logger.info(f"LoRA rank: {lora_r}")
 logger.info(f"Max sequence length: {max_seq_length}")
 logger.info("="*80 + "\n")
 
-logger.info("Loading model in OFFLINE mode...")
-
-# Workaround for Unsloth offline loading: Use the local cache path directly
-# Unsloth's from_pretrained uses HfFileSystem which tries to connect online even with local_files_only=True
-# Solution: Point directly to the cached snapshot directory
+# Cargar el modelo de Unsloth en local con la cache de HuggingFace
 cache_dir = os.path.expanduser("~/.cache/huggingface/hub")
 model_cache_name = model_name.replace("/", "--")
 model_cache_path = f"{cache_dir}/models--{model_cache_name}"
 
-# Check if model exists in cache and get the snapshot path
 if os.path.exists(model_cache_path):
     refs_main = f"{model_cache_path}/refs/main"
     if os.path.exists(refs_main):
@@ -84,10 +76,9 @@ if os.path.exists(model_cache_path):
         logger.info(f"Found cached model at: {model_path}")
     else:
         logger.error(f"Cache exists but no 'main' ref found at: {refs_main}")
-        model_path = model_name  # Fallback to online mode
+        model_path = model_name  # Volver al modo online
 else:
-    logger.warning(f"Model not found in cache at: {model_cache_path}")
-    logger.warning("Will attempt to download from HuggingFace Hub...")
+    logger.warning("Descargando de HuggingFace Hub...")
     model_path = model_name
 
 try:
@@ -97,17 +88,9 @@ try:
         dtype=dtype,
         load_in_4bit=load_in_4bit,
     )
-    logger.info("Model loaded successfully!")
+    logger.info("Modelo cargado exitosamente!")
 except Exception as e:
-    logger.error(f"Failed to load model: {e}")
-    logger.error("\n" + "="*80)
-    logger.error("MODEL LOADING FAILED!")
-    logger.error("="*80)
-    logger.error("\nTo download the model when you have internet access, run:")
-    logger.error("\n  python codigo/generative/download_model.py")
-    logger.error("\nOr manually:")
-    logger.error("\n  python -c \"from unsloth import FastLanguageModel; FastLanguageModel.from_pretrained('unsloth/mistral-7b-instruct-v0.3-bnb-4bit', max_seq_length=2048, load_in_4bit=True)\"")
-    logger.error("="*80 + "\n")
+    logger.error(f"No se pudo cargar el modelo: {e}")
     raise
 
 model = FastLanguageModel.get_peft_model(
@@ -135,18 +118,17 @@ split_map = {
 
 dataset = load_dataset("json", data_files=split_map)
 
-# Function to format Alpaca dataset for chat template
+
 def format_alpaca_to_chat(example):
     """
     Convert Alpaca format (instruction, input, output) to chat format
     for tokenizer.apply_chat_template
     """
-    # Combine instruction and input into the user message
+
     user_message = example["instruction"]
     if example["input"]:
         user_message += f"\n\n{example['input']}"
     
-    # Create conversation format
     conversation = [
         {"role": "user", "content": user_message},
         {"role": "assistant", "content": example["output"]}
@@ -161,14 +143,13 @@ def format_alpaca_to_chat(example):
     
     return {"text": formatted_text}
 
-# Apply formatting to dataset
+# Aplicar el formato Alpaca al datset
 dataset = dataset.map(format_alpaca_to_chat, remove_columns=["instruction", "input", "output"])
 
-# Create unique output directory with timestamp and key hyperparameters
+# Generar nombre de directorio de salida
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 if args.output_dir:
-    # User provided custom output directory name
     output_dir = f"models/{args.output_dir}"
 else:
     # Auto-generate directory name with hyperparameters
@@ -177,7 +158,7 @@ else:
 
 logger.info(f"Output directory: {output_dir}")
 
-# Train the model
+# Entrenar el modelo
 trainer = SFTTrainer(
     model = model,
     tokenizer = tokenizer,
@@ -202,7 +183,6 @@ trainer = SFTTrainer(
     ),
 )
 
-# Log GPU information for all available devices
 num_gpus = torch.cuda.device_count()
 logger.info(f"Number of available GPUs: {num_gpus}")
 

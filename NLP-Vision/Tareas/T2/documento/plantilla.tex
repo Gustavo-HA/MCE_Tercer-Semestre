@@ -432,7 +432,9 @@ Y se obtuvo la siguiente salida:
 En los tres ejemplos, el modelo fine-tuned demuestra una capacidad notable para capturar los estilos únicos de cada artista, tanto en términos de contenido temático como la estructura lírica. Aunque no alcanza la complejidad y profundidad de los artistas originales, especialmente en términos de rima y metáforas, el modelo genera letras coherentes y estilísticamente apropiadas para los artistas. Además, el modelo respetó en su mayoría la estructura de las letras basandose en los datos de entrenamiento (por ejemplo, siempre inicio con el [Intro], [Verse 1], etc.). Esto sugiere que el enfoque de fine-tuning con un conjunto de datos relativamente pequeño pero bien curado puede ser efectivo para adaptar un modelo de lenguaje grande a tareas creativas específicas como la generación de letras de canciones.
 
 \newpage
-\subsection{RNN Simple}
+\subsection{Modelos RNN/LSTM/GRU}
+
+\subsubsection{RNN Simple}
 Las RNN simples constituyen la forma canónica de modelar dependencias secuenciales mediante un estado oculto recurrente. Cada paso de tiempo aplica una transformación no lineal sobre la combinación del embedding del token actual y el estado oculto previo. Sin embargo, su profundidad temporal efectiva se ve limitada por el \emph{desvanecimiento} y la \emph{explosión} del gradiente, lo cual dificulta capturar dependencias de largo alcance en secuencias lingüísticas (estructuras repetitivas, coherencia temática, progresión narrativa, etc.).
 
 	\textbf{Tokenización y representación.} Se entrenaron dos variantes: a nivel carácter y a nivel palabra. El vocabulario carácter contiene 157 símbolos (incluyendo saltos de línea, puntuación y caracteres Unicode presentes en las letras). El vocabulario palabra contiene 19{,}107 tokens (palabras, formas con apóstrofos y algunos préstamos multilingües). Cada token se proyecta a un embedding de dimensión 128.
@@ -461,8 +463,8 @@ Esto ilustra la fuerte asimetría de capacidad inducida por el tamaño del vocab
 	\textbf{Hardware utilizado.} El mismo entorno descrito en la subsección de Transformers: 2× NVIDIA RTX TITAN (24 GB VRAM), 128 GB RAM y 24 núcleos CPU Intel Xeon Silver 4214, utilizando \texttt{PyTorch} para la implementación y entrenamiento.
 
 
-\newpage
-\subsection{LSTM}
+
+\subsubsection{LSTM}
 Las LSTM introducen compuertas que mitigan el desvanecimiento del gradiente y permiten retener información relevante a través de pasos temporales largos. La celda mantiene un estado de memoria $c_t$ separado del estado oculto $h_t$, modulando flujos de información mediante puertas sigmoides.
 
 	\textbf{Tokenización y representación.} Se emplean las mismas dos granularidades (carácter y palabra) con embeddings de dimensión 128 inicializados aleatoriamente y aprendidos de forma conjunta. No se reutilizó el tokenizador sub‐palabras del modelo Transformer dado que aquí el foco es analizar arquitecturas recurrentes “clásicas”.
@@ -496,11 +498,8 @@ El salto de capacidad frente a la RNN simple se concentra en las matrices de com
 
 \textbf{Ventajas observadas conceptualmente.} Mayor retención de contexto largo (estados temáticos, continuidad de narrador) y mejor manejo de secciones donde la progresión semántica se apoya en repeticiones moduladas (p. ej. estribillos). 
 
-\textbf{Hardware utilizado.} Idéntico al descrito previamente (2× RTX TITAN, etc.), con ejecución en \texttt{PyTorch}.
 
-
-\newpage
-\subsection{GRU}
+\subsubsection{GRU}
 Las GRU (Gated Recurrent Units) simplifican la estructura de la LSTM fusionando algunas compuertas y eliminando el estado de memoria separado. Mantienen capacidad para mitigar el desvanecimiento del gradiente con menor costo parametrizable, lo que puede traducirse en entrenamientos más rápidos y menor riesgo de sobre–ajuste en conjuntos moderados.
 
 	\textbf{Tokenización y representación.} Se reutiliza idéntica configuración (carácter y palabra, embeddings de 128). La comparación GRU vs LSTM bajo el mismo espacio de embeddings permite aislar el impacto de la diferencia arquitectónica.
@@ -512,25 +511,93 @@ Las GRU (Gated Recurrent Units) simplifican la estructura de la LSTM fusionando 
 \begin{aligned}
 z_t &= \sigma(W_{xz} x_t + W_{hz} h_{t-1} + b_z) & \text{(puerta de actualización)}\\
 r_t &= \sigma(W_{xr} x_t + W_{hr} h_{t-1} + b_r) & \text{(puerta de reinicio)}\\
-	ilde{h}_t &= \tanh(W_{xh} x_t + W_{hh} (r_t \odot h_{t-1}) + b_h) & \text{(candidato)}\\
+    ilde{h}_t &= \tanh(W_{xh} x_t + W_{hh} (r_t \odot h_{t-1}) + b_h) & \text{(candidato)}\\
 h_t &= (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t.
 \end{aligned}
 \]
 
-	extbf{Capacidad y parámetros.} Aproximadamente:
+\textbf{Capacidad y parámetros.} Aproximadamente:
 \begin{itemize}
     \item Variante palabra: $\sim 8.05$M parámetros (intermedio entre RNN simple y LSTM; 3 grupos de matrices en lugar de 1 o 4).
     \item Variante carácter: $\sim 0.75$M parámetros.
 \end{itemize}
 La reducción frente a LSTM puede favorecer menor sobre–ajuste en dominios con variabilidad estilística pero tamaño moderado.
 
-	\textbf{Hiperparámetros de entrenamiento.} Se conservaron los mismos (\texttt{Adam}, \texttt{lr = 2e-3}, \texttt{epochs = 20}, \texttt{batch\_size = 64}, \texttt{seq\_length = 100}, clipping 5.0, scheduler adaptativo). Esta homogeneidad facilita comparaciones directas posteriores de eficiencia y convergencia.
+\textbf{Hiperparámetros de entrenamiento.} Se conservaron los mismos (\texttt{Adam}, \texttt{lr = 2e-3}, \texttt{epochs = 20}, \texttt{batch\_size = 64}, \texttt{seq\_length = 100}, clipping 5.0, scheduler adaptativo). Esta homogeneidad facilita comparaciones directas posteriores de eficiencia y convergencia.
 
-	\textbf{Regularización y estabilidad.} El diseño de la puerta de actualización $z_t$ actúa como interpolador adaptativo entre memoria previa y nuevo contenido, reduciendo la necesidad de un estado separado tipo $c_t$. El \emph{dropout} inter–capas y el clipping complementan el control de generalización y estabilidad numérica.
+\textbf{Regularización y estabilidad.} El diseño de la puerta de actualización $z_t$ actúa como interpolador adaptativo entre memoria previa y nuevo contenido, reduciendo la necesidad de un estado separado tipo $c_t$. El \emph{dropout} inter–capas y el clipping complementan el control de generalización y estabilidad numérica.
 
-	\textbf{Consideraciones comparativas.} Conceptualmente, la GRU ofrece un compromiso: menos parámetros que LSTM, más expresión que la RNN simple. En escenarios con ventana de contexto moderada (100 tokens) y un dominio con repeticiones estilísticas claras (estructuras líricas), puede captar patrones de transición (Intro → Verso, Verso → Chorus) sin incurrir en el costo completo de las LSTM.
+\textbf{Consideraciones comparativas.} Conceptualmente, la GRU ofrece un compromiso: menos parámetros que LSTM, más expresión que la RNN simple. En escenarios con ventana de contexto moderada (100 tokens) y un dominio con repeticiones estilísticas claras (estructuras líricas), puede captar patrones de transición (Intro → Verso, Verso → Chorus) sin incurrir en el costo completo de las LSTM.
 
-	\textbf{Hardware utilizado.} Mismo entorno GPU/CPU ya descrito; implementación en \texttt{PyTorch} reutilizando la canalización de datos y bucles de entrenamiento comunes.
+
+\subsubsection{Perplejidad de los Modelos Recurrentes}
+La evaluación de perplejidad para RNN, LSTM y GRU se realizó mediante un esquema \emph{streaming} continuo: el conjunto de prueba completo se recorre secuencialmente en bloques de tamaño fijo (\texttt{block\_size = 100}), preservando el estado oculto entre bloques y calculando la pérdida en cada desplazamiento (teacher forcing con desfase 1). Este enfoque evita dos sesgos frecuentes: (i) usar solo la última posición de cada ventana y (ii) sub-muestrear tokens con ventanas disjuntas. No se reinició el estado en delimitadores de canción, lo cual puede reducir ligeramente la pérdida al permitir continuidad artificial; la decisión se mantuvo consistente entre arquitecturas y niveles.
+
+\textbf{Resultados.}
+Los valores agregados de PPL obtenidos mediante el esquema streaming se resumen en la \Cref{tab:perplex_rnn}. Cada cifra corresponde a la evaluación completa sobre el conjunto de prueba, preservando estado oculto entre bloques.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l|cc}
+        \hline
+        Modelo & PPL (carácter) & PPL (palabra) \\
+        \hline
+        RNN  & 6.83 & 2{,}283.42 \\
+        LSTM & \textbf{4.61} & \textbf{1{,}046.79} \\
+        GRU  & 6.90 & 8{,}970.11 \\
+        \hline
+    \end{tabular}
+    \caption{PPL de modelos recurrentes a nivel carácter y palabra.}
+    \label{tab:perplex_rnn}
+\end{table}
+
+\textbf{Granularidad y escala.} Las perplejidades a nivel carácter son órdenes de magnitud menores que a nivel palabra por razones estructurales: (a) el vocabulario carácter (157 símbolos) induce un espacio de decisión logarítmicamente mucho más pequeño que el vocabulario palabra (19{,}107 tokens); (b) la distribución de frecuencias a nivel palabra sigue una cola larga (Zipf) que incrementa la entropía empírica y dificulta estimar probabilidades fiables con un corpus moderado; (c) la perplejidad no es comparable entre niveles, pues una palabra concentra la información de varios caracteres ($\approx$4–5 en promedio).
+
+\textbf{Comparación arquitecturas (carácter).} Como se aprecia en la \Cref{tab:perplex_rnn}, LSTM obtiene la menor perplejidad (4.61) seguido de RNN (6.83) y GRU (6.90). La ventaja de LSTM concuerda con su mayor capacidad para retener dependencias temporales. El valor de GRU probablemente pueda descender con más épocas.
+
+\textbf{Comparación arquitecturas (palabra).} La LSTM también lidera a nivel palabra (1{,}046.79), seguida de la RNN (2{,}283.42). La GRU presenta una perplejidad muy elevada (8{,}970.11), cercana al orden de magnitud del vocabulario, lo que sugiere sub-entrenamiento más que limitación intrínseca de la celda.
+
+
+\textbf{Limitaciones.} La perplejidad (i) es sensible a la tokenización y no captura aspectos estilísticos (rima, coherencia, estructura lírica), (ii) puede estar ligeramente optimista al no reiniciar estados entre canciones, (iii) penaliza con fuerza tokens raros elevando cifras a nivel palabra y (iv) no mide repetición ni diversidad semántica. Se requiere complementarla con análisis cualitativo y métricas adicionales orientadas a estilo.
+
+\subsubsection{Muestras generadas por Modelos Recurrentes}
+
+En esta sección se presenta un análisis cualitativo enfocado en: (i) coherencia local y global, (ii) estructura lírica (uso de etiquetas y segmentos), (iii) repetición y degradación, (iv) rasgos estilísticos (temas, rimas aproximadas), y (v) diferencias atribuibles al nivel de tokenización. Se omite mostrar la salida completa por razones de espacio, pero se incluyen fragmentos representativos y observaciones clave.
+
+\textbf{LSTM}
+
+\begin{itemize}
+    \item \textbf{Carácter:} Muestra fragmentos con continuidad sintáctica moderada: \textit{``I want you to the ... I said I was ... I think I was the days...''}. Aunque hay inserciones redundantes (``the''), consigue mantener sujeto implícito y verbos en secuencia plausible. La granularidad carácter permite interpolar transiciones suaves y ocasionales coincidencias fonéticas finales (pseudo-rimas débiles en terminaciones ``-ing'' / ``-ion'' cuando se generan). No se observa un bucle corto estable hasta después de varias oraciones truncadas, lo que sugiere dinámica de estado más rica.
+    \item \textbf{Palabra:} Presenta progresión temática inicial relacionada con identidad y estatus (``the world'', ``game'', ``life''), pero deriva hacia repetición de construcciones \textit{``I got a ...''} y secuencias con alta frecuencia de un mismo sustantivo o pronombre. La presencia reiterada de marcadores de persona (\textit{I, you, nigga}) refleja patrones estadísticos del corpus. La segmentación por palabras acelera el colapso semántico: al errar una elección, el modelo tiende a reciclar tokens de alta probabilidad manteniendo superficialmente el tema pero sin avanzar narrativa. La perplejidad todavía relativamente alta frente a carácter se manifiesta como ciclos largos de repetición semántica.
+\end{itemize}
+
+\textbf{RNN}
+
+\begin{itemize}
+    \item \textbf{Carácter:} Se observan micro-bucles fonotácticos: \textit{``the see the see the''}, \textit{``the shit the''}, combinaciones que emergen por alta probabilidad condicional tras bigramas frecuentes. La ausencia de compuertas provoca degradación más rápida: el estado oculto acumula ruido y se reduce la diversidad contextual. Aun así, aparecen estructuras superficiales reconocibles (uso correcto de mayúscula inicial tras salto de línea, conservación de etiquetas como \texttt{[Verse 1: ...]} heredadas del prompt inicial).
+    \item \textbf{Palabra:} El modelo genera un efecto de \textit{``eco''} semántico: repite \textit{``the whole industry''}, \textit{``I can be alright''}, \textit{``I know you don't''}. Estas repeticiones medianas (no sólo trigramas exactos repetidos inmediatamente) indican que el estado retiene fragmentos de alta frecuencia pero sin mecanismo para \emph{olvidar} selectivamente (a diferencia de LSTM/GRU). La coherencia discursiva cae cuando intenta introducir nuevos tópicos (mezcla de ``industry'', ``price'', ``sky'').
+\end{itemize}
+
+
+\textbf{GRU}
+
+\begin{itemize}
+    \item \textbf{Carácter:} Aunque la teoría sugiere mejor retención que RNN simple, en la muestra particular la calidad es similar o ligeramente inferior: secuencias como \textit{``the can the have my man in the hall''} muestran inserción de determinantes y auxiliares sin anclaje semántico. Posible causa: menor convergencia (véase su perplejidad más alta que LSTM en ambos niveles) y sensibilidad a inicialización al compartir hiperparámetros con menos épocas efectivas útiles.
+    \item \textbf{Palabra:} Exhibe colapso severo temprano: cadenas extremas de \textit{``I got the world''}, \textit{``I got the shit''}, repeticiones densas de un mismo pronombre y sustantivo sin variación sintáctica. El valor de perplejidad cercano al tamaño del vocabulario sugiere predicciones casi uniformes para muchos contextos, lo que facilita que el muestreador (greedy o top-k reducido) se quede en órbitas de alta frecuencia y baja entropía local. El bucle temático centrado en autoafirmación y posesión es consistente con sesgos del corpus, pero la saturación semántica indica falta de calibración probabilística.
+\end{itemize}
+
+\textbf{Estructura y etiquetas.} Ninguna variante introduce de forma consistente las diferentes secciones de las canciones, reflejando que el modelo no internalizó reglas de transición macro–estructural, sino patrones locales.
+
+\textbf{Rimas y sonoridad.} No se detectan rimas planeadas; las coincidencias de terminaciones similares en carácter provienen de repeticiones estadísticas. El entrenamiento limitado y la ausencia de un objetivo explícito de rima (ni condicionamiento métrico) restringen la emergencia de patrones poéticos formales.
+
+Concluimos que a nivel carácter la LSTM produce la secuencia más fluida y con menos artefactos, seguida de RNN y luego GRU. A nivel palabra, todas las arquitecturas muestran \/``looping'' de motivos semánticos, pero la LSTM conserva mejor variación superficial antes de colapsar; la GRU exhibe un colapso temprano consistente con su perplejidad anómala. La RNN simple mantiene frases cortas relativamente legibles, aunque con pérdida rápida de progresión temática.
+
+
+
+\newpage
+\section{Parte B: Clasificación de Texto}
+
+
 
 
 \newpage

@@ -4,11 +4,6 @@ from datetime import datetime
 import argparse
 import json
 
-# Offline mode for cluster Bajio
-os.environ["HF_HUB_OFFLINE"] = "1"
-os.environ["TRANSFORMERS_OFFLINE"] = "1"
-os.environ["HF_DATASETS_OFFLINE"] = "1"
-
 import torch
 from transformers import (
     AutoTokenizer,
@@ -20,6 +15,13 @@ from transformers import (
 from datasets import Dataset
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
+
+
+# Offline mode for cluster Bajio
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+os.environ["HF_DATASETS_OFFLINE"] = "1"
+
 
 # Logging
 logging.basicConfig(

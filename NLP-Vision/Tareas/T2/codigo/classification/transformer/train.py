@@ -41,8 +41,8 @@ parser.add_argument('--output_dir', type=str, default=None, help='Output directo
 parser.add_argument('--max_seq_length', type=int, default=512, help='Maximum sequence length (default: 512)')
 parser.add_argument('--warmup_ratio', type=float, default=0.1, help='Warmup ratio (default: 0.1)')
 parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay (default: 0.01)')
-parser.add_argument('--save_steps', type=int, default=500, help='Save checkpoint every N steps (default: 500)')
-parser.add_argument('--eval_steps', type=int, default=500, help='Evaluate every N steps (default: 500)')
+parser.add_argument('--save_steps', type=int, default=100, help='Save checkpoint every N steps (default: 100)')
+parser.add_argument('--eval_steps', type=int, default=100, help='Evaluate every N steps (default: 100)')
 parser.add_argument('--seed', type=int, default=42, help='Random seed (default: 42)')
 args = parser.parse_args()
 

@@ -3,10 +3,10 @@
 #SBATCH --ntasks=1
 
 # Archivo de log donde quedará lo que imprima su software por pantalla
-#SBATCH --output="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/mistral_finetuning.log"
+#SBATCH --output="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/mdeberta_finetuning.log"
 
 # Archivo de error donde se guardarán los errores del trabajo
-#SBATCH --error="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/mistral_finetuning.err"
+#SBATCH --error="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/mdeberta_finetuning.err"
 
 # Memoria máxima a utilizar
 #SBATCH --mem=0

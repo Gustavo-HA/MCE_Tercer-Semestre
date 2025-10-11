@@ -196,7 +196,7 @@ if args.output_dir:
 else:
     # Auto-generate directory name with hyperparameters
     run_name = f"mdeberta_lr{lr}_ep{epochs}_bs{batch_size}x{grad_accum}_{timestamp}"
-    output_dir = f"models/{run_name}"
+    output_dir = f"models/classification/{run_name}"
 
 logger.info(f"Output directory: {output_dir}")
 

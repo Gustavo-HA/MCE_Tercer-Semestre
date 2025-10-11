@@ -58,10 +58,6 @@ python "$PYTHON_SCRIPT" --rnn_type LSTM # Uses default hyperparameters
 python "$PYTHON_SCRIPT" --rnn_type GRU # Uses default hyperparameters
 python "$PYTHON_SCRIPT" --rnn_type RNN # Uses default hyperparameters
 
-python "$PYTHON_SCRIPT" --rnn_type LSTM # Uses default hyperparameters
-python "$PYTHON_SCRIPT" --rnn_type GRU # Uses default hyperparameters
-python "$PYTHON_SCRIPT" --rnn_type RNN # Uses default hyperparameters
-
 if [ $? -ne 0 ]; then
     echo "ERROR: El script de Python falló."
     exit 1

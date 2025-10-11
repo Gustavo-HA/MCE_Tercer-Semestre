@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(description='Train RNN/LSTM/GRU for sentiment c
 parser.add_argument('--rnn_type', type=str, default='LSTM', choices=['RNN', 'LSTM', 'GRU'],
                     help='Type of RNN to use (default: LSTM)')
 parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate (default: 1e-3)')
-parser.add_argument('--epochs', type=int, default=10, help='Number of training epochs (default: 10)')
+parser.add_argument('--epochs', type=int, default=15, help='Number of training epochs (default: 15)')
 parser.add_argument('--batch_size', type=int, default=32, help='Batch size (default: 32)')
 parser.add_argument('--embedding_dim', type=int, default=128, help='Embedding dimension (default: 128)')
 parser.add_argument('--hidden_dim', type=int, default=256, help='Hidden dimension (default: 256)')
@@ -45,7 +45,7 @@ parser.add_argument('--val_path', type=str, default='./data/classification/meia_
                     help='Path to validation CSV file')
 parser.add_argument('--test_path', type=str, default='./data/classification/meia_data_test.csv',
                     help='Path to test CSV file')
-parser.add_argument('--patience', type=int, default=3, help='Early stopping patience (default: 3)')
+parser.add_argument('--patience', type=int, default=4, help='Early stopping patience (default: 4)')
 args = parser.parse_args()
 
 # Configuration

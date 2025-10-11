@@ -20,7 +20,7 @@
 #SBATCH --mem=0
 
 # Tiempo máximo de ejecución
-#SBATCH --time=10:00:00
+#SBATCH --time=0
 
 # Enviar correo electrónico cuando el trabajo finalice o falle
 #SBATCH --mail-type=BEGIN,END,FAIL

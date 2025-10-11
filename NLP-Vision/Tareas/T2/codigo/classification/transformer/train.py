@@ -293,8 +293,6 @@ logger.info(f"✓ Model saved successfully at: {final_output_dir}")
 predictions_file = f"{output_dir}/test_predictions.json"
 with open(predictions_file, 'w', encoding='utf-8') as f:
     json.dump({
-        'predictions': [int(p) + 1 for p in predictions],  # Convert back to 1-5
-        'labels': [int(label) + 1 for label in labels],  # Convert back to 1-5
         'metrics': test_metrics
     }, f, indent=2)
 logger.info(f"Test predictions saved to: {predictions_file}")

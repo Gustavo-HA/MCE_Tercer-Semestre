@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=GPU
-#SBATCH --job-name=RNN-LSTM-GRU_training_class
+#SBATCH --job-name=CNN_training_class
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --output="/home/est_posgrado_gustavo.angeles/Tercer Semestre/NLP-Vision/Tareas/T2/logs/training-cnn_class.log"

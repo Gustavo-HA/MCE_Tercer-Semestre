@@ -1,3 +1,11 @@
+#!/bin/bash
+
+# Partición en la que se va a ejecutar (cambia a C1 o C2 para CPU)
+#SBATCH --partition=GPU
+
+# Nombre del trabajo
+#SBATCH --job-name=mDeBERTa_FineTuning
+
 # Número de tareas
 #SBATCH --nodes=1
 #SBATCH --ntasks=1

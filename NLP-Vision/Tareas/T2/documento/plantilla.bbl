@@ -23,4 +23,9 @@ Tim Dettmers, Mike Lewis, Sam Shleifer, and Luke Zettlemoyer.
 \newblock 8-bit optimizers via block-wise quantization.
 \newblock {\em 9th International Conference on Learning Representations, ICLR}, 2022.
 
+\bibitem{kim2014convolutional}
+Yoon Kim.
+\newblock Convolutional neural networks for sentence classification.
+\newblock {\em arXiv preprint arXiv:1408.5882}, 2014.
+
 \end{thebibliography}

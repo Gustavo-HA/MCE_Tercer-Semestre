@@ -223,9 +223,13 @@ Por otro lado, al utilizar modelos RNN/LSTM/GRU basta con simplemente tener las 
 
 \subsection{Transformers}
 
+\subsubsection{Mistral 7B Instruct v0.3}
+
 En este trabajo se utilizó el modelo \texttt{unsloth/mistral-7B-instruct-v0.3-bnb-4bit} como base para el fine-tuning. Este modelo es una variante del modelo creado por Mistral: Mistral-7B \cite{jiang2023mistral7b}, y optimizado por \textit{Unsloth} para tareas de instrucción y cuantizado a 4 bits para reducir el tamaño del modelo.
 
 El framework utilizado para el fine-tuning fue \texttt{transformers} de Hugging Face, junto con \texttt{peft} para la implementación de Low-Rank Adaptation (LoRA). La elección de LoRA se debe a su eficiencia en términos de memoria y tiempo de entrenamiento, permitiendo adaptar grandes modelos preentrenados con un costo computacional reducido \cite{hu2022lora}.
+
+\subsubsection{Configuración del Fine-Tuning}
 
 \textbf{Tokenizador y representación.} El modelo base emplea un tokenizador sub‐palabras basado en SentencePiece con un vocabulario de aproximadamente 32K tokens \cite{kudo2018sentencepiece}. Este enfoque permite manejar adecuadamente la variabilidad léxica propia de letras de rap (slang, contracciones y variaciones estilísticas) sin inflar excesivamente el vocabulario. No se realizó entrenamiento de un tokenizador nuevo, ya que el objetivo fue un ajuste fino instructivo y no la adaptación desde cero a un dominio léxico extremadamente distinto.
 
@@ -592,10 +596,391 @@ En esta sección se presenta un análisis cualitativo enfocado en: (i) coherenci
 
 Concluimos que a nivel carácter la LSTM produce la secuencia más fluida y con menos artefactos, seguida de RNN y luego GRU. A nivel palabra, todas las arquitecturas muestran \/``looping'' de motivos semánticos, pero la LSTM conserva mejor variación superficial antes de colapsar; la GRU exhibe un colapso temprano consistente con su perplejidad anómala. La RNN simple mantiene frases cortas relativamente legibles, aunque con pérdida rápida de progresión temática.
 
+\subsection{Comparación entre Modelos Transformer y Recurrentes}
+
+La comparación entre los modelos Transformer (Mistral) y las arquitecturas recurrentes (RNN, LSTM, GRU) revela diferencias significativas en varios aspectos clave:
+
+\textbf{Perplejidad.} El modelo Transformer fine-tuned alcanzó una perplejidad de 7.20 en el conjunto de prueba, mientras que en la mejor puntuación de los modelos recurrentes (LSTM a nivel carácter) obtuvo 4.61 y la peor (GRU a nivel palabra) alcanzó 8,970.11. En la sección anterior se discutió que las perplejidades a nivel carácter y palabra no son directamente comparables debido a las diferencias en el tamaño del vocabulario y la naturaleza de la tokenización. Sin embargo, el Transformer aún con su vocabulario más grande (32,768) logró una perplejidad competitiva, lo que indica su capacidad para modelar dependencias a largo plazo y capturar patrones complejos en el texto.
+
+\textbf{Coherencia y Fluidez.} En términos de coherencia local y global, el Transformer mostró una capacidad superior en todos los aspectos definidos en la evaluación. Logrando mantener temas y estructuras a lo largo de secuencias más largas. Las muestras generadas por el modelo Transformer presentaron transiciones más suaves entre ideas y una mejor progresión narrativa en comparación con las arquitecturas recurrentes, que tendían a colapsar en bucles repetitivos o perder coherencia después de varias oraciones.
+
+En concreto, las RNNs solían empeorar rápidamente con la longitud de la secuencia, mientras que el Transformer mantenía la coherencia incluso en textos más extensos. La LSTM fue la arquitectura recurrente que mejor manejó la coherencia, pero aún así no alcanzó el nivel del Transformer. Incluso considerando valores más altos de temperatura, las redes tipo RNN no lograron igualar la fluidez y diversidad del Transformer (y hasta era contraproducente, este efecto fue muy fuerte en los modelos a nivel de letra).
+
+
 
 
 \newpage
 \section{Parte B: Clasificación de Texto}
+
+\subsection{Datos}
+
+Los datos utilizados para la tarea de clasificación de texto son una muestra proveniente de la base de datos \textit{REST-MEX 2025}, un conjunto de reseñas de negocios en los pueblos mágicos de México. Este conjunto de datos contiene reseñas de usuarios en formato de texto, junto con una etiqueta que indica la calificación del negocio en una escala de 1 a 5 estrellas.
+
+\subsubsection{Limpieza y Preprocesamiento de Datos}
+
+El archivo de entrada (\texttt{meia\_data.csv}) contiene las columnas: \texttt{Review} (texto de la reseña), \texttt{Polarity} (calificación), \texttt{Town}, \texttt{Region} y \texttt{Type}. Sin embargo, en este proyecto solo se utilizaron las columnas \texttt{Review} y \texttt{Polarity}. El preprocesamiento de los datos incluyó los siguientes pasos:
+
+\textbf{Corrección de codificación.} El conjunto presenta problemas de mojibake (caracteres mal codificados) heredados de conversiones entre encodings. Se aplica una corrección mediante re-codificación: cada texto se codifica a \texttt{latin-1} y se decodifica a \texttt{utf-8} con \texttt{errors='ignore'}, recuperando la mayoría de caracteres especiales del español (tildes, eñes, etc.). Esta transformación se implementa en la función \texttt{fix\_mojibake}.
+
+\textbf{Selección de características.} Se descartan las columnas \texttt{Town}, \texttt{Region} y \texttt{Type}, conservando únicamente el texto de la reseña y su polaridad. Esto se justifica al priorizar la señal lingüística pura sobre metadatos geográficos o categóricos, alineándose con el enfoque de modelado puramente textual.
+
+\textbf{Normalización de etiquetas.} Las etiquetas de polaridad originales (rango 1–5) se transforman a índices 0-indexados (rango 0–4) mediante la operación $\text{label} = \text{Polarity} - 1$. Esta conversión es estándar en PyTorch, donde las clases deben comenzar desde 0 para compatibilidad con \texttt{nn.CrossEntropyLoss}.
+
+\textbf{Particiones del conjunto.} Se aplicó una división estratificada mediante \texttt{train\_test\_split} de scikit-learn con \texttt{random\_state=42} para reproducibilidad:
+\begin{itemize}
+    \item \textbf{Entrenamiento}: 72\% del total (primera división 80\% train, luego 90\% de ese subconjunto).
+    \item \textbf{Validación}: 8\% del total (10\% del subconjunto de entrenamiento).
+    \item \textbf{Prueba}: 20\% del total.
+\end{itemize}
+La estratificación garantiza que la distribución de clases se preserve en cada partición, evitando sesgos por desbalance de polaridad.
+
+\textbf{Construcción de vocabulario.} Para los modelos RNN/LSTM/GRU y CNN se construyó un vocabulario a partir del conjunto de entrenamiento exclusivamente, previniendo filtración de información (data leakage). El proceso implementado en \texttt{build\_vocab} incluye:
+\begin{enumerate}
+    \item \textbf{Tokenización simple}: Se emplea una expresión regular \texttt{\textbackslash b\textbackslash w+\textbackslash b} sobre texto en minúsculas, extrayendo secuencias alfanuméricas y descartando puntuación.
+    \item \textbf{Conteo de frecuencias}: Se acumulan las ocurrencias de cada token mediante \texttt{Counter}.
+    \item \textbf{Filtrado por frecuencia mínima}: Se retienen únicamente tokens con frecuencia $\geq$ \texttt{min\_freq} (valor por defecto: 2). Este umbral mitiga ruido de errores tipográficos y hapax legomena.
+    \item \textbf{Limitación de tamaño}: Opcionalmente se puede restringir el vocabulario a los \texttt{max\_vocab\_size} tokens más frecuentes (por defecto: ilimitado).
+    \item \textbf{Tokens especiales}: Se reservan índices fijos para:
+    \begin{itemize}
+        \item \texttt{<PAD>} (índice 0): Padding de secuencias.
+        \item \texttt{<UNK>} (índice 1): Tokens fuera de vocabulario.
+    \end{itemize}
+\end{enumerate}
+
+En la ejecución con parámetros predeterminados (\texttt{min\_freq=2}, sin límite de tamaño), el vocabulario final contiene aproximadamente 12,000–15,000 tokens (incluyendo especiales), dependiendo del corpus específico.
+
+\textbf{Estadísticas de longitud de secuencia.} Se calculan métricas sobre las longitudes tokenizadas del conjunto de entrenamiento para informar la elección del hiperparámetro \texttt{max\_seq\_length}:
+\begin{itemize}
+    \item Mínimo, máximo, media y mediana.
+    \item Percentiles 95 y 99: recomendados como valores de corte para padding/truncamiento, balanceando cobertura de información y eficiencia computacional.
+\end{itemize}
+Estas estadísticas se almacenan en \texttt{meia\_data\_stats.json} para consulta posterior.
+
+\textbf{Formatos de salida.} El script genera archivos diferenciados según el tipo de modelo:
+
+\textit{Para modelos Transformer (mDeBERTa):}
+\begin{itemize}
+    \item \texttt{meia\_data.json}: Archivo JSON estructurado con tres claves (\texttt{train}, \texttt{validation}, \texttt{test}), cada una conteniendo una lista de diccionarios con campos \texttt{text}, \texttt{label} y \texttt{uuid}. Este formato es compatible con \texttt{datasets.load\_dataset} de Hugging Face.
+\end{itemize}
+
+\textit{Para modelos RNN/LSTM/GRU/CNN:}
+\begin{itemize}
+    \item \texttt{meia\_data\_train.csv}, \texttt{meia\_data\_val.csv}, \texttt{meia\_data\_test.csv}: Archivos CSV con columnas \texttt{text}, \texttt{label}, \texttt{uuid}. Formato directo para \texttt{pandas.read\_csv}.
+    \item \texttt{meia\_data\_vocab.json}: Diccionario JSON con mapeo palabra$\to$índice. Incluye tokens especiales y todos los términos filtrados por frecuencia mínima.
+    \item \texttt{meia\_data\_stats.json}: Diccionario JSON con estadísticas de longitud (\texttt{min}, \texttt{max}, \texttt{mean}, \texttt{median}, \texttt{percentile\_95}, \texttt{percentile\_99}).
+\end{itemize}
+
+\textbf{Ejecución del script.} El preprocesamiento se invoca desde terminal mediante:
+\begin{center}
+\texttt{python ./codigo/classification/prepare\_data.py \textbackslash} \\
+\texttt{~~--file\_path "./data/classification/meia\_data.csv" \textbackslash} \\
+\texttt{~~--output\_path "./data/classification/meia\_data.json"}
+\end{center}
+
+Con parámetros predeterminados, el proceso completa en segundos y reporta:
+\begin{itemize}
+    \item Tamaños de las particiones (e.g., Train: 18,003, Val: 2,001, Test: 5,001).
+    \item Vocabulario final con $\sim$12,349 tokens (ejemplo representativo).
+    \item Estadísticas de longitud (e.g., percentil 95: 98 tokens, percentil 99: 156 tokens).
+\end{itemize}
+
+La separación entre formatos responde a las diferencias arquitectónicas: los Transformers emplean tokenizadores sub-palabra preentrenados (SentencePiece, WordPiece) que operan internamente, mientras que las RNN/CNN requieren vocabularios discretos explícitos y padding manual. La construcción del vocabulario exclusivamente sobre entrenamiento evita sesgo optimista en evaluación, y el filtrado por frecuencia mínima equilibra cobertura léxica con complejidad parametrizable (dimensión del embedding y capa softmax).
+
+\newpage
+
+\subsection{Transformers}
+
+\subsubsection{mDeBERTa V3}
+
+\textbf{DeBERTa} (Decoding-enhanced BERT with disentangled attention) es una arquitectura de modelo de lenguaje basada en Transformers que introduce varias mejoras sobre el modelo BERT original. Las principales características de DeBERTa incluyen:
+\begin{itemize}
+    \item \textbf{Atención Desentrelazada (Disentangled Attention):} A diferencia de la atención estándar que combina las representaciones de posición y contenido, DeBERTa las trata por separado. Esto permite que el modelo capture mejor las relaciones entre palabras en función de su posición relativa y su contenido semántico.
+    \item \textbf{Posiciones Absolutas y Relativas:} DeBERTa utiliza una combinación de codificaciones de posición absolutas y relativas, lo que mejora la capacidad del modelo para entender el contexto de las palabras en una oración.
+    \item \textbf{Capa de Decodificación Mejorada:} La arquitectura de DeBERTa incluye una capa de decodificación que mejora la capacidad del modelo para generar representaciones más ricas y contextualmente relevantes.
+\end{itemize}
+
+En este proyecto se utilizó la variante \textbf{mDeBERTa V3}, que es una versión multilingüe de DeBERTa, con 0.3B de parámetros y fue preentrenada en múltiples idiomas, incluyendo el español. Esto la hace especialmente adecuada para tareas de procesamiento de lenguaje natural en contextos multilingües, y por tanto, en el nuestro, para clasificar reseñas en español.
+
+\subsubsection{Configuración del Fine-Tuning}
+
+El fine-tuning del modelo mDeBERTa V3 se realizó utilizando la biblioteca \texttt{transformers} de Hugging Face. En esta ocasión se decidió utilizar un enfoque de fine-tuning completo, ajustando todos los parámetros del modelo preentrenado debido a su reducido tamaño en comparación a Mistral 7B. A continuación se detallan los aspectos clave de la configuración del fine-tuning:
+
+\textbf{Tokenizador y representación.} El modelo emplea el tokenizador de DeBERTa basado en SentencePiece con un vocabulario de aproximadamente 128K tokens. Este tokenizador multilingüe fue preentrenado en 100 idiomas, incluyendo español, lo que garantiza cobertura adecuada para el dominio de reseñas turísticas sin necesidad de ajuste léxico adicional. La tokenización sub-palabra permite manejar eficientemente variaciones morfológicas del español (género, número, conjugaciones) y errores ortográficos frecuentes en texto generado por usuarios.
+
+\textbf{Formato de datos.} Cada ejemplo se estructura como un par texto–etiqueta, donde el texto corresponde a la reseña completa y la etiqueta es la polaridad 0-indexada (rango 0–4, correspondiente a 1–5 estrellas originales). Los datos se cargan desde archivos JSON con estructura \texttt{\{train, validation, test\}} mediante \texttt{datasets.Dataset.from\_list}. La tokenización se aplica mediante \texttt{tokenizer()} con truncamiento a \texttt{max\_seq\_length} y sin padding inicial; el padding dinámico se gestiona posteriormente con \texttt{DataCollatorWithPadding} para optimizar eficiencia por lote.
+
+\textbf{Tamaño del conjunto.} El corpus preprocesado contiene 3600 ejemplos de entrenamiento, 400 de validación y 1000 de prueba. Con un tamaño de lote efectivo de 32 secuencias (lote por dispositivo = 8, acumulación de gradientes = 4 y 2 GPUs), el número de pasos por época es:
+\[
+\text{steps/epoch} = \lceil 3600 / (32\times2) \rceil = 57.
+\]
+Se entrenaron 3 épocas con parámetros por defecto, resultando en aproximadamente 171 pasos totales. Se programaron evaluaciones cada 100 pasos (\texttt{eval\_steps = 100}) y se almacenaron checkpoints con la misma frecuencia, conservando únicamente los 3 mejores modelos según F1 en validación.
+
+\textbf{Longitud de secuencia.} Se fijó \texttt{max\_seq\_length = 512} tokens, valor que cubre el percentil 99 de longitudes del conjunto (156 tokens tras tokenización). Las secuencias más largas se truncan y las cortas se completan con padding dinámico por lote, minimizando cómputo desperdiciado en tokens especiales.
+
+\textbf{Arquitectura fine-tuned.} Se ajustaron todos los parámetros del modelo base (12 capas transformer, \texttt{hidden\_size = 768}, 12 cabezas de atención), añadiendo únicamente una capa de clasificación lineal (\texttt{nn.Linear(768, 5)}) sobre el token \texttt{[CLS]} para proyectar representaciones a logits de 5 clases. El modelo completo contiene aproximadamente 280M parámetros entrenables. No se aplicó cuantización ni técnicas de eficiencia parametrizable (LoRA/adaptadores), optando por fine-tuning completo debido al tamaño relativamente manejable del modelo y la disponibilidad de hardware.
+
+\textbf{Hiperparámetros de entrenamiento.} Se utilizaron los valores por defecto del script: tasa de aprendizaje \texttt{2e-5} (típica para fine-tuning de Transformers), scheduler lineal con un warmup ratio de 0.1 (primer 10\% de pasos con calentamiento), 3 épocas de entrenamiento, un tamaño de lote por dispositivo de 8, 4 pasos de acumulación de gradiente, \texttt{weight\_decay = 0.01}, optimizador \texttt{AdamW} estándar, y semilla \texttt{42}. El tamaño de lote efectivo resultante es 32 ejemplos. Se habilitó precisión mixta FP16 (\texttt{fp16 = True}) cuando GPU está disponible, reduciendo uso de memoria y acelerando cómputo sin pérdida significativa de precisión.
+
+\textbf{Estrategia de evaluación y selección.} Se implementó early stopping implícito mediante \texttt{load\_best\_model\_at\_end = True} con métrica objetivo \texttt{f1} (weighted). Tras cada evaluación periódica, el modelo se compara con el mejor checkpoint previo y se conserva únicamente si supera el F1 de validación. Esta estrategia mitiga sobre-ajuste en conjuntos pequeños y garantiza que el modelo final corresponde al punto de máxima generalización observada.
+
+\textbf{Métricas de evaluación.} Se calculan accuracy, precision, recall y F1-score (weighted) mediante \texttt{sklearn.metrics}, además de métricas por clase individual. La matriz de confusión completa se registra al finalizar el entrenamiento para análisis detallado de errores sistemáticos entre clases adyacentes (p.ej. confusión 3-4 estrellas).
+
+\textbf{Gestión de memoria y hardware.} Con fine-tuning completo de 280M parámetros en FP16, el pico de VRAM por dispositivo es aproximadamente 4–6 GB (incluyendo activaciones, gradientes y estado del optimizador), lo cual cabe cómodamente en GPUs modernas de 8+ GB. El padding dinámico reduce desperdicio de memoria frente a padding estático global. El script registra memoria reservada y máxima por dispositivo antes y después del entrenamiento para monitoreo.
+
+\textbf{Hardware utilizado.} El mismo entorno del fine-tuning de Mistral: 2× NVIDIA RTX TITAN (24 GB VRAM cada una), 128 GB RAM y 24 núcleos CPU Intel Xeon Silver 4214 (2.2 GHz), proporcionado por el Lab-SB del CIMAT. El entrenamiento completó en aproximadamente 45–60 minutos con el hardware disponible.
+
+
+\subsection{Modelos RNN/LSTM/GRU}
+
+Los modelos recurrentes (RNN, LSTM, GRU) comparten una arquitectura unificada implementada en la clase \texttt{RNNType}, que permite seleccionar el tipo de celda recurrente mediante el parámetro \texttt{rnn\_type}. Esta abstracción facilita la experimentación comparativa manteniendo idéntica la infraestructura de embedding, dropout y clasificación.
+
+\textbf{Arquitectura Común}
+
+Todos los modelos recurrentes siguen la misma estructura de capas:
+\begin{enumerate}
+    \item \textbf{Capa de Embedding}: Proyecta índices discretos de tokens (rango 0–\textit{vocab\_size}) a vectores densos de dimensión \texttt{embedding\_dim}. Se configura con \texttt{padding\_idx=0} para que los tokens de padding (\texttt{<PAD>}) no contribuyan al gradiente.
+    
+    \item \textbf{Capas Recurrentes}: Se apilan \texttt{num\_layers} capas del tipo seleccionado, procesando la secuencia de embeddings y propagando información temporal. La celda recurrente actualiza su estado oculto en cada paso temporal según la arquitectura específica.
+    
+    \item \textbf{Dropout}: Tras la última capa recurrente, se aplica dropout al último estado oculto para regularización.
+    
+    \item \textbf{Capa Completamente Conectada}: Una proyección lineal \texttt{nn.Linear(hidden\_dim, num\_classes)} transforma el último estado oculto en logits de clasificación para las 5 clases.
+\end{enumerate}
+
+El flujo de propagación es el siguiente:
+\[
+\text{Entrada} \xrightarrow{\text{Embed.}} \text{Seq. de vectores} \xrightarrow{\text{RNN/LSTM/GRU}} \text{Último estado oculto} \xrightarrow{\text{Dropout}} \xrightarrow{\text{FC}} \text{Logits}
+\]
+
+La función de pérdida empleada es \texttt{CrossEntropyLoss}, que combina softmax y negative log-likelihood, apropiada para clasificación multiclase. El optimizador seleccionado es \texttt{Adam} con tasa de aprendizaje predeterminada de \texttt{1e-3}.
+
+\subsubsection{RNN}
+
+\textbf{Arquitectura}
+
+La RNN simple es la arquitectura recurrente más básica. Es propensa al problema de \textit{vanishing gradients} en secuencias largas, lo que limita su capacidad de capturar dependencias a largo plazo. Sin embargo, su simplicidad la hace computacionalmente eficiente, aunque menos paralelizable que otro tipos de redes.
+
+\textbf{Configuración}
+
+Los hiperparámetros predeterminados para el entrenamiento de RNN son:
+\begin{itemize}
+    \item \textbf{Dimensión de embedding}: \texttt{embedding\_dim = 128}
+    \item \textbf{Dimensión oculta}: \texttt{hidden\_dim = 256}
+    \item \textbf{Número de capas}: \texttt{num\_layers = 2}
+    \item \textbf{Dropout}: \texttt{dropout = 0.3}
+    \item \textbf{Longitud máxima de secuencia}: \texttt{max\_length = 128}
+    \item \textbf{Tasa de aprendizaje}: \texttt{lr = 1e-3}
+    \item \textbf{Épocas}: \texttt{epochs = 50}
+    \item \textbf{Tamaño de lote}: \texttt{batch\_size = 32}
+    \item \textbf{Paciencia (early stopping)}: \texttt{patience = 15}
+\end{itemize}
+
+Con vocabulario de $\sim$8033 tokens y 5 clases, el modelo RNN contiene aproximadamente:
+\[
+\text{Parámetros} \approx (8033 \times 128) + 2 \times [(128 \times 256) + (256 \times 256)] + (256 \times 5) \approx 1.26 \text{M parámetros}
+\]
+
+\subsubsection{LSTM}
+
+\textbf{Arquitectura}
+
+La LSTM introduce un mecanismo de compuertas para controlar el flujo de información y mitigar el problema de vanishing gradients. Incorpora un estado de celda $C_t$ además del estado oculto $h_t$.
+
+\textbf{Configuración}
+
+Los hiperparámetros predeterminados son idénticos a RNN:
+\begin{itemize}
+    \item \textbf{Dimensión de embedding}: \texttt{embedding\_dim = 128}
+    \item \textbf{Dimensión oculta}: \texttt{hidden\_dim = 256}
+    \item \textbf{Número de capas}: \texttt{num\_layers = 2}
+    \item \textbf{Dropout}: \texttt{dropout = 0.3}
+    \item \textbf{Longitud máxima de secuencia}: \texttt{max\_length = 128}
+    \item \textbf{Tasa de aprendizaje}: \texttt{lr = 1e-3}
+    \item \textbf{Épocas}: \texttt{epochs = 50}
+    \item \textbf{Tamaño de lote}: \texttt{batch\_size = 32}
+    \item \textbf{Paciencia (early stopping)}: \texttt{patience = 15}
+\end{itemize}
+
+Debido a las compuertas adicionales, LSTM tiene aproximadamente 4× más parámetros que RNN simple en las capas recurrentes:
+\[
+\text{Parámetros} \approx (8033 \times 128) + 2 \times [4 \times ((128 \times 256) + (256 \times 256))] + (256 \times 5) \approx 1.95 \text{M parámetros}
+\]
+
+\subsubsection{GRU}
+
+\textbf{Arquitectura}
+
+La GRU (\textit{Gated Recurrent Unit}) es una variante simplificada de LSTM que combina el estado de celda y el estado oculto en uno solo, reduciendo el número de compuertas a dos. GRU ofrece un balance entre la capacidad expresiva de LSTM y la eficiencia computacional de RNN simple, con menos parámetros que LSTM pero mejor manejo de dependencias largas que RNN.
+
+\textbf{Configuración}
+
+Los hiperparámetros predeterminados mantienen consistencia con RNN y LSTM:
+\begin{itemize}
+    \item \textbf{Dimensión de embedding}: \texttt{embedding\_dim = 128}
+    \item \textbf{Dimensión oculta}: \texttt{hidden\_dim = 256}
+    \item \textbf{Número de capas}: \texttt{num\_layers = 2}
+    \item \textbf{Dropout}: \texttt{dropout = 0.3}
+    \item \textbf{Longitud máxima de secuencia}: \texttt{max\_length = 128}
+    \item \textbf{Tasa de aprendizaje}: \texttt{lr = 1e-3}
+    \item \textbf{Épocas}: \texttt{epochs = 50}
+    \item \textbf{Tamaño de lote}: \texttt{batch\_size = 32}
+    \item \textbf{Paciencia (early stopping)}: \texttt{patience = 15}
+\end{itemize}
+
+GRU tiene aproximadamente 3× más parámetros que RNN en las capas recurrentes (3 transformaciones lineales vs. 1):
+\[
+\text{Parámetros} \approx (8033 \times 128) + 2 \times [3 \times ((128 \times 256) + (256 \times 256))] + (256 \times 5) \approx 1.72 \text{M parámetros}
+\]
+
+\textbf{Estrategia de entrenamiento unificada.} Los tres modelos se entrenan con el mismo protocolo: optimizador Adam, función de pérdida CrossEntropyLoss, métricas de evaluación (accuracy, precision, recall, F1 weighted y por clase, matriz de confusión), y early stopping basado en F1 de validación con paciencia de 15 épocas. El mejor modelo se selecciona según máximo F1 en validación, y se evalúa finalmente en el conjunto de prueba. Esta consistencia metodológica permite comparación justa entre arquitecturas recurrentes.
+
+\newpage
+\subsection{Modelo CNN}
+
+\subsubsection{Arquitectura}
+
+La arquitectura \textbf{TextCNN} implementada se basa en el trabajo seminal de Kim para clasificación de oraciones \cite{kim2014convolutional}. A diferencia de los modelos recurrentes que procesan secuencias de manera temporal, las CNNs capturan patrones locales (n-gramas) mediante convoluciones paralelas con múltiples tamaños de kernel.
+
+\textbf{Estructura del modelo:}
+\begin{enumerate}
+    \item \textbf{Capa de Embedding}: Idéntica a los modelos recurrentes, proyecta tokens a vectores de dimensión \texttt{embedding\_dim = 128} con \texttt{padding\_idx = 0}.
+    
+    \item \textbf{Convoluciones Paralelas}: Se aplican $k$ filtros convolucionales 1D con diferentes tamaños de kernel $\{3, 4, 5\}$ (predeterminado) en paralelo sobre la secuencia de embeddings. Cada kernel captura diferentes n-gramas:
+    \begin{itemize}
+        \item Kernel size = 3: Captura trigramas (patrones de 3 palabras consecutivas)
+        \item Kernel size = 4: Captura 4-gramas
+        \item Kernel size = 5: Captura 5-gramas
+    \end{itemize}
+    Cada convolución genera \texttt{num\_filters = 100} mapas de características, seguidos de activación ReLU.
+    
+    \item \textbf{Max-Pooling sobre Tiempo}: Para cada mapa de características generado por las convoluciones, se aplica max-pooling global (\textit{max-over-time pooling}) que extrae el valor máximo a lo largo de toda la secuencia. Esta operación captura la característica más importante detectada por cada filtro, independientemente de su posición en el texto, proporcionando invarianza posicional.
+    
+    \item \textbf{Concatenación}: Los vectores resultantes del max-pooling de todos los kernels se concatenan en un único vector de características de dimensión $\text{len(kernel\_sizes)} \times \text{num\_filters} = 3 \times 100 = 300$.
+    
+    \item \textbf{Dropout}: Se aplica dropout con probabilidad \texttt{0.5} al vector concatenado para regularización.
+    
+    \item \textbf{Capa Completamente Conectada}: Proyección lineal final del vector de 300 dimensiones a logits de 5 clases.
+\end{enumerate}
+
+El flujo completo es:
+\[
+\text{Entrada} \xrightarrow{\text{Embedding}} \text{(B, L, E)} \xrightarrow{\text{Transpose}} \text{(B, E, L)} \xrightarrow{\text{Conv1d + ReLU}} \text{(B, F, L')}
+\]
+\[
+\xrightarrow{\text{MaxPool}} \text{(B, F)} \xrightarrow{\text{Concat}} \text{(B, 3F)} \xrightarrow{\text{Dropout}} \xrightarrow{\text{FC}} \text{(B, C)}
+\]
+donde $B$ = batch size, $L$ = longitud de secuencia, $E$ = embedding dim, $F$ = num\_filters, $C$ = num\_classes.
+
+Las CNNs son altamente paralelizables y eficientes computacionalmente, permitiendo entrenamiento rápido incluso en hardware modesto. Sin embargo, carecen de mecanismos explícitos para modelar dependencias a largo plazo, confiando en la combinación de múltiples filtros y pooling para capturar patrones relevantes.
+
+\subsubsection{Configuración}
+
+Los hiperparámetros predeterminados para el entrenamiento de TextCNN son:
+\begin{itemize}
+    \item \textbf{Dimensión de embedding}: \texttt{embedding\_dim = 128}
+    \item \textbf{Número de filtros}: \texttt{num\_filters = 100} (por cada tamaño de kernel)
+    \item \textbf{Tamaños de kernel}: \texttt{kernel\_sizes = [3, 4, 5]}
+    \item \textbf{Dropout}: \texttt{dropout = 0.5}
+    \item \textbf{Longitud máxima de secuencia}: \texttt{max\_length = 128}
+    \item \textbf{Tasa de aprendizaje}: \texttt{lr = 1e-3}
+    \item \textbf{Épocas}: \texttt{epochs = 50}
+    \item \textbf{Tamaño de lote}: \texttt{batch\_size = 32}
+    \item \textbf{Paciencia (early stopping)}: \texttt{patience = 10}
+\end{itemize}
+
+Con vocabulario de $\sim$8,033 tokens, la cuenta de parámetros es:
+\[
+\text{Parámetros} \approx (8,033 \times 128) + 3 \times (128 \times 100 \times k_i) + (300 \times 5) \approx 1.18 \text{M parámetros}
+\]
+donde $k_i \in \{3, 4, 5\}$ representa cada tamaño de kernel convolucional.
+
+\textbf{Función de pérdida y optimización}: Al igual que los modelos recurrentes, se emplea \texttt{CrossEntropyLoss} y optimizador \texttt{Adam}. Las métricas de evaluación son idénticas (accuracy, precision, recall, F1 weighted y por clase, matriz de confusión), y el modelo se selecciona mediante early stopping basado en F1 de validación. El uso del mismo protocolo de evaluación garantiza comparabilidad directa entre arquitecturas convolutivas y recurrentes.
+
+\newpage
+
+\subsection{Comparación entre los Modelos}
+
+\subsubsection{Métricas de clasificación}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figure/rnn-results.pdf}
+        \caption{Simple RNN}
+        \label{fig:rnn_cm}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figure/gru-results.pdf}
+        \caption{GRU}
+        \label{fig:gru_cm}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figure/lstm-results.pdf}
+        \caption{LSTM}
+        \label{fig:lstm_cm}
+    \end{subfigure}
+
+    \vspace{1em} % Adds a little vertical space between the rows
+
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figure/cnn-results.pdf}
+        \caption{CNN}
+        \label{fig:cnn_cm}
+    \end{subfigure}
+    \hspace{1cm}
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figure/mdeberta_v3-results.pdf}
+        \caption{MDeBERTa v3}
+        \label{fig:mdeberta_cm}
+    \end{subfigure}
+
+    \caption{Matrices de confusión de los modelos entrenados para clasificación de texto. Cada fila representa la clase verdadera y cada columna la clase predicha. El conjunto de prueba contiene 160 ejemplos para la clase 1, 180 para la clase 2, 200 para la clase 3, 220 para la clase 4 y 240 para la clase 5.}
+    \label{fig:cms}
+\end{figure}
+
+La Figura~\ref{fig:cms} presenta las matrices de confusión para todos los modelos entrenados, permitiendo analizar patrones de error específicos por clase y arquitectura. Las matrices revelan diferencias significativas en el comportamiento de cada modelo frente a la tarea de clasificación.
+
+En particular, la red RNN Simple (Figura~\ref{fig:rnn_cm}) presenta el peor desempeño con una tendencia marcada a predecir las clases 3 y 5, reflejando su incapacidad para capturar patrones discriminativos en el texto. La GRU (Figura~\ref{fig:gru_cm}) muestra mejora respecto a RNN pero mantiene sesgo hacia clases superiores (4 y 5). La LSTM (Figura~\ref{fig:lstm_cm}) alcanza el mejor desempeño entre las variantes recurrentes, con una matriz más equilibrada y diagonal pronunciada, se observa la confusión entre clases adyacentes y una disminución entre clases separadas. La CNN (Figura~\ref{fig:cnn_cm}) supera a LSTM, mostrando una reducción de la confusión entre clases no adyacentes. mDeBERTa-v3 (Figura~\ref{fig:mdeberta_cm}) obtiene el mejor rendimiento entre todos los modelos; elimina casi por completo el error entre las clases no adyacentes y presenta una diagonal muy definida, aunque persiste cierta confusión entre las clases 1 y 2.
+
+\begin{table}[H]
+\centering
+
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Métrica} & \textbf{RNN} & \textbf{GRU} & \textbf{LSTM} & \textbf{CNN} & \textbf{mDeBERTa-v3} \\
+\midrule
+Accuracy         & 0.229        & 0.281        & 0.413         & 0.445        & \textbf{0.547} \\
+F1 Macro         & 0.126        & 0.281        & 0.412         & 0.443        & \textbf{0.529} \\
+F1 Weighted      & 0.140        & 0.279        & 0.417         & 0.447        & \textbf{0.534} \\
+\bottomrule
+\end{tabular}
+\caption{Métricas de evaluación en el conjunto de prueba para diferentes arquitecturas}
+\label{tab:metricas_modelos}
+\end{table}
+
+La Tabla~\ref{tab:metricas_modelos} resume las métricas cuantitativas de rendimiento, revelando una progresión clara: RNN Simple sufre colapso representacional con discrepancia entre F1 macro y weighted indicando sesgo hacia clases específicas; GRU mejora modestamente con métricas F1 15balanceadas, gracias a compuertas pero mantiene rendimiento absoluto bajo; LSTM marca salto cualitativo (+18.4 puntos sobre RNN) con F1 consistentes validando eficacia de memoria a largo plazo; CNN supera todas las recurrentes (+3.2 sobre LSTM) demostrando superioridad de patrones n-gramáticos locales con menor complejidad parametrizable (1.18M vs 1.95M); mDeBERTa-v3 lidera con mejora relativa de 23\% sobre CNN y 100\% sobre RNN, atribuible a atención desentrelazada, preentrenamiento multilingüe en corpus masivo y 280M parámetros para matices semánticos finos. El salto más significativo ocurre entre modelos from-scratch ($\leq$44.5\%) y preentrenado (54.7\%), subrayando criticidad de transfer learning en conjuntos pequeños (3,600 ejemplos), aunque ningún modelo supera 55\% reflejando dificultad intrínseca de clasificación fine-grained en 5 clases con límites difusos entre categorías adyacentes.
+
+
+\subsubsection{Requerimientos de Hardware y Tiempo de Entrenamiento}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Métrica} & \textbf{RNN} & \textbf{GRU} & \textbf{LSTM} & \textbf{CNN} & \textbf{mDeBERTa-v3} \\
+\midrule
+Tiempo (min) & 0.42 & 3.12 & 3.09 & 0.57 & 14.71 \\
+Max VRAM (GB) & 0.195 & 0.170 & 0.176 & 0.107 & 24.371 \\
+\bottomrule
+\end{tabular}
+\caption{Tiempo de entrenamiento y uso máximo de VRAM por modelo. Todos los modelos fueron entrenados en GPU y utilizando el mismo entorno.}
+\label{tab:hardware_tiempo}
+\end{table}
+
+La Tabla~\ref{tab:hardware_tiempo} revela una dicotomía marcada entre modelos ligeros y el Transformer preentrenado. Los modelos recurrentes con $\sim$1.26–1.95M parámetros requieren recursos modestos ($<$0.2 GB VRAM), aunque su eficiencia temporal diverge significativamente: RNN completa en 0.42 min gracias a su simplicidad arquitectónica (sin compuertas), mientras LSTM y GRU demandan $\sim$3 min debido a operaciones secuenciales no paralelizables en sus mecanismos de compuerta. CNN destaca como una arquitectura eficiente en ambas dimensiones al explotar el paralelismo de las convoluciones con solo 1.18M parámetros y operaciones independientes sobre n-gramas. En contraste, mDeBERTa-v3 representa un salto cuantitativo: 24.37 GB VRAM (distribuidos en 2 GPUs) y 14.71 min reflejan su escala de 280M parámetros, atención multi-cabeza desentrelazada en 12 capas, y fine-tuning completo con FP16. El factor de escalamiento hardware es $\sim$125× en VRAM y $\sim$26× en tiempo respecto a CNN podría ser justificado por la ganancia de +10.2 puntos F1, dependiendo del caso de uso.
 
 
 

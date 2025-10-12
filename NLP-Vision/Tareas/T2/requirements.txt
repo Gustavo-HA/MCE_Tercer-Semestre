@@ -26,6 +26,8 @@ certifi==2025.8.3
     # via requests
 charset-normalizer==3.4.3
     # via requests
+click==8.3.0
+    # via nltk
 cut-cross-entropy==25.1.1
     # via unsloth-zoo
 datasets==3.6.0
@@ -59,6 +61,8 @@ fsspec==2025.3.0
     #   datasets
     #   huggingface-hub
     #   torch
+gguf==0.17.1
+    # via t2 (pyproject.toml)
 hf-transfer==0.1.9
     # via
     #   unsloth
@@ -83,6 +87,10 @@ importlib-metadata==8.7.0
     # via diffusers
 jinja2==3.1.6
     # via torch
+joblib==1.5.2
+    # via
+    #   nltk
+    #   scikit-learn
 markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
@@ -101,14 +109,19 @@ multiprocess==0.70.16
     # via datasets
 networkx==3.4.2
     # via torch
+nltk==3.9.2
+    # via t2 (pyproject.toml)
 numpy==2.2.6
     # via
     #   accelerate
     #   bitsandbytes
     #   datasets
     #   diffusers
+    #   gguf
     #   pandas
     #   peft
+    #   scikit-learn
+    #   scipy
     #   torchvision
     #   transformers
     #   unsloth
@@ -171,12 +184,15 @@ pillow==11.3.0
     #   diffusers
     #   torchvision
     #   unsloth-zoo
+pip==25.2
+    # via t2 (pyproject.toml)
 propcache==0.3.2
     # via
     #   aiohttp
     #   yarl
 protobuf==6.32.1
     # via
+    #   t2 (pyproject.toml)
     #   unsloth
     #   unsloth-zoo
 psutil==7.1.0
@@ -199,12 +215,14 @@ pyyaml==6.0.3
     # via
     #   accelerate
     #   datasets
+    #   gguf
     #   huggingface-hub
     #   peft
     #   transformers
 regex==2025.9.18
     # via
     #   diffusers
+    #   nltk
     #   transformers
     #   unsloth-zoo
 requests==2.32.5
@@ -222,6 +240,10 @@ safetensors==0.6.2
     #   diffusers
     #   peft
     #   transformers
+scikit-learn==1.7.2
+    # via t2 (pyproject.toml)
+scipy==1.15.3
+    # via scikit-learn
 sentencepiece==0.2.1
     # via
     #   unsloth
@@ -236,6 +258,8 @@ soupsieve==2.8
     # via beautifulsoup4
 sympy==1.14.0
     # via torch
+threadpoolctl==3.6.0
+    # via scikit-learn
 tokenizers==0.22.1
     # via transformers
 torch==2.8.0
@@ -255,7 +279,9 @@ torchvision==0.23.0
 tqdm==4.67.1
     # via
     #   datasets
+    #   gguf
     #   huggingface-hub
+    #   nltk
     #   peft
     #   transformers
     #   unsloth

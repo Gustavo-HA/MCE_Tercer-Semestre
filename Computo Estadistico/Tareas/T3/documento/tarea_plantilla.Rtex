@@ -1,0 +1,640 @@
+% !TeX recipe = Rtex
+% Optimizado para compilación rápida
+\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}
+
+% Modifications to layout
+\usepackage[shortlabels]{enumitem} % Incisos
+
+\newcommand{\RNum}[1]{\footnotesize\uppercase\expandafter{\romannumeral #1\relax\normalsize}} % Roman numbers
+
+\usepackage{subcaption} % 2x2 graphs
+\usepackage{mwe}
+
+\usepackage{float} % [H] in graphics
+
+\usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
+
+
+\usepackage{booktabs,siunitx,listings}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{theorems}
+\usepackage{cleveref}
+
+% Typography and layout packages
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{xcolor}
+\usepackage[spanish,es-nodecimaldot]{babel} % Language and hyphenation
+\usepackage{amsmath, amsfonts, amsthm, amssymb} % Math packages
+\newtheorem{definition}{Definición} % definition
+\newtheorem{theorem}{Teorema} % general theorem environment
+\usepackage{fancyvrb}
+\usepackage{sectsty} % Customize section commands
+\usepackage{geometry} % Modify margins
+\usepackage{titlesec} % Customize section titles
+\geometry{margin=3cm,top=2.5cm,bottom=2.5cm} % Simplified geometry
+\allsectionsfont{\centering \normalfont\scshape} % Center and style section titles
+
+% Header and footer customization
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead[L]{\slshape} % Remove section title from header
+\fancyhead[C]{} % Header center
+\fancyhead[R]{\thepage} % Header right with page number
+\fancyfoot[L]{} % Footer left
+\fancyfoot[C]{} % Footer center
+\fancyfoot[R]{\small \slshape Gustavo Hernández Angeles} % Footer right
+\renewcommand{\headrulewidth}{0.4pt} % Header rule
+\renewcommand{\footrulewidth}{0.4pt} % Footer rule
+\setlength{\headheight}{14.5pt} % Header height
+
+
+
+% Paragraph settings
+\setlength\parindent{0pt}
+\setlength{\parskip}{1ex}
+
+% Section spacing
+\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
+
+% --- Theorems, lemma, corollary, postulate, definition ---
+\definecolor{Pantone209C}{HTML}{64293e}
+
+\newcounter{problemcounter}
+
+\numberwithin{equation}{problemcounter} % Number equations within problems
+\numberwithin{figure}{problemcounter} % Number figures within problems
+\numberwithin{table}{problemcounter} % Number tables within problems
+\numberwithin{subsection}{problemcounter} 
+
+\newtcbtheorem[auto counter]{problem}{Ejercicio}{
+    enhanced,
+    breakable,
+    colback = gray!5,
+    colframe = gray!5,
+    boxrule = 0.5pt,
+    sharp corners,
+    borderline west = {2mm}{0mm}{Pantone209C},
+    fonttitle = \bfseries\sffamily,
+    coltitle = Pantone209C,
+    drop fuzzy shadow,
+    parbox = false,
+    before skip = 3ex,
+    after skip = 3ex
+}{problem}
+\makeatletter
+\renewenvironment{problem}[2][]{%
+    \refstepcounter{problemcounter}%
+    \addcontentsline{toc}{section}{\protect\numberline{\theproblemcounter}Ejercicio \theproblemcounter: #2}%
+    \begin{tcolorbox}[
+        enhanced,
+        breakable,
+        colback = gray!5,
+        colframe = gray!5,
+        boxrule = 0.5pt,
+        sharp corners,
+        borderline west = {2mm}{0mm}{Pantone209C},
+        fonttitle = \bfseries\sffamily,
+        coltitle = Pantone209C,
+        drop fuzzy shadow,
+        parbox = false,
+        before skip = 3ex,
+        after skip = 3ex,
+        title={Ejercicio \theproblemcounter: #2}
+    ]
+}{%
+    \end{tcolorbox}
+}
+\makeatother
+
+
+
+
+\tcbuselibrary{skins, breakable}
+% Custom command for a horizontal rule
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} 
+
+% Custom section titles
+\titleformat{\section}
+{\normalfont\Large\bfseries}{}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Title and author
+\title{	
+    \begin{center}
+        \includegraphics[width=3cm]{cimat-logo.png} % Adjust size as needed
+    \end{center}
+    \vspace{0.5cm}
+    \normalfont \normalsize 
+    \textbf{\Large   Centro de Investigación en Matemáticas} \\
+    \Large Unidad Monterrey \\ [25pt] 
+    \horrule{1pt} \\[0.4cm] % Thin top horizontal rule
+    \huge Cómputo Estadístico\\
+    \huge Tarea 3: MCMC y Bootstrap \\ 
+    \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{\large Gustavo Hern\'andez Angeles}    
+
+\date{\normalsize\today} % Today's date
+
+\begin{document}
+\maketitle % Print the title
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+<<setup, include=FALSE>>=
+# Configuración global de knitr para mejorar SyncTeX y velocidad
+library(knitr)
+## Tema de resaltado (puedes cambiar "solarized-light" por otro: monokai, kate, zenburn, etc.)
+knit_theme$set("bright")
+opts_knit$set(concordance = TRUE)
+#$
+opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.path = 'figure/',
+  fig.align = 'center',
+  cache = TRUE,
+  cache.path = 'cache/',
+  fig.keep = 'high',
+  dev = 'pdf',
+  dpi = 150
+)
+@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 1 %%%%%%%%%%%
+\begin{problem}{}
+    Sea $X_1$, ..., $X_n$ una muestra de tamaño $n$ obtenida de una población desconocida. Considérese el procedimiento de bootstrap por remuestreo con reemplazo de tamaño $n$.
+    \begin{enumerate}[a)]
+        \item Muestre que existen $\displaystyle {2n-1 \choose n}$ distintas muestras de bootstrap de tamaño $n$.
+        \item ¿Cuál es la probabilidad de que una muestra de bootstrap sea idéntica a la muestra original?
+        \item ¿Cuál es la muestra de bootstrap más probable de ser seleccionada?
+        \item ¿Cuál es la cantidad promedio de veces que $X_i$ es seleccionada en una muestra de bootstrap de tamaño $n$?
+    \end{enumerate}
+\end{problem}
+
+\subsection{\textbf{Solución:}}
+
+\textbf{Inciso a)}
+
+
+Sea $\mathcal{X}=\{X_1,\dots,X_n\}$ la muestra original. Una muestra bootstrap de tamaño $n$ obtenida con reemplazo corresponde a elegir $n$ elementos de $\mathcal{X}$ permitiendo repeticiones y sin importar el orden en que se generaron.
+
+Equivale a contar el número de soluciones enteras no negativas del sistema
+$$N_1+N_2+\cdots+N_n = n, \qquad N_i \in \mathbb{Z}_{\ge 0},$$
+donde $N_i$ es la cantidad de veces que $X_i$ aparece en la muestra bootstrap. Esta redefinición del problema nos permite utilizar el teorema de \emph{estrellas y barras}, cuyo enunciado es el siguiente:
+
+\begin{theorem}[Estrellas y barras]
+Sea $n,k\in\mathbb{N}$ positivos. El número de soluciones en enteros no negativos de
+$$x_1+x_2+\cdots+x_k = n$$
+es
+$$\binom{n+k-1}{k-1}=\binom{n+k-1}{n}.$$
+Equivalente: es el número de multiconjuntos de cardinalidad $n$ seleccionados de un conjunto de tamaño $k$.
+\end{theorem}
+
+En nuestro caso, $k=n$ y el número de muestras bootstrap distintas es
+$$\binom{n+n-1}{n} = \binom{2n-1}{n}\quad \qed$$
+
+
+\textbf{Inciso b)}\\
+La muestra realizada por el bootstrap se considera sin importar el orden: dos réplicas que sólo difieren por permutar posiciones son el mismo resultado. La réplica bootstrap será ``idéntica'' a la original si cada observación $X_j$ aparece exactamente una vez: $N_j=1$ para todo $j=1,\dots,n$.
+
+Podemos afirmar que $(N_1,\dots,N_n)\sim\text{Multinomial}(n;1/n,\dots,1/n)$, obteniendo
+$$\mathbb{P}(N_1=1,\dots,N_n=1)= \frac{n!}{1!\cdots 1!}\left(\frac{1}{n}\right)^n = \frac{n!}{n^n}.$$
+Esta es la probabilidad buscada de que la muestra bootstrap coincida con la original. Usando la aproximación de Stirling,
+$$\frac{n!}{n^n} \sim \sqrt{2\pi n}\, e^{-n}, \qquad n\to\infty,$$
+lo cual, por el término $e^{-n}$, muestra que el evento es extremadamente improbable para $n$ moderado/grande. $\qed$
+
+
+\textbf{Inciso c)}\\
+Buscamos el multiconjunto más probable bajo
+$$ (N_1,\dots,N_n)\sim \text{Multinomial}\big(n;1/n,\dots,1/n\big). $$
+Para un vector $\mathbf{n}=(n_1,\dots,n_n)$ con $\sum n_i=n$, 
+$$\mathbb{P}(\mathbf{N}=\mathbf{n}) = \frac{n!}{n_1!\cdots n_n!}\left(\frac{1}{n}\right)^n.$$
+El factor $\left(1/n\right)^n$ es constante; maximizar la probabilidad equivale a maximizar $\dfrac{n!}{n_1!\cdots n_n!}$ o, equivalentemente, minimizar el producto de factoriales $n_1!\cdots n_n!$ sujeto a $\sum n_i=n$.
+
+Siendo nuestro objetivo minimizar el producto de factoriales, manteniendo la restricción de que la suma de los $n_i$ es $n$, podemos razonar que la mejor estrategia es distribuir los $n$ elementos de manera uniforme entre las $n$ categorías. Cualquier desviación de esta uniformidad (por ejemplo, asignar un valor mayor a un $n_i$ y un valor menor a otro $n_j$) aumentaría el producto de factoriales debido a la naturaleza creciente y convexa de la función factorial. Por ejemplo: $3!1! > 2!2!$, así como $2!0! > 1!1!$.
+
+Así, el multiconjunto más probable es precisamente el que contiene cada observación exactamente una vez. Su probabilidad ya la calculamos en (b): $\dfrac{n!}{n^n}$. Ningún otro multiconjunto alcanza un valor mayor. $\qed$
+
+
+\textbf{Inciso d)}
+
+Fijado un índice $i$, cada extracción del bootstrap selecciona $X_i$ con probabilidad $1/n$ de manera independiente. Por tanto
+$$N_i \sim \text{Binomial}\big(n,1/n\big).$$
+Luego
+$$\mathbb{E}[N_i]=n\cdot \frac{1}{n}=1, \qquad \text{Var}(N_i)=n\frac{1}{n}\left(1-\frac{1}{n}\right)=1-\frac{1}{n}.$$ 
+Es decir, en promedio cada observación original aparece exactamente una vez en una muestra bootstrap (aunque aleatoriamente algunas se repiten y otras se omiten). De hecho,
+$$\mathbb{P}(N_i=0)=\left(1-\frac{1}{n}\right)^n$$
+$$\Rightarrow \lim_{n\to\infty} \mathbb{P}(N_i=0)=e^{-1},$$
+lo que muestra el fenómeno clásico: aproximadamente una fracción $e^{-1}\approx 0.368$ de las observaciones no aparece en una réplica bootstrap grande, mientras que alrededor de $1-e^{-1}\approx 0.632$ sí aparece al menos una vez. $\qed$
+
+
+
+
+
+
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 2 %%%%%%%%%%%
+\begin{problem}{}
+    Sea $x_1,x_2, \dots, x_n$ una muestra aleatoria de una normal $N(\theta,1)$ y suponga que $\bar{x}$ es un estimador de $\theta$. Sean $X_1^*, X_2^*, \dots, X_n^*$ una muestra bootstrap de $N(\theta,1)$. Muestre que $\bar{X}-\theta$ y $\bar{X}^*-\bar{x}$ tienen la misma distribución $N(0,1/n)$.
+\end{problem}
+
+\subsection{\textbf{Solución:}}
+
+Comencemos determinando la distribución de $\bar{X}-\theta$. Dado que $X_i \sim N(\theta,1)$, la media muestral $\bar{X}$ sigue una distribución normal con media $\theta$ y varianza $1/n$, es decir,
+$$\bar{X} \sim N\left(\theta, \frac{1}{n}\right).$$
+
+Y el parámetro $\theta$ es desconocido, pero $\bar{x}$ es un estimador puntual de $\theta$. Por lo tanto, la distribución de $\bar{X}-\theta$ es una distribución normal centrada en 0 con varianza $1/n$, considerando la convergencia en distribución, es decir, con una muestra lo suficientemente grande.
+$$\bar{X}-\theta \sim N\left(0, \frac{1}{n}\right).$$
+
+Ahora, consideremos la muestra bootstrap $\bar{X}^*$. Dado que $X_i^* \sim N(\theta,1)$, la media muestral bootstrap $\bar{X}^*$ también sigue una distribución normal con media $\theta$ y varianza $1/n$, es decir,
+$$\bar{X}^* \sim N\left(\theta, \frac{1}{n}\right).$$
+Al restar $\bar{x}$, que es un estimador puntual de $\theta$, obtenemos
+$$\bar{X}^* - \bar{x} \sim N\left(\theta - \bar{x}, \frac{1}{n}\right).$$
+Dado que $\bar{x}$ es un estimador puntual de $\theta$, podemos aproximar $\theta - \bar{x}$ como 0 en términos de convergencia en distribución, lo que nos lleva a
+$$\bar{X}^* - \bar{x} \sim N\left(0, \frac{1}{n}\right).$$
+
+Por lo tanto, queda demostrado que tanto $\bar{X}-\theta$ como $\bar{X}^*-\bar{x}$ tienen la misma distribución $N(0,1/n)$. $\qed$
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 3 %%%%%%%%%%%
+\begin{problem}{}
+    Considere el conjunto de datos $\{2,5,3,9\}$. Sean $x_1^*, x_2^*, x_3^*, x_4^*$ una muestra bootstrap de este conjunto de datos.
+    \begin{enumerate}[a)]
+        \item Encuentre la probabilidad de que el promedio de la muestra bootstrap sea igual a 2.
+        \item Encuentre la probabilidad de que el promedio de la muestra bootstrap sea igual a 9.
+        \item Encuentre la probabilidad de que el promedio de la muestra bootstrap sea igual a 4.
+    \end{enumerate}
+\end{problem}
+
+\subsection{\textbf{Solución:}}
+
+\textbf{Inciso a)}
+
+
+La única forma de que el promedio de la muestra bootstrap sea igual a 2 es que todos los elementos de la muestra bootstrap sean 2. Dado que estamos muestreando con reemplazo, la probabilidad de seleccionar 2 en cada uno de los 4 intentos es:
+
+$$P(\bar{x}^* = 2) = P(x_1^* = 2) \cdot P(x_2^* = 2) \cdot P(x_3^* = 2) \cdot P(x_4^* = 2) = \left(\frac{1}{4}\right)^4 = \frac{1}{256} \approx 0.004.$$
+
+\textbf{Inciso b)}
+
+La única forma de que el promedio de la muestra bootstrap sea igual a 9 es que todos los elementos de la muestra bootstrap sean 9. Dado que estamos muestreando con reemplazo, la probabilidad de seleccionar 9 en cada uno de los 4 intentos es la misma que en el inciso anterior:
+
+$$P(\bar{x}^* = 9) = P(x_1^* = 9) \cdot P(x_2^* = 9) \cdot P(x_3^* = 9) \cdot P(x_4^* = 9) = \left(\frac{1}{4}\right)^4 = \frac{1}{256} \approx 0.004.$$
+
+\textbf{Inciso c)}
+
+Para que el promedio de la muestra bootstrap sea igual a 4, necesitamos encontrar todas las combinaciones de los elementos $\{2, 5, 3, 9\}$ que sumen $16$, ya que $4 \times 4 = 16$. 
+
+Las únicas combinaciones posibles que suman 16 son:
+\begin{itemize}
+    \item $\{2,2,3,9\}$ 
+    \item $\{3,3,5,5\}$ 
+\end{itemize}
+Cada combinación puede ocurrir en diferentes órdenes. La cantidad de permutaciones de cada combinación es:
+\begin{itemize}
+    \item Para $\{2,2,3,9\}$: $\frac{4!}{2!1!1!} = 12$ permutaciones.
+    \item Para $\{3,3,5,5\}$: $\frac{4!}{2!2!} = 6$ permutaciones.
+\end{itemize}
+
+La probabilidad de que el promedio de la muestra bootstrap sea igual a 4 es la suma de las probabilidades de cada una de estas combinaciones, multiplicadas por la probabilidad de seleccionar cada combinación específica. Dado que cada elemento tiene una probabilidad de $\frac{1}{4}$ de ser seleccionado, la probabilidad total es:
+
+$$P(\bar{x}^* = 4) = P(\{2,2,3,9\}) + P(\{3,3,5,5\}) = \frac{12}{256} + \frac{6}{256} = \frac{18}{256} = \frac{9}{128} \approx 0.070.$$
+
+Por lo tanto, la probabilidad de que el promedio de la muestra bootstrap sea igual a 4 es aproximadamente 0.070. $\qed$
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 4 %%%%%%%%%%%
+\begin{problem}{}
+Maximice las siguientes 2 funciones utilizando el algoritmo de recocido simulado.
+\begin{enumerate}[a)]
+    \item Función 1:
+        $$f(x, y, \alpha, \beta) = \frac{\sin^2\left[ (x + \alpha)^2 + (y + \beta)^2 \right] - 0.5}{\left[ 1.0 + 0.001 \cdot \left( (x + \alpha)^2 + (y + \beta)^2 \right) \right]^2}$$        
+            $$-100 \le x \le 100 $$
+            $$-100 \le y \le 100 $$
+            $$-\infty \le \alpha \le \infty $$
+            $$-\infty \le \beta \le \infty $$
+
+    \item Función 2:
+    $$f(x, y) = 21.5 + x \sin(4 \pi x) + y \sin(20 \pi y)$$   
+    $$-3.0 \le x \le 12.1$$
+    $$4.1 \le y \le 5.8$$
+
+\end{enumerate}
+\end{problem}
+\subsection{\textbf{Solución:}}
+
+\textbf{Inciso a)}
+
+Se implementa el algoritmo de recocido simulado para maximizar la función dada. Comencemos con la definición de la función y los parámetros del recocido simulado.
+
+<<echo=TRUE, results='asis'>>=
+# Definición de la función a maximizar
+funcion1 <- function(x, y, alpha, beta) {
+    numerator <- sin((x + alpha)^2 + (y + beta)^2)^2 - 0.5
+    denominator <- (1.0 + 0.001 * ((x + alpha)^2 + (y + beta)^2))^2
+    return(numerator / denominator)
+}
+@
+
+De forma superficial, el recocido simulado considera una sucesión de soluciones $\{x^{(t)}\}_{t\ge 0}$ en un espacio de búsqueda $\mathcal{S}$ (aquí $x=(x,y)$). En cada iteración generamos una propuesta $x' = x^{(t)} + \varepsilon_t$ (ruido) y calculamos el incremento de la función objetivo $\Delta = f(x') - f(x^{(t)})$. El criterio de aceptación es
+\[
+	ext{aceptar } x' = \begin{cases}
+ x' & \text{si } \Delta > 0, \\
+ x' & \text{con prob. } \exp\left(\dfrac{\Delta}{T_t}\right) \text{ si } \Delta \le 0, \\
+ x^{(t)} & \text{en otro caso},
+\end{cases}
+\]
+donde $T_t$ es la “temperatura” que decrece (\emph{enfriamiento} geométrico) como $T_t = T_0\, \alpha^t$, $0<\alpha<1$. Este esquema permite aceptar movimientos “peores” al inicio (exploración) y los desalienta conforme $T_t \to 0$ (explotación). El algoritmo termina tras $N$ iteraciones entregando el mejor $x$ visitado.
+
+Ahora implementamos esta lógica en \texttt{R}:
+
+<<echo=TRUE, results='asis'>>=
+recocido_simulado <- function(fun, par_inicial, temp_inicial=1, 
+                            factor_enfriamiento=0.995,
+                            iteraciones=5000, escala_paso=1,
+                            inferior=c(-100,-100), superior=c(100,100), 
+                            reportar.cada=500) {
+    mejor_par <- actual_par <- par_inicial
+    mejor_val <- actual_val <- fun(actual_par[1], actual_par[2], 
+                                   par_inicial[3], par_inicial[4])
+    temp <- temp_inicial
+    traza <- data.frame(iter=0, T=temp, valor=actual_val,
+                        x=actual_par[1], y=actual_par[2])
+    for (it in 1:iteraciones) {
+        propuesta <- actual_par
+        # Paso gaussiano en x, y, alfa, beta (optimización conjunta)
+        propuesta <- propuesta + rnorm(length(propuesta), 0, escala_paso)
+        propuesta[1] <- min(max(propuesta[1], inferior[1]), superior[1])
+        propuesta[2] <- min(max(propuesta[2], inferior[2]), superior[2])
+        val_prop <- fun(propuesta[1], propuesta[2], propuesta[3], propuesta[4])
+        delta <- val_prop - actual_val
+        if (delta > 0 || runif(1) < exp(delta / temp)) {
+            actual_par <- propuesta
+            actual_val <- val_prop
+            if (actual_val > mejor_val) {
+                mejor_val <- actual_val
+                mejor_par <- actual_par
+            }
+        }
+        temp <- temp * factor_enfriamiento
+        if (it %% reportar.cada == 0) {
+            traza <- rbind(traza, data.frame(iter=it, T=temp, 
+                           valor=actual_val, 
+                           x=actual_par[1], y=actual_par[2]))
+        }
+    }
+    list(mejor_par=mejor_par, mejor_val=mejor_val, 
+         ultimo=actual_par, traza=traza)
+}
+@
+
+Y ahora, ejecutamos el recocido simulado para nuestro problema en especifico. Estableciendo como parámetoros iniciales $x=0$, $y=0$, $\alpha=0$, $\beta=0$, un factor de enfriamiento de $0.998$, $8000$ iteraciones, una escala de paso de $2$ y los límites dados en el enunciado:
+
+<<echo=TRUE, results='asis'>>=
+set.seed(123)
+resultado_f1 <- recocido_simulado(funcion1, par_inicial=c(0,0,0,0), 
+                                  temp_inicial=2,
+                                  factor_enfriamiento=0.998, 
+                                  iteraciones=8000,
+                                  escala_paso=2, 
+                                  inferior=c(-100,-100), superior=c(100,100))
+cat("Parámetros óptimos estimados (x, y, alfa, beta):", 
+    resultado_f1$mejor_par[1], resultado_f1$mejor_par[2], 
+    resultado_f1$mejor_par[3], resultado_f1$mejor_par[4], "\n")
+cat("Valor óptimo de la función:", resultado_f1$mejor_val, "\n") #$
+@
+
+Por lo tanto, los parámetros óptimos estimados son aproximadamente $$(x^*, y^*, \alpha^*, \beta^*) = (0.1306, 1.2459, 0, 0)$$ y el valor óptimo de la función es aproximadamente $$f^*(x^*,y^*,\alpha^*,\beta^*)=0.4984321.$$ Estos resultados pueden variar ligeramente con diferentes ejecuciones debido a la naturaleza estocástica del algoritmo de recocido simulado.
+
+
+
+
+\textbf{Inciso b)}
+
+<<echo=FALSE, results='asis'>>=
+recocido_simulado2 <- function(fun, par_inicial, temp_inicial=1, 
+                            factor_enfriamiento=0.995,
+                            iteraciones=5000, escala_paso=1,
+                            inferior=c(-100,-100), superior=c(100,100), 
+                            reportar.cada=500) {
+    mejor_par <- actual_par <- par_inicial
+    mejor_val <- actual_val <- fun(actual_par[1], actual_par[2])
+    temp <- temp_inicial
+    traza <- data.frame(iter=0, T=temp, valor=actual_val,
+                        x=actual_par[1], y=actual_par[2])
+    for (it in 1:iteraciones) {
+        propuesta <- actual_par
+        # Paso gaussiano en x, y, alfa, beta (optimización conjunta)
+        propuesta <- propuesta + rnorm(length(propuesta), 0, escala_paso)
+        propuesta[1] <- min(max(propuesta[1], inferior[1]), superior[1])
+        propuesta[2] <- min(max(propuesta[2], inferior[2]), superior[2])
+        val_prop <- fun(propuesta[1], propuesta[2])
+        delta <- val_prop - actual_val
+        if (delta > 0 || runif(1) < exp(delta / temp)) {
+            actual_par <- propuesta
+            actual_val <- val_prop
+            if (actual_val > mejor_val) {
+                mejor_val <- actual_val
+                mejor_par <- actual_par
+            }
+        }
+        temp <- temp * factor_enfriamiento
+        if (it %% reportar.cada == 0) {
+            traza <- rbind(traza, data.frame(iter=it, T=temp, 
+                           valor=actual_val, 
+                           x=actual_par[1], y=actual_par[2]))
+        }
+    }
+    list(mejor_par=mejor_par, mejor_val=mejor_val, 
+         ultimo=actual_par, traza=traza)
+}
+@
+
+
+
+Implementamos la función 2 en \texttt{R} para utilizarla con nuestro algoritmo de recocido simulado:
+<<echo=TRUE, results='asis'>>=
+funcion2 <- function(x, y) {
+    21.5 + x * sin(4*pi*x) + y * sin(20*pi*y)
+}  
+@
+
+Ejecutamos el recocido simulado para maximizar la función 2, con parámetros iniciales $x=0$, $y=0$, los límites dados en el enunciado, y los mismos parámetros de recocido que en el inciso anterior:
+<<echo=TRUE, results='asis'>>=
+resultado_f2 <- recocido_simulado2(funcion2, par_inicial=c(0,0), 
+                                  temp_inicial=2,
+                                  factor_enfriamiento=0.998, 
+                                  iteraciones=8000,
+                                  escala_paso=2, 
+                                  inferior=c(-3.0,4.1), superior=c(12.1,5.8))
+cat("Parámetros óptimos estimados (x, y):", 
+    resultado_f2$mejor_par[1], resultado_f2$mejor_par[2], "\n")
+cat("Valor óptimo de la función:", resultado_f2$mejor_val, "\n") #$
+@
+
+Por lo tanto, los parámetros óptimos estimados son aproximadamente $$(x^*, y^*) = (12.1, 5.725)$$ y el valor óptimo de la función es aproximadamente $$f^*(x^*,y^*)=38.725.$$ Estos resultados pueden variar ligeramente con diferentes ejecuciones debido a la naturaleza estocástica del algoritmo de recocido simulado.
+
+
+
+% \nocite{*}
+% \bibliographystyle{plainnat} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+% \bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+
+\end{document}
+                                                                                                                                                                                                                                                                                                                                                        

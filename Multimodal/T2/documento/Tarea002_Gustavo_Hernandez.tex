@@ -1,0 +1,470 @@
+% !TeX recipe = Rtex
+% Optimizado para compilación rápida
+\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}
+
+% Modifications to layout
+\usepackage[shortlabels]{enumitem} % Incisos
+\def\code#1{\texttt{#1}} % \code{} for monospaced text
+\newcommand{\RNum}[1]{\footnotesize\uppercase\expandafter{\romannumeral #1\relax\normalsize}} % Roman numbers
+
+\usepackage{subcaption} % 2x2 graphs
+\usepackage{mwe}
+\usepackage{float} % [H] in graphics
+\usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
+
+\usepackage{booktabs,siunitx,listings}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{theorems}
+\usepackage{cleveref}
+
+% Typography and layout packages
+\usepackage{graphicx}
+\usepackage{verbatim}
+% \usepackage{xcolor}
+\usepackage[spanish,es-nodecimaldot]{babel} % Language and hyphenation
+\usepackage{amsmath, amsfonts, amsthm, amssymb} % Math packages
+\newtheorem{definition}{Definición} % definition
+\usepackage{fancyvrb}
+\usepackage{sectsty} % Customize section commands
+\usepackage{geometry} % Modify margins
+\usepackage{titlesec} % Customize section titles
+\geometry{margin=3cm,top=2.5cm,bottom=2.5cm} % Simplified geometry
+\allsectionsfont{\centering \normalfont\scshape} % Center and style section titles
+
+% Header and footer customization
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead[L]{\slshape} % Remove section title from header
+\fancyhead[C]{} % Header center
+\fancyhead[R]{\thepage} % Header right with page number
+\fancyfoot[L]{} % Footer left
+\fancyfoot[C]{} % Footer center
+\fancyfoot[R]{\small \slshape Gustavo Hernández Angeles} % Footer right
+\renewcommand{\headrulewidth}{0.4pt} % Header rule
+\renewcommand{\footrulewidth}{0.4pt} % Footer rule
+\setlength{\headheight}{14.5pt} % Header height
+
+% Paragraph settings
+\setlength\parindent{0pt}
+\setlength{\parskip}{1ex}
+
+% Section spacing
+\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
+
+% --- Theorems, lemma, corollary, postulate, definition ---
+\definecolor{Pantone209C}{HTML}{64293e}
+
+\newcounter{problemcounter}
+
+\numberwithin{equation}{problemcounter} % Number equations within problems
+\numberwithin{figure}{problemcounter} % Number figures within problems
+\numberwithin{table}{problemcounter} % Number tables within problems
+\numberwithin{subsection}{problemcounter} 
+
+\newtcbtheorem[auto counter]{problem}{Ejercicio}{
+    enhanced,
+    breakable,
+    colback = gray!5,
+    colframe = gray!5,
+    boxrule = 0.5pt,
+    sharp corners,
+    borderline west = {2mm}{0mm}{Pantone209C},
+    fonttitle = \bfseries\sffamily,
+    coltitle = Pantone209C,
+    drop fuzzy shadow,
+    parbox = false,
+    before skip = 3ex,
+    after skip = 3ex
+}{problem}
+\makeatletter
+\renewenvironment{problem}[2][]{%
+    \refstepcounter{problemcounter}%
+    \addcontentsline{toc}{section}{\protect\numberline{\theproblemcounter}Ejercicio \theproblemcounter: #2}%
+    \begin{tcolorbox}[
+        enhanced,
+        breakable,
+        colback = gray!5,
+        colframe = gray!5,
+        boxrule = 0.5pt,
+        sharp corners,
+        borderline west = {2mm}{0mm}{Pantone209C},
+        fonttitle = \bfseries\sffamily,
+        coltitle = Pantone209C,
+        drop fuzzy shadow,
+        parbox = false,
+        before skip = 3ex,
+        after skip = 3ex,
+        title={Ejercicio \theproblemcounter: #2}
+    ]
+}{%
+    \end{tcolorbox}
+}
+\makeatother
+
+\tcbuselibrary{skins, breakable}
+% Custom command for a horizontal rule
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} 
+
+% Custom section titles with numbering
+\titleformat{\section}
+{\normalfont\Large\bfseries}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Title and author
+\title{	
+    \begin{center}
+        \includegraphics[width=3cm]{figure/template/cimat-logo.png} % Adjust size as needed
+    \end{center}
+    \vspace{0.5cm}
+    \normalfont \normalsize 
+    \textbf{\Large   Centro de Investigación en Matemáticas} \\
+    \Large Unidad Monterrey \\ [25pt] 
+    \horrule{1pt} \\[0.4cm] % Thin top horizontal rule
+    \huge Análisis Multimodal\\
+    \Large Tarea 2\\ 
+    \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{\large Gustavo Hernández Angeles}    
+
+\date{\normalsize\today} % Today's date
+
+\begin{document}
+\maketitle % Print the title
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+
+
+%%%%%%%%%%% PROBLEMA 1 %%%%%%%%%%%
+\begin{problem}{}
+En la clase vimos cómo obtener las frecuencias centrales (en Hz) de diferentes notas o tonalidades. Calcula éstas frecuencias para todas las notas de la escala Do mayor (Figura \ref{fig:do_mayor}) y Do menor (Figura \ref{fig:do_menor}).
+
+\begin{center}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/p1_figuraA.png}
+        \par\vspace{0.2\baselineskip}
+        \small (a)
+        \label{fig:do_mayor}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/p1_figuraB.png}
+        \par\vspace{0.2\baselineskip}
+        \small (b)
+        \label{fig:do_menor}
+    \end{minipage}
+    
+    \vspace{0.5\baselineskip}
+    \captionof{figure}{(a) Escala C-Mayor. (b) Escala C-Menor. Ambas iniciando en C4.}
+    \label{fig:escalas}
+\end{center}
+
+\end{problem}
+
+\subsection{Solución}
+
+\subsubsection{Inciso a): Escala C-Mayor}
+
+El patrón de intervalos a partir de la tónica es: Tono, Tono, Semitono, Tono, Tono, Tono, Semitono. Recordando que C4 tiene un número MIDI de 60, podemos obtener los números MIDI de las notas en la escala C-Mayor haciendo saltos según el patrón de intervalos (2 para tonos y 1 para semitonos), por lo que la secuencia resultante en números MIDI sería 60, 62, 64, 65, 67, 69, 71, 72. 
+
+Luego, utilizando la fórmula para calcular la frecuencia de una nota a partir de su número MIDI (Eq. \ref{eq:midi_to_freq}), podemos obtener las frecuencias de las notas en la escala C-Mayor (Tabla \ref{tab:freq_c_major}). Aquí notamos que la nota A4 (N. MIDI 69) tiene una frecuencia de 440 Hz, que es el estándar de afinación.
+
+\begin{equation}
+    F(p) = 440 \times 2^{\frac{(p - 69)}{12}}
+    \label{eq:midi_to_freq}
+\end{equation}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|r|}
+\hline
+\textbf{Nota} & \textbf{N. MIDI (p)} & \textbf{Freq. (Hz)} \\ \hline
+C4            & 60                   & $\approx 261.63$         \\
+D4            & 62                   & $\approx 293.66$         \\
+E4            & 64                   & $\approx 329.63$         \\
+F4            & 65                   & $\approx 349.23$         \\
+G4            & 67                   & $\approx 392.00$         \\
+A4            & 69                   & $440.00$                 \\
+B4            & 71                   & $\approx 493.88$         \\
+C5            & 72                   & $\approx 523.25$         \\ \hline
+\end{tabular}
+\caption{Frecuencias de la Escala Do Mayor (C-Mayor) usando números MIDI.}
+\label{tab:freq_c_major}
+\end{table}
+
+\newpage
+\subsubsection{Inciso b): Escala C-Menor}
+
+En la escala C-Menor, el patrón de intervalos a partir de la tónica es: Tono, Semitono, Tono, Tono, Semitono, Tono, Tono, obteniendo la secuencia 60, 62, 63, 65, 67, 68, 70, 72, en números MIDI. Siguiendo el mismo procedimiento que en el inciso anterior, podemos obtener los números MIDI y las frecuencias correspondientes para las notas en la escala C-Menor (Tabla \ref{tab:freq_c_minor}). Notamos que la nota Ab4 (N. MIDI 68) tiene una frecuencia de aproximadamente 415.30 Hz, que es un semitono por debajo de A4 (440 Hz), por lo que es consistente con la estructura de la escala menor.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|r|}
+    \hline
+    \textbf{Nota} & \textbf{N. MIDI (p)} & \textbf{Freq. (Hz)} \\ \hline
+    C4            & 60                   & $\approx 261.63$         \\
+    D4            & 62                   & $\approx 293.66$         \\
+    Eb4           & 63                   & $\approx 311.13$         \\
+    F4            & 65                   & $\approx 349.23$         \\
+    G4            & 67                   & $\approx 392.00$         \\
+    Ab4           & 68                   & $\approx 415.30$         \\
+    Bb4           & 70                   & $\approx 466.16$         \\
+    C5            & 72                   & $\approx 523.25$         \\
+
+    \hline
+\end{tabular}
+\caption{Frecuencias de la Escala Do Menor (C-Menor) usando números MIDI.}
+\label{tab:freq_c_minor}
+\end{table}
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 2 %%%%%%%%%%%
+\newpage
+\begin{problem}{}
+La Figura \ref{fig:p2_redaccion} muestra la forma de onda de un audio de los primeros 8 segundos de la quinta sinfonía de Beethoven (puedes en el extracto en formato mp3 en el moodle).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figure/p2_redaccion.png}
+    \caption{Partitura con los primeros cinco compases de la Sinfonía No. 5 de Beethoven, y su correspondiente señal, como forma de onda, que abarca los primeros 8 segundos.}
+    \label{fig:p2_redaccion}
+\end{figure}
+
+\begin{enumerate}[a)]
+    \item Estima la frecuencia fundamental del sonido registrado en la sección que abarca del segundo 7.3 al 7.8, contando el número de ciclos de oscilación.
+    \item Determina a qué nota músical corresponde como lo vimos en clase, es decir, buscando aquella nota cuya frecuencia fundamental es más cercana a la que estimaste en el inciso anterior. ¿Tiene sentido según la partitura mostrada en la figura \ref{fig:p2_redaccion}?
+\end{enumerate}
+
+
+\end{problem}
+
+\subsection{Solución}
+
+\subsubsection{Inciso a)}
+
+Al inspeccionar la forma de onda ampliada para el intervalo $t \in [7.3, 7.8]$ segundos, se puede realizar un conteo visual de los ciclos de oscilación. En esta ventana de tiempo, cuya duración es $\Delta t = 7.8 \text{ s} - 7.3 \text{ s} = 0.5 \text{ s}$, se observan aproximadamente $N = 36.5$ ciclos.
+
+La frecuencia fundamental $f_0$ se estima como la cantidad de ciclos por unidad de tiempo:
+
+\begin{equation}
+    f_0 = \frac{N \text{ ciclos}}{\Delta t \text{ (s)}} = \frac{36.5 \text{ ciclos}}{0.5 \text{ s}} = 73 \text{ Hz}
+\end{equation}
+
+La frecuencia fundamental estimada es, por lo tanto, $f_0 \approx 73 \text{ Hz}$.
+
+\subsubsection{Inciso b)}
+
+Para identificar la nota musical correspondiente a $f_0 \approx 73 \text{ Hz}$, la comparamos con las frecuencias estándar del temperamento igual (con afinación $A_4 = 440 \text{ Hz}$). La frecuencia teórica de la nota $D_2$ (Re 2) es $f_{D_2} \approx 73.42 \text{ Hz}$, siendo esta la nota cuya frecuencia fundamental es más cercana a nuestra estimación.
+
+El segmento de audio analizado ($t \in [7.3, 7.8]$ s) corresponde al decaimiento del último acorde mostrado, el cual se ubica en el quinto compás y está marcado con un calderón.
+
+\begin{itemize}
+
+\item En el pentagrama superior (Clave de Sol): Las notas son $C_4$ (Do), $E\flat_4$ (Mi$\flat$) y $G_4$ (Sol).
+
+\item En el pentagrama inferior (Clave de Fa): Las notas son $C_2$ (Do), $E\flat_2$ (Mi$\flat$) y $G_2$ (Sol).
+
+\end{itemize}
+
+Se trata, por tanto, de un acorde de Do menor (Cm) tocado en múltiples octavas. La frecuencia fundamental $f_0$ de este acorde debe ser la de la nota más grave presente, que es $C_2$ (Do 2).
+
+La frecuencia teórica de $C_2$ es $f_{C_2} \approx 65.41 \text{ Hz}$.
+
+Conclusión:
+
+Nuestra estimación visual ($f_0 \approx 73 \text{ Hz}$, cercana a $D_2$) no coincide con la fundamental real del acorde escrito en la partitura ($f_{C_2} \approx 65.41 \text{ Hz}$). La solución original (que mencionaba Bb2 y D4) era incorrecta, ya que esas notas no componen el acorde final.
+
+La discrepancia entre nuestra estimación (73 Hz) y la fundamental teórica (65.41 Hz) es esperable y no invalida el análisis, por dos razones técnicas principales:
+
+Error de Estimación: El conteo visual de ciclos en una forma de onda tan compleja (no sinusoidal) es inherentemente impreciso.
+
+Señal Compuesta: La forma de onda no representa una sola nota, sino la superposición de múltiples frecuencias (las notas $C_2, E\flat_2, G_2, C_4, E\flat_4, G_4$ y todos sus respectivos armónicos). La oscilación visualmente dominante no tiene por qué ser la frecuencia fundamental $f_0$. Es posible que la frecuencia que estimamos ($\approx 73 \text{ Hz}$) esté más cerca de otra componente del acorde (p. ej., $E\flat_2 \approx 77.78 \text{ Hz}$) o que sea un patrón de interferencia (batido) resultante de la suma de todas las componentes.
+
+%%%%%%%%%%% PROBLEMA 4 %%%%%%%%%%%
+\newpage
+\begin{problem}{}
+    Definimos $f: \mathbb{R} \to \Gamma$ como la función de cuantización de una señal continua a un conjunto de valores discretos $\Gamma \in \mathbb{R}$. La función $f$ más simple es la cuantización uniforme, donde asigna un valor de amplitud $a\in\mathbb{R}$, un valor cuantizado mediante:
+    \begin{equation}
+        f(a) = \text{sign}(a) \Delta \left\lfloor \frac{|a|}{\Delta}+ \frac{1}{2} \right\rfloor
+        \label{eq:cuantizacion_uniforme}
+    \end{equation}
+
+    donde $\Delta$ es el tamaño del paso de cuantización, y $\lfloor \cdot \rfloor$ es la función piso. La diferencia entre la señal original y la señal cuantizada se conoce como \textbf{error de cuantización}. Muchas veces es más conveniente definir los niveles de cuantización $\lambda$ en un rango limitado de amplitud $[-a_{\text{min}}, a_{\text{max}}]$, en lugar del tamaño de paso $\Delta$. En este caso,
+    $\Delta = \frac{|a_{\text{max}} - a_{\text{min}}|}{\lambda - 1}$.
+
+    \begin{enumerate}[a)]
+        \item Escribe una función que implementa la cuantización uniforme (Eq. \ref{eq:cuantizacion_uniforme}).
+        \item Obtén la gráfica de la cuantización para $a = g(x;\theta)\in \mathbb{R}$, con $g$ la función lineal y una sinusoidal con los parámetros vistos en clase. Gráfica también el error absoluto de cuantización correspondiente.
+        \item Con el proceso de cuantización, la señal se codifica en alguno de los $\lambda=2^b$ valores de amplitud igualmente espaciados en el intervalo definido, donde cada intervalo es de tamaño $\Delta$. El parámetro $b$ es el número de bits necesario para codificar la señal, y puede obtenerse mediante $b = \log_2(\lambda)$. Aunque es posible definir cualquier número de niveles de cuantización para la codificación, es muy común definirlos mediante el número de bits, por ejemplo 8 bits (256 niveles), 16 bits (65,536 niveles), etc. Para tener una referencia, el sonido en un CD está codificado generalmente con una cuantización de 16 bits. Realiza la cuantización uniforme de alguna(s) señal(es) de audio que se encuentran en la plataforma usando 8, 6, 4 y 2 bits. ¿Qué puedes notar en la señal con las diferentes cuantizaciones?
+    \end{enumerate}
+\end{problem}
+
+\subsection{Solución}
+
+\subsubsection{Inciso a)}
+En Python, la función para implementar la cuantización uniforme según la ecuación \ref{eq:cuantizacion_uniforme} puede ser escrita de la siguiente manera:
+\begin{verbatim}
+    def f(a:float,
+      delta:float) -> float:
+    return np.sign(a) * delta * np.floor(np.abs(a)/delta + 0.5)
+\end{verbatim}
+
+En donde se hace uso de la librería NumPy para las operaciones matemáticas.
+
+
+\subsubsection{Inciso b)}
+
+\textbf{Función lineal}
+
+Para la función lineal, podemos definir $g(x; \theta) = mx + c$, donde $m$ es la pendiente y $c$ es la intersección con el eje y. Por ejemplo, podemos tomar $m = 2$ y $c = 1$. 
+
+En la figura \ref{fig:lineal} se muestra la señal original y su versión cuantizada (con $\Delta = 1$), así como una gráfica para el error absoluto de cuantización. 
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.8\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/lineal_cuantizada.pdf}
+        \caption{}
+        \label{fig:lineal_a}
+    \end{subfigure}
+    \vspace{0.5cm}
+    \begin{subfigure}[b]{0.8\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/lineal_cuantizada_error.pdf}
+        \caption{}
+        \label{fig:lineal_b}
+    \end{subfigure}
+    \caption{(a) Cuantización de una función lineal y (b) su error absoluto de cuantización.}
+    \label{fig:lineal}
+\end{figure}
+
+Podemos observar que la señal cuantizada aproxima la señal original, pero con saltos discretos, cuya resolución depende del valor de $\Delta$. El error absoluto de cuantización muestra cómo la diferencia oscila entre 0 y $\Delta/2 = 0.5$ de forma lineal, lo cual es esperado.
+
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.8\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/sinusoidal_cuantizada.pdf}
+        \caption{}
+        \label{fig:sinusoidal_a}
+    \end{subfigure}
+    \vspace{0.5cm}
+    \begin{subfigure}[b]{0.8\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/sinusoidal_cuantizada_error.pdf}
+        \caption{}
+        \label{fig:sinusoidal_b}
+    \end{subfigure}
+    \caption{(a) Cuantización de una función sinusoidal y (b) su error absoluto de cuantización.}
+    \label{fig:sinusoidal}
+\end{figure}
+
+
+En la figura \ref{fig:sinusoidal} se muestra la señal original y su versión cuantizada (con $\Delta = 0.5$), así como una gráfica para el error absoluto de cuantización. En este caso utilizamos la función sinusoidal $g(x; \theta) = \sin(x)$. Aquí también podemos observar que la señal cuantizada aproxima la señal original. El error absoluto de cuantización muestra un patrón periódico, oscilando entre 0 y $\Delta/2 = 0.25$, lo cual es consistente con la naturaleza periódica de la señal original. Observamos un patrón de error similar al lineal para las regiones entre picos y valles, mientras que en los picos y valles muestra una gráfica en forma de ``U''.
+
+
+
+
+
+\subsubsection{Inciso c)}
+En este problema se implementaron dos funciones principales: una para obtener el valor de $\Delta$ (\texttt{obtener\_delta}) basado en el número de bits y la señal original haciendo uso de la fórmula propuesta $$\Delta = \frac{a_{max}-a_{min}}{\lambda-1}$$, y la segunda (\texttt{obtener\_cuantizada}) para realizar la cuantización uniforme de una señal de audio dada la ruta del archivo y el número de bits $b$.
+
+Nos enfocaremos en el archivo de audio \texttt{major.wav} para ilustrar los resultados obtenidos con diferentes niveles de cuantización (8, 6, 4 y 2 bits). Este archivo de audio contiene una señal musical con dos canales, lo cual es importante a considerar al momento de la cuantización. En nuestro caso, se trabajó eligiendo el $\Delta$ basado en ambos canales, es decir, se consideró un valor máximo $a_{max}$ de la señal y mínimo global $a_{min}$ para ambos canales al calcular $\Delta$, con la finalidad de mantener las amplitudes relativas entre los canales. Para las gráficas, se seleccionó un segmento de la señal para una mejor visualización (2s a 2.005s).
+
+En la figura \ref{fig:major} se muestran las gráficas de la señal original y las señales cuantizadas para cada nivel de bits, junto con sus respectivos errores absolutos de cuantización. Observamos que los errores de cuantización disminuyen conforme aumenta el número de bits, lo cual es consistente con la teoría de cuantización; a medida que se incrementa el número de bits, la resolución de la cuantización mejora (dado por $\lambda = 2^b$), resultando en una aproximación más precisa de la señal original. La gráfica de las señales (Figura \ref{fig:major_a}) muestra cómo la señal cuantizada se acerca más a la señal original a medida que aumentamos el número de bits.
+
+El caso extremo de 2 bits muestra una señal muy distorsionada, mostrando solo capacidad para representar 3 niveles de intensidad en el segmento analizado, lo cual resulta en una pérdida significativa de información y calidad sonora. Mientras que la cuantización con 8 bits ofrece una representación mucho más fiel de la señal original, con un error de cuantización considerablemente menor, casi nulo.
+
+En cuanto a calidad de sonido, destaco que no cuento con equipo de audio decente para el análisis y sin embargo, las diferencias son muy notorias. La cuantización con 8 bits suena bastante similar a la señal original, resultándome imperceptible la diferencia. A partir de la cuantización con 6 bits, se empieza a notar severamente la pérdida de calidad, con un sonido más áspero y con la introducción de ruido. Las cuantizaciones con 4 y 2 bits resultan en una calidad de sonido muy pobre, con distorsiones graves y pérdida de detalles musicales, haciendo que la música sea prácticamente irreconocible en el caso de 2 bits (además de que suena muy fuerte, quizá dañe bocinas).
+
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/major_cuantizada_all.pdf}
+        \caption{}
+        \label{fig:major_a}
+    \end{subfigure}
+    \vspace{0.5cm}
+    \begin{subfigure}[b]{\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/major_error_cuantizacion_all.pdf}
+        \caption{}
+        \label{fig:major_b}
+    \end{subfigure}
+    \caption{(a) Cuantización de la señal musical \textit{major.wav} y (b) su error absoluto de cuantización. Ambas gráficas muestran las señales cuantizadas para 8, 6, 4 y 2 bits.}
+    \label{fig:major}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\begin{problem}{}
+    Los datos de la carpeta \texttt{midi\_selected} contiene archivos \texttt{midi} de diferentes obras de 8 compositores. Aunque la música se compone de diversos elementos, en éste ejercicio consideraremos sólo 3: notas, acordes y silencios. La función \texttt{get\_all\_notes} del script \texttt{fun.py} extrae los acordes, notas y silencios (con su respectiva duración), de los archivos \texttt{midi}.
+
+    \begin{enumerate}[a)]
+        \item Crea un corpus de las obras musicales de todos los compositores. Considera como variable dependiente $y$ al compositor, y crea conjuntos de entrenamiento y prueba estratificado por ésta variable de respuesta. ¿Cómo es la distrbución de las obras por compositor? Usa algunos gráficos informativos de las características del corpus.
+        \item Usando una representación TF-IDF del corpus, implementa al menos 3 clasificadores para estimar $y$. Utiliza algún método eficiente para el ajuste de los modelos, asegurando una buena generalización. Elabora un resúmen breve de tus resultados incluyendo todas las métricas de desempeño, los criterios usados para la representación del corpus, el ajuste de los modelos, tus hallazgos, y demás información que creas pertinente. ¿Qué mejoras sugieres para tener un mejor resultado?
+    \end{enumerate}
+\end{problem}
+
+
+
+
+
+\newpage
+
+
+\newpage
+\begin{problem}{}
+En la tarea anterior, leíste un ensayo de Daphne Oram. Entonces eres de los pocos afortunados que la conoce, ya que su legado como inventora, compositora y pionera de música electrónica, es (tristemente) desconocido por la mayoría.
+
+Explora un poco más sobre ella y su legado. Puedes ver el contenido de \texttt{daphneoram.org}. Enfócate principalmente en \textit{oramics}, su invento, y describe si lo que has aprendido hasta ahora en el curso, te ayuda a entender y valorar su ingenio. Realiza un breve reporte sobre estos tópicos.
+\end{problem}
+
+
+
+
+
+
+
+
+
+
+\newpage
+\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+
+
+\end{document}

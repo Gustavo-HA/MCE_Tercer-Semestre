@@ -1,4 +1,3 @@
-% !TeX recipe = Rtex
 % Optimizado para compilación rápida
 \documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}
 
@@ -278,25 +277,16 @@ El segmento de audio analizado ($t \in [7.3, 7.8]$ s) corresponde al decaimiento
 
 \begin{itemize}
 
-\item En el pentagrama superior (Clave de Sol): Las notas son $C_4$ (Do), $E\flat_4$ (Mi$\flat$) y $G_4$ (Sol).
+\item En el pentagrama superior (Clave de Sol): La nota es $D_4$ (Re 4).
 
-\item En el pentagrama inferior (Clave de Fa): Las notas son $C_2$ (Do), $E\flat_2$ (Mi$\flat$) y $G_2$ (Sol).
+\item En el pentagrama inferior (Clave de Fa): Las notas son $D_2$ (Re 2) y $D_3$ (Re 3).
 
 \end{itemize}
 
-Se trata, por tanto, de un acorde de Do menor (Cm) tocado en múltiples octavas. La frecuencia fundamental $f_0$ de este acorde debe ser la de la nota más grave presente, que es $C_2$ (Do 2).
+La frecuencia fundamental $f_0$ de un sonido complejo generalmente corresponde a la frecuencia de la nota más grave que lo compone. Las otras notas presentes en el acorde, $D_3$ y $D_4$, son octavas de $D_2$. Sus frecuencias teóricas ($f_{D_3} \approx 146.8 \text{ Hz}$ y $f_{D_4} \approx 293.6 \text{ Hz}$) son múltiplos enteros (armónicos) de la frecuencia de $D_2$ ($f_{D_3} \approx 2 \times f_{D_2}$; $f_{D_4} \approx 4 \times f_{D_2}$).
 
-La frecuencia teórica de $C_2$ es $f_{C_2} \approx 65.41 \text{ Hz}$.
+Por lo tanto, \textbf{si tiene sentido} que la frecuencia fundamental estimada ($f_0 \approx 73 \text{ Hz}$) corresponda a la nota $D_2$ (Re 2), ya que esta es la nota más grave del acorde tocado en el compás 5, que es el segmento de audio analizado.
 
-Conclusión:
-
-Nuestra estimación visual ($f_0 \approx 73 \text{ Hz}$, cercana a $D_2$) no coincide con la fundamental real del acorde escrito en la partitura ($f_{C_2} \approx 65.41 \text{ Hz}$). La solución original (que mencionaba Bb2 y D4) era incorrecta, ya que esas notas no componen el acorde final.
-
-La discrepancia entre nuestra estimación (73 Hz) y la fundamental teórica (65.41 Hz) es esperable y no invalida el análisis, por dos razones técnicas principales:
-
-Error de Estimación: El conteo visual de ciclos en una forma de onda tan compleja (no sinusoidal) es inherentemente impreciso.
-
-Señal Compuesta: La forma de onda no representa una sola nota, sino la superposición de múltiples frecuencias (las notas $C_2, E\flat_2, G_2, C_4, E\flat_4, G_4$ y todos sus respectivos armónicos). La oscilación visualmente dominante no tiene por qué ser la frecuencia fundamental $f_0$. Es posible que la frecuencia que estimamos ($\approx 73 \text{ Hz}$) esté más cerca de otra componente del acorde (p. ej., $E\flat_2 \approx 77.78 \text{ Hz}$) o que sea un patrón de interferencia (batido) resultante de la suma de todas las componentes.
 
 %%%%%%%%%%% PROBLEMA 4 %%%%%%%%%%%
 \newpage
@@ -389,7 +379,7 @@ En la figura \ref{fig:sinusoidal} se muestra la señal original y su versión cu
 \subsubsection{Inciso c)}
 En este problema se implementaron dos funciones principales: una para obtener el valor de $\Delta$ (\texttt{obtener\_delta}) basado en el número de bits y la señal original haciendo uso de la fórmula propuesta $$\Delta = \frac{a_{max}-a_{min}}{\lambda-1}$$, y la segunda (\texttt{obtener\_cuantizada}) para realizar la cuantización uniforme de una señal de audio dada la ruta del archivo y el número de bits $b$.
 
-Nos enfocaremos en el archivo de audio \texttt{major.wav} para ilustrar los resultados obtenidos con diferentes niveles de cuantización (8, 6, 4 y 2 bits). Este archivo de audio contiene una señal musical con dos canales, lo cual es importante a considerar al momento de la cuantización. En nuestro caso, se trabajó eligiendo el $\Delta$ basado en ambos canales, es decir, se consideró un valor máximo $a_{max}$ de la señal y mínimo global $a_{min}$ para ambos canales al calcular $\Delta$, con la finalidad de mantener las amplitudes relativas entre los canales. Para las gráficas, se seleccionó un segmento de la señal para una mejor visualización (2s a 2.005s).
+Nos enfocaremos en el archivo de audio \texttt{major.wav} para ilustrar los resultados obtenidos con diferentes niveles de cuantización (8, 6, 4 y 2 bits). Este archivo de audio contiene una señal musical con dos canales, lo cual es importante a considerar al momento de la cuantización. En nuestro caso, se trabajó eligiendo el $\Delta$ basado en ambos canales, es decir, se consideró un valor máximo $a_{max}$ de la señal y mínimo global $a_{min}$ para ambos canales al calcular $\Delta$, con la finalidad de mantener las amplitudes relativas entre los canales. Para las gráficas, se seleccionó un segmento de la señal para una mejor visualización (2s a 2.005s) y el canal izquierdo.
 
 En la figura \ref{fig:major} se muestran las gráficas de la señal original y las señales cuantizadas para cada nivel de bits, junto con sus respectivos errores absolutos de cuantización. Observamos que los errores de cuantización disminuyen conforme aumenta el número de bits, lo cual es consistente con la teoría de cuantización; a medida que se incrementa el número de bits, la resolución de la cuantización mejora (dado por $\lambda = 2^b$), resultando en una aproximación más precisa de la señal original. La gráfica de las señales (Figura \ref{fig:major_a}) muestra cómo la señal cuantizada se acerca más a la señal original a medida que aumentamos el número de bits.
 
@@ -413,7 +403,7 @@ En cuanto a calidad de sonido, destaco que no cuento con equipo de audio decente
         \caption{}
         \label{fig:major_b}
     \end{subfigure}
-    \caption{(a) Cuantización de la señal musical \textit{major.wav} y (b) su error absoluto de cuantización. Ambas gráficas muestran las señales cuantizadas para 8, 6, 4 y 2 bits.}
+    \caption{(a) Cuantización de la señal musical \textit{major.wav} y (b) su error absoluto de cuantización. Ambas gráficas muestran las señales cuantizadas para 8, 6, 4 y 2 bits para el canal izquierdo.}
     \label{fig:major}
 \end{figure}
 
@@ -439,6 +429,35 @@ En cuanto a calidad de sonido, destaco que no cuento con equipo de audio decente
     \end{enumerate}
 \end{problem}
 
+\subsection{Solución}
+
+\subsubsection{Inciso a)}
+
+\textbf{Crear el corpus} fue sencillo gracias a la función \texttt{get\_all\_notes} proporcionada, la cual extrae las notas, acordes y silencios de los archivos MIDI con espacios de separación. Se iteró sobre todas las carpetas del archivo \texttt{midi\_selected} aplicando dicha función, y se almacenaron los resultados en un directorio llamado \texttt{notes}, donde cada archivo de texto corresponde a una obra musical de un compositor espeífico, dado por su prefijo. Finalmente, se creó un archivo CSV que contiene dos columnas: \texttt{notes} y \texttt{author}. La columna \texttt{notes} contiene la secuencia de notas, acordes y silencios extraídos, mientras que la columna \texttt{author} indica el compositor correspondiente.
+
+Los conjuntos de \textbf{entrenamiento} y \textbf{prueba} se crearon utilizando la función \texttt{train\_test\_split} de la librería \texttt{sklearn.model\_selection}, con la opción de estratificación basada en la variable dependiente \texttt{author}. Se asignó un 80\% de los datos al conjunto de entrenamiento y un 20\% al conjunto de prueba, asegurando que la distribución de obras por compositor se mantuviera en ambos conjuntos.Lo anterior resultó en un conjunto de entrenamiento que contiene un total de 4050 obras.
+
+La distribución de obras por compositor en el corpus (Figura \ref{fig:notes_per_author}) muestra que el compositor \textit{Bach} tiene una cantidad significativamente mayor de obras en comparación con otros; apróximadamente 1100 obras. Esta distribución desigual puede influir en el rendimiento de los clasificadores, ya que los modelos podrían estar sesgados hacia los compositores con más datos disponibles. Los compositores \textit{Victoria} y \textit{Schubert} tienen la menor cantidad de obras, con alrededor de 250 cada uno. Esta disparidad puede afectar la capacidad del modelo para aprender patrones representativos de estos compositores. Los demás compositores tienen cantidades intermedias de obras (450), y algo similares entre sí, lo que podría facilitar un aprendizaje más equilibrado para esos casos.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figure/notes_per_author_train.pdf}
+        \caption{}
+        \label{fig:notes_per_author_train}
+    \end{subfigure}
+    \caption{Distribución de obras por compositor en el conjunto de entrenamiento.}
+    \label{fig:notes_per_author}
+\end{figure}
+
+
+
+\subsubsection{Inciso b)}
+
+
+
+
 
 
 
@@ -454,17 +473,41 @@ Explora un poco más sobre ella y su legado. Puedes ver el contenido de \texttt{
 \end{problem}
 
 
+Más allá de su rol como cofundadora del BBC Radiophonic Workshop, el legado más profundo y visionario de Daphne Oram es, sin duda, su invención: \textit{Oramics}. Este sistema no fue solo una herramienta musical; fue la manifestación física de los principios fundamentales del procesamiento de señales, décadas antes de que las interfaces gráficas de usuario y las Estaciones de Trabajo de Audio Digital (DAWs) se convirtieran en estándar.
+
+
+\textbf{Oramics}
+
+\noindent
+El concepto central de \textit{Oramics} es la ``música dibujada''. En esencia, Oram diseñó una máquina que traducía información gráfica directamente en sonido. El sistema utilizaba una serie de tiras de película de 35mm sobre las cuales Oram dibujaba o ``pintaba''. Estas películas pasaban frente a células fotoeléctricas que leían los patrones dibujados.
+
+La genialidad radica en cómo abstrajo los componentes del sonido en elementos visuales:
+
+\begin{itemize}
+    \item \textbf{Forma de Onda (Timbre):} El aspecto más directo. Oram dibujaba la forma de la onda (el ``grano'' del sonido) en una sección de la película. Una línea suave y ondulada (cercana a una sinusoide) produciría un tono puro, mientras que una forma de onda compleja, como un diente de sierra o una cuadrada, generaría un timbre rico en armónicos.
+    \item \textbf{Tono:} Controlado gráficamente, a menudo mediante máscaras o "plantillas" que barrían el espectro de frecuencias.
+    \item \textbf{Amplitud:} La intensidad o grosor de las líneas dibujadas controlaba la amplitud de la señal generada.
+    \item \textbf{Envolvente (ADSR):} Oram también diseñaba "máscaras" que modulaban la amplitud a lo largo del tiempo, creando efectivamente envolventes de ataque, decaimiento, sostenimiento y relajación (ADSR) de forma puramente gráfica.
+\end{itemize}
+
+\textbf{Entendiendo Oramics a través del Curso}
+
+Sin una comprensión del procesamiento de señales, \textit{Oramics} podría parecer casi mágico o puramente artístico. Sin embargo, lo que hemos aprendido nos permite entenderlo como un sistema de ingeniería y síntesis de audio increíblemente avanzado.
+
+El curso nos ha enseñado que cualquier señal periódica, sin importar cuán compleja sea su forma de onda (su timbre), puede descomponerse en una suma de ondas sinusoidales simples. Oram invirtió este concepto: en lugar de descomponer, ella realizaba una \textbf{síntesis gráfica}. Al dibujar una forma de onda compleja, ella estaba definiendo implícitamente la amplitud y fase de todos los armónicos que compondrían ese sonido. Estaba, literalmente, dibujando el espectro de Fourier en el dominio del tiempo.
+
+El ingenio de Daphne Oram no fue solo ``dibujar sonidos bonitos''. Su genialidad fue diseñar y construir un sistema físico que implementaba los principios más profundos de la teoría de señales. Ella entendió que la frecuencia, la amplitud y la forma de onda (timbre) no eran conceptos musicales abstractos, sino parámetros físicos y matemáticos de una señal que podían ser controlados y manipulados.
+
+
+\textit{Oramics} demuestra que un osciloscopio y un sintetizador pueden ser, en esencia, la misma herramienta. El curso nos proporciona el lenguaje formal para apreciar que Daphne Oram no solo fue una compositora, sino también una ingeniera de señales que trabajaba con luz y película en lugar de código.
 
 
 
 
 
-
-
-
-\newpage
-\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
-\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+% \newpage
+%\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+%\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
 
 
 \end{document}

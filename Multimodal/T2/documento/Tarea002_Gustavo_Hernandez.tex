@@ -171,9 +171,9 @@ En la clase vimos cómo obtener las frecuencias centrales (en Hz) de diferentes 
 
 \end{problem}
 
-\subsection{Solución}
 
-\subsubsection{Inciso a): Escala C-Mayor}
+
+\subsection{Inciso a): Escala C-Mayor}
 
 El patrón de intervalos a partir de la tónica es: Tono, Tono, Semitono, Tono, Tono, Tono, Semitono. Recordando que C4 tiene un número MIDI de 60, podemos obtener los números MIDI de las notas en la escala C-Mayor haciendo saltos según el patrón de intervalos (2 para tonos y 1 para semitonos), por lo que la secuencia resultante en números MIDI sería 60, 62, 64, 65, 67, 69, 71, 72. 
 
@@ -203,7 +203,7 @@ C5            & 72                   & $\approx 523.25$         \\ \hline
 \end{table}
 
 \newpage
-\subsubsection{Inciso b): Escala C-Menor}
+\subsection{Inciso b): Escala C-Menor}
 
 En la escala C-Menor, el patrón de intervalos a partir de la tónica es: Tono, Semitono, Tono, Tono, Semitono, Tono, Tono, obteniendo la secuencia 60, 62, 63, 65, 67, 68, 70, 72, en números MIDI. Siguiendo el mismo procedimiento que en el inciso anterior, podemos obtener los números MIDI y las frecuencias correspondientes para las notas en la escala C-Menor (Tabla \ref{tab:freq_c_minor}). Notamos que la nota Ab4 (N. MIDI 68) tiene una frecuencia de aproximadamente 415.30 Hz, que es un semitono por debajo de A4 (440 Hz), por lo que es consistente con la estructura de la escala menor.
 
@@ -255,9 +255,9 @@ La Figura \ref{fig:p2_redaccion} muestra la forma de onda de un audio de los pri
 
 \end{problem}
 
-\subsection{Solución}
 
-\subsubsection{Inciso a)}
+
+\subsection{Inciso a)}
 
 Al inspeccionar la forma de onda ampliada para el intervalo $t \in [7.3, 7.8]$ segundos, se puede realizar un conteo visual de los ciclos de oscilación. En esta ventana de tiempo, cuya duración es $\Delta t = 7.8 \text{ s} - 7.3 \text{ s} = 0.5 \text{ s}$, se observan aproximadamente $N = 36.5$ ciclos.
 
@@ -269,7 +269,7 @@ La frecuencia fundamental $f_0$ se estima como la cantidad de ciclos por unidad 
 
 La frecuencia fundamental estimada es, por lo tanto, $f_0 \approx 73 \text{ Hz}$.
 
-\subsubsection{Inciso b)}
+\subsection{Inciso b)}
 
 Para identificar la nota musical correspondiente a $f_0 \approx 73 \text{ Hz}$, la comparamos con las frecuencias estándar del temperamento igual (con afinación $A_4 = 440 \text{ Hz}$). La frecuencia teórica de la nota $D_2$ (Re 2) es $f_{D_2} \approx 73.42 \text{ Hz}$, siendo esta la nota cuya frecuencia fundamental es más cercana a nuestra estimación.
 
@@ -307,9 +307,9 @@ Por lo tanto, \textbf{si tiene sentido} que la frecuencia fundamental estimada (
     \end{enumerate}
 \end{problem}
 
-\subsection{Solución}
 
-\subsubsection{Inciso a)}
+
+\subsection{Inciso a)}
 En Python, la función para implementar la cuantización uniforme según la ecuación \ref{eq:cuantizacion_uniforme} puede ser escrita de la siguiente manera:
 \begin{verbatim}
     def f(a:float,
@@ -320,7 +320,7 @@ En Python, la función para implementar la cuantización uniforme según la ecua
 En donde se hace uso de la librería NumPy para las operaciones matemáticas.
 
 
-\subsubsection{Inciso b)}
+\subsection{Inciso b)}
 
 \textbf{Función lineal}
 
@@ -369,6 +369,7 @@ Podemos observar que la señal cuantizada aproxima la señal original, pero con 
     \label{fig:sinusoidal}
 \end{figure}
 
+\textbf{Función sinusoidal}
 
 En la figura \ref{fig:sinusoidal} se muestra la señal original y su versión cuantizada (con $\Delta = 0.5$), así como una gráfica para el error absoluto de cuantización. En este caso utilizamos la función sinusoidal $g(x; \theta) = \sin(x)$. Aquí también podemos observar que la señal cuantizada aproxima la señal original. El error absoluto de cuantización muestra un patrón periódico, oscilando entre 0 y $\Delta/2 = 0.25$, lo cual es consistente con la naturaleza periódica de la señal original. Observamos un patrón de error similar al lineal para las regiones entre picos y valles, mientras que en los picos y valles muestra una gráfica en forma de ``U''.
 
@@ -376,7 +377,7 @@ En la figura \ref{fig:sinusoidal} se muestra la señal original y su versión cu
 
 
 
-\subsubsection{Inciso c)}
+\subsection{Inciso c)}
 En este problema se implementaron dos funciones principales: una para obtener el valor de $\Delta$ (\texttt{obtener\_delta}) basado en el número de bits y la señal original haciendo uso de la fórmula propuesta $$\Delta = \frac{a_{max}-a_{min}}{\lambda-1}$$, y la segunda (\texttt{obtener\_cuantizada}) para realizar la cuantización uniforme de una señal de audio dada la ruta del archivo y el número de bits $b$.
 
 Nos enfocaremos en el archivo de audio \texttt{major.wav} para ilustrar los resultados obtenidos con diferentes niveles de cuantización (8, 6, 4 y 2 bits). Este archivo de audio contiene una señal musical con dos canales, lo cual es importante a considerar al momento de la cuantización. En nuestro caso, se trabajó eligiendo el $\Delta$ basado en ambos canales, es decir, se consideró un valor máximo $a_{max}$ de la señal y mínimo global $a_{min}$ para ambos canales al calcular $\Delta$, con la finalidad de mantener las amplitudes relativas entre los canales. Para las gráficas, se seleccionó un segmento de la señal para una mejor visualización (2s a 2.005s) y el canal izquierdo.
@@ -429,9 +430,9 @@ En cuanto a calidad de sonido, destaco que no cuento con equipo de audio decente
     \end{enumerate}
 \end{problem}
 
-\subsection{Solución}
 
-\subsubsection{Inciso a)}
+
+\subsection{Inciso a)}
 
 \textbf{Crear el corpus} fue sencillo gracias a la función \texttt{get\_all\_notes} proporcionada, la cual extrae las notas, acordes y silencios de los archivos MIDI con espacios de separación. Se iteró sobre todas las carpetas del archivo \texttt{midi\_selected} aplicando dicha función, y se almacenaron los resultados en un directorio llamado \texttt{notes}, donde cada archivo de texto corresponde a una obra musical de un compositor espeífico, dado por su prefijo. Finalmente, se creó un archivo CSV que contiene dos columnas: \texttt{notes} y \texttt{author}. La columna \texttt{notes} contiene la secuencia de notas, acordes y silencios extraídos, mientras que la columna \texttt{author} indica el compositor correspondiente.
 
@@ -453,10 +454,35 @@ La distribución de obras por compositor en el corpus (Figura \ref{fig:notes_per
 
 
 
-\subsubsection{Inciso b)}
+\subsection{Inciso b)}
 
+\subsubsection{Representación numérica de las obras.}
 
+El conjunto de datos creado posee una estructura de texto, donde cada obra musical está representada como una secuencia de notas, acordes y silencios, acompañados de su duración. Para convertir este corpus en una representación númerica adecuada para el entrenamiento de clasificadores, se utilizó la representación TF-IDF, cuya implementación se realizó mediante la clase \texttt{TfidfVectorizer} de la librería \texttt{scikit-learn}. Los argumentos principales utilizados fueron:
+\begin{itemize}
+    \item \texttt{ngram\_range=(1,3)}: Considera n-gramas de longitud 1 a 3, capturando así secuencias de notas y acordes.
+    \item \texttt{\detokenize{token_pattern="\b[\w.#-]+\b"}}: Quizá lo más importante, este patrón de tokenización permite capturar notas musicales con alteraciones (sostenidos y bemoles), así como acordes y silencios, con sus respectivas duraciones.
+\end{itemize}
+ 
+Se experimentó con parámetros cuyo proposito es reducir la dimensionalidad del espacio de características, como \texttt{max\_df} y \texttt{min\_df}, pero no se observaron mejoras significativas en el rendimiento de los clasificadores (de hecho, empeoraban). Por lo tanto, se optó por no utilizarlos en la versión final del modelo.
 
+\subsubsection{Random Forest}
+
+El primer clasificador implementado fue un \textbf{Random Forest}, utilizando la implementación de \texttt{scikit-learn}. El procedimiento para obtener el mejor modelo involucró el uso de \texttt{Optuna} para la optimización de hiperparámetros, librería que permite una búsqueda eficiente en el espacio de hiperparámetros mediante técnicas de optimización bayesiana \cite{}. Además, se empleó un seguimiento de los experimentos utilizando \texttt{MLflow}, lo que facilitó la gestión y comparación de los diferentes modelos entrenados. El flujo de trabajo puede enlistarse de la siguiente manera:
+
+\begin{enumerate}
+    \item Definición del espacio de búsqueda de hiperparámetros, incluyendo parámetros como el número de árboles (\texttt{n\_estimators}), la profundidad máxima de los árboles (\texttt{max\_depth}), el número mínimo de muestras por hoja (\texttt{min\_samples\_leaf}) y el número mínimo de muestras para dividir un nodo (\texttt{min\_samples\_split}).
+    \item Configuración de un estudio de \texttt{Optuna} para optimizar los hiperparámetros basándose en la métrica de F1-score macro obtenida mediante validación cruzada k-fold (con $k=5$).
+    \item Con MLflow, se recogen los 3 mejores modelos de la búsqueda según la métrica de F1-score macro, se entrenan en el conjunto completo de entrenamiento, y se evalúan en el conjunto de prueba.
+    \item Se selecciona el modelo con el mejor desempeño en el conjunto de prueba para el análisis final.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{figure/random_forest-cm.pdf}
+    \caption{Matriz de confusión del clasificador Random Forest en el conjunto de prueba.}
+    \label{fig:random_forest_cm}
+\end{figure}
 
 
 
@@ -476,7 +502,7 @@ Explora un poco más sobre ella y su legado. Puedes ver el contenido de \texttt{
 Más allá de su rol como cofundadora del BBC Radiophonic Workshop, el legado más profundo y visionario de Daphne Oram es, sin duda, su invención: \textit{Oramics}. Este sistema no fue solo una herramienta musical; fue la manifestación física de los principios fundamentales del procesamiento de señales, décadas antes de que las interfaces gráficas de usuario y las Estaciones de Trabajo de Audio Digital (DAWs) se convirtieran en estándar.
 
 
-\textbf{Oramics}
+\subsection{Oramics}
 
 \noindent
 El concepto central de \textit{Oramics} es la ``música dibujada''. En esencia, Oram diseñó una máquina que traducía información gráfica directamente en sonido. El sistema utilizaba una serie de tiras de película de 35mm sobre las cuales Oram dibujaba o ``pintaba''. Estas películas pasaban frente a células fotoeléctricas que leían los patrones dibujados.
@@ -490,7 +516,7 @@ La genialidad radica en cómo abstrajo los componentes del sonido en elementos v
     \item \textbf{Envolvente (ADSR):} Oram también diseñaba "máscaras" que modulaban la amplitud a lo largo del tiempo, creando efectivamente envolventes de ataque, decaimiento, sostenimiento y relajación (ADSR) de forma puramente gráfica.
 \end{itemize}
 
-\textbf{Entendiendo Oramics a través del Curso}
+\subsection{Entendiendo Oramics a través del Curso}
 
 Sin una comprensión del procesamiento de señales, \textit{Oramics} podría parecer casi mágico o puramente artístico. Sin embargo, lo que hemos aprendido nos permite entenderlo como un sistema de ingeniería y síntesis de audio increíblemente avanzado.
 

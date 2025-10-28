@@ -1,3 +1,13 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
+
+\bibitem{akiba2019optuna}
+Takuya Akiba, Shotaro Sano, Toshihiko Yanase, Takeru Ohta, and Masanori Koyama.
+\newblock Optuna: A next-generation hyperparameter optimization framework.
+\newblock In {\em Proceedings of the 25th ACM SIGKDD international conference on knowledge discovery \& data mining}, pages 2623--2631, 2019.
+
+\bibitem{Zaharia_Accelerating_the_Machine_2018}
+Matei~A. Zaharia, Andrew Chen, Aaron Davidson, Ali Ghodsi, Sue~Ann Hong, Andy Konwinski, Siddharth Murching, Tomas Nykodym, Paul Ogilvie, Mani Parkhe, Fen Xie, and Corey Zumar.
+\newblock {Accelerating the Machine Learning Lifecycle with MLflow}.
+\newblock {\em IEEE Data Eng. Bull.}, 41:39--45, 2018.
 
 \end{thebibliography}

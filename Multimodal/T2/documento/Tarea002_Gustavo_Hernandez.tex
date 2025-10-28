@@ -468,7 +468,7 @@ Se experimentó con parámetros cuyo proposito es reducir la dimensionalidad del
 
 \subsubsection{Random Forest}
 
-El primer clasificador implementado fue un \textbf{Random Forest}, utilizando la implementación de \texttt{scikit-learn}. El procedimiento para obtener el mejor modelo involucró el uso de \texttt{Optuna} para la optimización de hiperparámetros, librería que permite una búsqueda eficiente en el espacio de hiperparámetros mediante técnicas de optimización bayesiana \cite{}. Además, se empleó un seguimiento de los experimentos utilizando \texttt{MLflow}, lo que facilitó la gestión y comparación de los diferentes modelos entrenados. El flujo de trabajo puede enlistarse de la siguiente manera:
+El primer clasificador implementado fue un \textbf{Random Forest}, utilizando la implementación de \texttt{scikit-learn}. El procedimiento para obtener el mejor modelo involucró el uso de \texttt{Optuna} para la optimización de hiperparámetros, librería que permite una búsqueda eficiente en el espacio de hiperparámetros mediante técnicas de optimización bayesiana \cite{akiba2019optuna}. Además, se empleó un seguimiento de los experimentos utilizando \texttt{MLflow} \cite{Zaharia_Accelerating_the_Machine_2018}, lo que facilitó la gestión y comparación de los diferentes modelos entrenados. El flujo de trabajo puede enlistarse de la siguiente manera:
 
 \begin{enumerate}
     \item Definición del espacio de búsqueda de hiperparámetros, incluyendo parámetros como el número de árboles (\texttt{n\_estimators}), la profundidad máxima de los árboles (\texttt{max\_depth}), el número mínimo de muestras por hoja (\texttt{min\_samples\_leaf}) y el número mínimo de muestras para dividir un nodo (\texttt{min\_samples\_split}).
@@ -477,12 +477,49 @@ El primer clasificador implementado fue un \textbf{Random Forest}, utilizando la
     \item Se selecciona el modelo con el mejor desempeño en el conjunto de prueba para el análisis final.
 \end{enumerate}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.4\linewidth]{figure/random_forest-cm.pdf}
-    \caption{Matriz de confusión del clasificador Random Forest en el conjunto de prueba.}
-    \label{fig:random_forest_cm}
-\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Hiperparámetros optimizados para Random Forest con 20 ensayos.}
+\label{tab:rf_hyperparams}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Rango de búsqueda} & \textbf{Valor óptimo} \\
+\midrule
+\texttt{n\_estimators} & [100, 1000] (paso 100) & 400 \\
+\texttt{max\_depth} & [10, 50] (paso 5) & 30 \\
+\texttt{min\_samples\_split} & [2, 10] & 5 \\
+\texttt{min\_samples\_leaf} & [1, 5] & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+En la Tabla \ref{tab:rf_hyperparams} se presentan los hiperparámetros optimizados para el modelo de Random Forest, junto con sus respectivos rangos de búsqueda y los valores óptimos encontrados. Automatizar este proceso fue importante para asegurar que el modelo estuviera bien ajustado a los datos, maximizando su capacidad de generalización.
+
+
+\subsubsection{XGBoost}
+
+El segundo clasificador implementado fue \textbf{XGBoost} (Extreme Gradient Boosting), conocido por su eficiencia y rendimiento en tareas de clasificación. Al igual que con Random Forest, se utilizó \texttt{Optuna} para la optimización de hiperparámetros y \texttt{MLflow} para el seguimiento de experimentos. El flujo de trabajo fue similar al descrito anteriormente, con la definición del espacio de búsqueda de hiperparámetros específicos para XGBoost, como la tasa de aprendizaje (\texttt{learning\_rate}), el parámetro de regularización (\texttt{Gamma}) y la profundidad máxima de los árboles (\texttt{max\_depth}).
+
+\begin{table}[H]
+\centering
+\caption{Hiperparámetros optimizados para XGBoost con 20 ensayos.}
+\label{tab:xgb_hyperparams}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Rango de búsqueda} & \textbf{Valor óptimo} \\
+\midrule
+\texttt{learning\_rate} & [0.01, 0.4] (paso 0.01) & 0.01 \\
+\texttt{max\_depth} & [1, 10]  & 7 \\
+\texttt{Gamma} & [0, 5] (paso 0.5) & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+
 
 
 
@@ -511,9 +548,9 @@ La genialidad radica en cómo abstrajo los componentes del sonido en elementos v
 
 \begin{itemize}
     \item \textbf{Forma de Onda (Timbre):} El aspecto más directo. Oram dibujaba la forma de la onda (el ``grano'' del sonido) en una sección de la película. Una línea suave y ondulada (cercana a una sinusoide) produciría un tono puro, mientras que una forma de onda compleja, como un diente de sierra o una cuadrada, generaría un timbre rico en armónicos.
-    \item \textbf{Tono:} Controlado gráficamente, a menudo mediante máscaras o "plantillas" que barrían el espectro de frecuencias.
-    \item \textbf{Amplitud:} La intensidad o grosor de las líneas dibujadas controlaba la amplitud de la señal generada.
-    \item \textbf{Envolvente (ADSR):} Oram también diseñaba "máscaras" que modulaban la amplitud a lo largo del tiempo, creando efectivamente envolventes de ataque, decaimiento, sostenimiento y relajación (ADSR) de forma puramente gráfica.
+    \item \textbf{Tono (Pitch):} Controlado gráficamente, a menudo mediante máscaras o "plantillas" que barrían el espectro de frecuencias.
+    \item \textbf{Amplitud (Volumen):} La intensidad o grosor de las líneas dibujadas controlaba la amplitud de la señal generada.
+    \item \textbf{Envolvente (ADSR):} Oram también diseñaba "máscaras" que modulaban la amplitud a lo largo del tiempo, creando efectivamente envolventes de ataque, decaimiento, sostenimiento y relajación de forma puramente gráfica.
 \end{itemize}
 
 \subsection{Entendiendo Oramics a través del Curso}
@@ -531,9 +568,9 @@ El ingenio de Daphne Oram no fue solo ``dibujar sonidos bonitos''. Su genialidad
 
 
 
-% \newpage
-%\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
-%\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+\newpage
+\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
 
 
 \end{document}

@@ -1,0 +1,6 @@
+outs:
+- md5: 6546f0d5018ba54347c514dc07bcf589.dir
+  size: 457841
+  nfiles: 17
+  hash: md5
+  path: figure

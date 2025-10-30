@@ -1,0 +1,243 @@
+% Optimizado para compilación rápida
+\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}
+
+% Modifications to layout
+\usepackage[shortlabels]{enumitem} % Incisos
+\def\code#1{\texttt{#1}} % \code{} for monospaced text
+\newcommand{\RNum}[1]{\footnotesize\uppercase\expandafter{\romannumeral #1\relax\normalsize}} % Roman numbers
+
+\usepackage{subcaption} % 2x2 graphs
+\usepackage{mwe}
+\usepackage{float} % [H] in graphics
+\usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
+
+\usepackage{booktabs,siunitx,listings}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{theorems}
+\usepackage{cleveref}
+
+% Typography and layout packages
+\usepackage{graphicx}
+\usepackage{verbatim}
+% \usepackage{xcolor}
+\usepackage[spanish,es-nodecimaldot]{babel} % Language and hyphenation
+\usepackage{amsmath, amsfonts, amsthm, amssymb} % Math packages
+\newtheorem{definition}{Definición} % definition
+\usepackage{fancyvrb}
+\usepackage{sectsty} % Customize section commands
+\usepackage{geometry} % Modify margins
+\usepackage{titlesec} % Customize section titles
+\geometry{margin=3cm,top=2.5cm,bottom=2.5cm} % Simplified geometry
+\allsectionsfont{\centering \normalfont\scshape} % Center and style section titles
+
+% Header and footer customization
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead[L]{\slshape} % Remove section title from header
+\fancyhead[C]{} % Header center
+\fancyhead[R]{\thepage} % Header right with page number
+\fancyfoot[L]{} % Footer left
+\fancyfoot[C]{} % Footer center
+\fancyfoot[R]{\small \slshape Gustavo Hernández Angeles} % Footer right
+\renewcommand{\headrulewidth}{0.4pt} % Header rule
+\renewcommand{\footrulewidth}{0.4pt} % Footer rule
+\setlength{\headheight}{14.5pt} % Header height
+
+% Paragraph settings
+\setlength\parindent{0pt}
+\setlength{\parskip}{1ex}
+
+% Section spacing
+\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
+
+% --- Theorems, lemma, corollary, postulate, definition ---
+\definecolor{Pantone209C}{HTML}{64293e}
+
+\newcounter{problemcounter}
+
+\numberwithin{equation}{problemcounter} % Number equations within problems
+\numberwithin{figure}{problemcounter} % Number figures within problems
+\numberwithin{table}{problemcounter} % Number tables within problems
+\numberwithin{subsection}{problemcounter} 
+
+\newtcbtheorem[auto counter]{problem}{Ejercicio}{
+    enhanced,
+    breakable,
+    colback = gray!5,
+    colframe = gray!5,
+    boxrule = 0.5pt,
+    sharp corners,
+    borderline west = {2mm}{0mm}{Pantone209C},
+    fonttitle = \bfseries\sffamily,
+    coltitle = Pantone209C,
+    drop fuzzy shadow,
+    parbox = false,
+    before skip = 3ex,
+    after skip = 3ex
+}{problem}
+\makeatletter
+\renewenvironment{problem}[2][]{%
+    \refstepcounter{problemcounter}%
+    \addcontentsline{toc}{section}{\protect\numberline{\theproblemcounter}Ejercicio \theproblemcounter: #2}%
+    \begin{tcolorbox}[
+        enhanced,
+        breakable,
+        colback = gray!5,
+        colframe = gray!5,
+        boxrule = 0.5pt,
+        sharp corners,
+        borderline west = {2mm}{0mm}{Pantone209C},
+        fonttitle = \bfseries\sffamily,
+        coltitle = Pantone209C,
+        drop fuzzy shadow,
+        parbox = false,
+        before skip = 3ex,
+        after skip = 3ex,
+        title={Ejercicio \theproblemcounter: #2}
+    ]
+}{%
+    \end{tcolorbox}
+}
+\makeatother
+
+\tcbuselibrary{skins, breakable}
+% Custom command for a horizontal rule
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} 
+
+% Custom section titles with numbering
+\titleformat{\section}
+{\normalfont\Large\bfseries}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Title and author
+\title{	
+    \begin{center}
+        \includegraphics[width=3cm]{figure/template/cimat-logo.png} % Adjust size as needed
+    \end{center}
+    \vspace{0.5cm}
+    \normalfont \normalsize 
+    \textbf{\Large   Centro de Investigación en Matemáticas} \\
+    \Large Unidad Monterrey \\ [25pt] 
+    \horrule{1pt} \\[0.4cm] % Thin top horizontal rule
+    \huge Análisis Multimodal\\
+    \Large Tarea 2\\ 
+    \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{\large Gustavo Hernández Angeles}    
+
+\date{\normalsize\today} % Today's date
+
+\begin{document}
+\maketitle % Print the title
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+
+
+%%%%%%%%%%% PROBLEMA 1 %%%%%%%%%%%
+\begin{problem}{}
+Generación de datos simulados y aplicación de los métodos de selección de subconjuntos.
+
+\begin{enumerate}[a)]
+  \item Usa una función en \texttt{R} para generar una variable predictora \texttt{X} de longitud 100, así como un vector de ruido \(\epsilon\) de longitud 100.
+  \item Genera un vector de respuesta \texttt{Y} de longitud 100, de acuerdo al modelo
+  \[
+    Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \epsilon
+  \]
+  \item Utiliza la función \texttt{regsubsets()} para realizar la selección de subconjuntos con el fin de elegir el mejor modelo que contenga los predictores $\textbf{X}$, $\textbf{X}^2$, ..., $\textbf{X}^{10}$. ¿Qué modelo se selecciona como el mejor según el AIC, BIC y el $R^2$ ajustado? Muestra algunas gráficas que proporcionen evidencia de tu respuesta y reporta los coeficientes de mejor modelo obtenido.
+  \item Repite (c) usando la selección forward stepwise y backward stepwise. ¿Cómo se compara tu respuesta con los resultados obtenidos en (c)?
+\end{enumerate}
+
+\end{problem}
+
+
+\subsection{Inciso a)}
+
+Para generar la variable predictora \texttt{X} y el vector de ruido \(\epsilon\), utilizamos las siguientes funciones en \texttt{R}:
+
+<<>>=
+    set.seed(123) # Para reproducibilidad
+    n <- 100
+    X <- rnorm(n, mean = 10, sd = 3) # Variable predictora
+    epsilon <- rnorm(n, mean = 0, sd = 1) # Vector de ruido
+@
+
+\subsection{Inciso b)}
+Utilizando la variable predictora \texttt{X} y el vector de ruido \(\epsilon\) generados en el inciso anterior, creamos el vector de respuesta \texttt{Y} según el modelo especificado. Asumimos los siguientes valores para los coeficientes: \(\beta_0 = 5\), \(\beta_1 = 2\), \(\beta_2 = -0.5\), y \(\beta_3 = 0.1\).
+
+<<>>=
+    beta_0 <- 5
+    beta_1 <- 2
+    beta_2 <- -0.5
+    beta_3 <- 0.1
+    Y <- beta_0 + beta_1 * X + beta_2 * X^2 + beta_3 * X^3 + epsilon
+@
+
+\subsection{Inciso c)}
+Para realizar la selección de subconjuntos utilizando la función \texttt{regsubsets()} del paquete \texttt{leaps}, primero creamos un data frame que contenga la variable respuesta \texttt{Y} y los predictores $\texttt{X}$, $\texttt{X}^2$, ..., $\texttt{X}^{10}$.
+
+<<echo=F>>=
+library(leaps)
+@
+
+
+<<>>=
+    data <- data.frame(Y = Y)
+    for (i in 1:10) {
+        data[[paste0("X", i)]] <- X^i
+    }
+@
+
+Luego, aplicamos la función \texttt{regsubsets()} para realizar la selección de subconjuntos y analizamos los resultados utilizando AIC, BIC y \(R^2\) ajustado.
+
+<<>>=
+    regfit.full <- regsubsets(Y ~ ., data = data, nvmax = 10)
+    reg.summary <- summary(regfit.full)
+        
+    # AIC, BIC y R^2 ajustado
+    aic_values <- reg.summary$bic + 2 * (1:10) # AIC approximation
+    cat(aic_values)
+    bic_values <- reg.summary$bic
+    cat(bic_values)
+    adjr2_values <- reg.summary$adjr2 #$
+    cat(adjr2_values)
+@
+
+
+
+
+
+
+\newpage
+\begin{problem}
+  Se ha visto que a medida que aumenta el número de características de un modelo, el error de entrenamiento disminuirá necesariamente, pero el error de prueba puede que no. Explorar esto con datos simulados.
+
+  \begin{enumerate}[a)]
+    \item Genera un conjunto de datos con $p=20$ características, $n=1000$ observaciones y un vector de respuesta cuantitativo generado de acuerdo con el modelo
+    \[
+      \textbf{\textit{Y}} = \textbf{\textit{X}}\beta + \epsilon
+    \]
+    donde $\beta$ tiene algunos elementos exactamente iguales a cero.
+
+    \item Divide los datos en un conjunto de entrenamiento con 100 observaciones y otro de prueba con 900 observaciones.
+    \item Realiza la selección del mejor \textit{subconjunto} sobre el conjunto de entrenamiento y grafica el error de entrenamiento MSE asociado con el mejor modelo en cada tamaño.
+    \item Gráfica el error de prueba MSE asociado con el mejor modelo de cada tamaño.
+  \end{enumerate}
+\end{problem}
+
+
+\newpage
+\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+
+
+\end{document}

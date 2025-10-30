@@ -1,0 +1,26 @@
+---
+title: "T4 — Gustavo Hernández"
+author: "Gustavo Hernández"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
+    latex_engine: xelatex
+---
+
+
+Generación de datos simulados y aplicación de los métodos de selección de subconjuntos.
+
+\begin{enumerate}
+  \item Usa una función en \texttt{R} para generar una variable predictora \texttt{X} de longitud 100, así como un vector de ruido \(\epsilon\) de longitud 100.
+  \item Genera un vector de respuesta \texttt{Y} de longitud 100, de acuerdo al modelo
+  \[
+    Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \epsilon
+  \]
+  \item Utiliza la función \texttt{regsubsets()} para realizar la selección de subconjuntos con el fin de elegir el mejor modelo que contenga los predictores $\textbf{X}$, $\textbf{X}^2$, ..., $\textbf{X}^{10}$. ¿Qué modelo se selecciona como el mejor según el AIC, BIC y el $R^2$ ajustado? Muestra algunas gráficas que proporcionen evidencia de tu respuesta y reporta los coeficientes de mejor modelo obtenido.
+  \item Repite (c) usando la selección forward stepwise y backward stepwise. ¿Cómo se compara tu respuesta con los resultados obtenidos en (c)?
+\end{enumerate}
+
+\textbf{Solución}
+

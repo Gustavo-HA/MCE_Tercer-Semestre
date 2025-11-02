@@ -24,3 +24,76 @@ Generación de datos simulados y aplicación de los métodos de selección de su
 
 \textbf{Solución}
 
+```{r}
+    set.seed(123) # Para reproducibilidad
+    n <- 100
+    X <- runif(n, min=0, max=10) # Variable predictora
+    epsilon <- rnorm(n, mean = 0, sd = 3) # Vector de ruido
+```
+
+
+```{r}
+    beta_0 <- 5
+    beta_1 <- 2
+    beta_2 <- -3
+    beta_3 <- 0.3
+    Y <- beta_0 + beta_1 * X + beta_2 * X^2 + beta_3 * X^3 + epsilon
+```
+
+```{r}
+  #scatterplot
+  library(ggplot2)
+  ggplot() +
+    geom_point(mapping=aes(x=X,y=Y)) +
+    theme_bw()
+```
+
+
+```{r}
+    data <- data.frame(Y = Y)
+    for (i in 1:10) {
+        data[[paste0("X", i)]] <- X^i
+    }
+```
+
+```{r}
+library(leaps)
+```
+
+```{r}
+options(max.print=10000)
+```
+
+
+```{r}
+    regfit.full <- regsubsets(Y ~ ., data = data, nbest=252, really.big=T, nvmax=10)
+    reg.summary <- summary(regfit.full)
+    print(reg.summary)
+```
+```{r}
+# Mejor subset segun bic
+  bics = reg.summary$bic
+  idx_menor = which.min(bics)
+  cat(paste("Numero de variables: ", sum(reg.summary$which[idx_menor,]), "\n"))
+  reg.summary$which[idx_menor,]
+```
+
+```{r}
+# Mejor subset segun adjr2
+  adjr2s = reg.summary$adjr2
+  idx_menor = which.min(adjr2s)
+  reg.summary$which[idx_menor,]
+```
+
+```{r}
+
+plot(regfit.full, scale='adjr2')
+
+```
+
+
+
+
+
+
+

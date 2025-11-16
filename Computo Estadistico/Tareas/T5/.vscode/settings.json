@@ -1,0 +1,13 @@
+{
+    "latex-workshop.latex.recipe.default": "Rtex",
+    "[latex]": {
+        "editor.wordWrap": "on",
+        "editor.wordWrapColumn": 80,
+        "editor.quickSuggestions": {
+            "other": true,
+            "comments": false,
+            "strings": false
+        },
+        "editor.minimap.enabled": true
+    },
+}

@@ -211,11 +211,9 @@ __marimo__/
 data/
 
 # Generated files
-*.pdf
-*.png
-*.jpg
 *.eps
 cache/
+Clases/
 
 # Models
 mlartifacts/

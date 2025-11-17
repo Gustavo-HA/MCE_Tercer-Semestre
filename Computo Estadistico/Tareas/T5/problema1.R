@@ -2,6 +2,11 @@ library("ISLR")
 
 college = College[, -c(3,4)] # Quitamos Accept y Enroll por data leakage
 
+summary(college$Apps)
+
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#      81     776    1558    3002    3624   48094 
+
 ###### Inciso a) #######
 set.seed(1)
 train = sample(1:nrow(college), nrow(college)*0.5)
@@ -144,33 +149,6 @@ pls.fit = plsr(Apps ~ ., data = college.train, scale = TRUE, validation = "CV")
 summary(pls.fit)
 validationplot(pls.fit, val.type = "MSEP")
 
-# Data:   X dimension: 388 15 
-#         Y dimension: 388 1
-# Fit method: kernelpls
-# Number of components considered: 15
-
-# VALIDATION: RMSEP
-# Cross-validated using 10 random segments.
-#        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
-# CV            4288     2975     2801     2497     2395     2408     2408
-# adjCV         4288     2972     2796     2487     2385     2400     2400
-#        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
-# CV        2406     2407     2407      2408      2408      2408      2408
-# adjCV     2398     2399     2399      2400      2400      2400      2400
-#        14 comps  15 comps
-# CV         2408      2408
-# adjCV      2400      2400
-
-# TRAINING: % variance explained
-#       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps  8 comps
-# X       24.64    54.33    60.14    63.02    70.13    74.58    78.85    81.19
-# Apps    53.57    60.17    69.87    72.01    72.16    72.19    72.20    72.20
-#       9 comps  10 comps  11 comps  12 comps  13 comps  14 comps  15 comps
-# X       86.16     88.99     92.15     94.24     96.16     98.76     100.0
-# Apps    72.20     72.20     72.20     72.20     72.20     72.20      72.2
-
-# 4 componentes explican el 63.02% de la varianza en X
-# y un 72.01% de la varianza en Apps
 
 # Evaluamos el error de prueba con M = 4 componentes
 

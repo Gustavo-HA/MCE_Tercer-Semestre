@@ -1,55 +1,5 @@
 % Optimizado para compilación rápida
-\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}\usepackage[]{graphicx}\usepackage[]{xcolor}
-% maxwidth is the original width if it is less than linewidth
-% otherwise use linewidth (to make sure the graphics do not exceed the margin)
-\makeatletter
-\def\maxwidth{ %
-  \ifdim\Gin@nat@width>\linewidth
-    \linewidth
-  \else
-    \Gin@nat@width
-  \fi
-}
-\makeatother
-
-\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
-\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
-\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
-\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
-\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
-\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
-\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
-\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
-\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
-\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
-\let\hlipl\hlkwb
-
-\usepackage{framed}
-\makeatletter
-\newenvironment{kframe}{%
- \def\at@end@of@kframe{}%
- \ifinner\ifhmode%
-  \def\at@end@of@kframe{\end{minipage}}%
-  \begin{minipage}{\columnwidth}%
- \fi\fi%
- \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
- \colorbox{shadecolor}{##1}\hskip-\fboxsep
-     % There is no \\@totalrightmargin, so:
-     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
- \MakeFramed {\advance\hsize-\width
-   \@totalleftmargin\z@ \linewidth\hsize
-   \@setminipage}}%
- {\par\unskip\endMakeFramed%
- \at@end@of@kframe}
-\makeatother
-
-\definecolor{shadecolor}{rgb}{.97, .97, .97}
-\definecolor{messagecolor}{rgb}{0, 0, 0}
-\definecolor{warningcolor}{rgb}{1, 0, 1}
-\definecolor{errorcolor}{rgb}{1, 0, 0}
-\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
-
-\usepackage{alltt}
+\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}
 
 % Modifications to layout
 \usepackage[shortlabels]{enumitem} % Incisos
@@ -182,7 +132,7 @@
 \author{\large Gustavo Hernández Angeles}    
 
 \date{\normalsize\today} % Today's date
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+
 \begin{document}
 \maketitle % Print the title
 \thispagestyle{empty}
@@ -265,7 +215,7 @@ Utilizando el conjunto de datos \texttt{College} disponible en la libreria \text
 
 \subsection{Inciso a)}
 
-Para este problema se dividió el conjunto de datos en un conjunto de entrenamiento y un conjunto de prueba, utilizando el \(50\%\) de los datos para entrenamiento y el \(50\%\) restante para prueba.
+Se utilizó el conjunto de datos \texttt{College} y, para evitar fuga de información, se eliminaron las variables \texttt{Accept} y \texttt{Enroll} del análisis, ya que están determinadas después de \texttt{Apps} o están fuertemente condicionadas por ella; incluirlas inflaría artificialmente el desempeño en prueba. Posteriormente, se dividió el conjunto en entrenamiento y prueba usando un \(50\%\) para cada uno (muestra aleatoria con semilla fija).
 
 \subsection{Inciso b)}
 
@@ -279,6 +229,62 @@ Se ajustó un modelo lineal utilizando Mínimos Cuadrados Ordinarios (MCO) en el
 \end{itemize}
 
 mientras que las demás variables no mostraron significancia estadística en el modelo ajustado. Al evaluar el rendimiento de este modelo en el conjunto de prueba, se obtuvo un Error Cuadrático Medio (MSE) de \textbf{2,551,734}. Esto corresponde a un Error Cuadrático Medio Raíz (RMSE) de \textbf{1,597.4}.
+
+\subsection{Inciso c)}
+
+Se ajustó una regresión \textit{ridge} con validación cruzada de 5 pliegues para seleccionar \(\lambda\). El valor \(\lambda_{\min}\) elegido por CV fue \textbf{12.07} (y \(\lambda_{1se}=\) \textbf{4498.43} como alternativa más parsimoniosa). Con \(\lambda_{\min}\), el desempeño en prueba fue: MSE \textbf{2,530,947} (RMSE \textbf{1,590.9}). Con \(\lambda_{1se}\) el error aumentó a MSE \textbf{3,552,978} (RMSE \textbf{1,884.9}).
+
+\subsection{Inciso d)}
+
+Se ajustó un modelo \textit{lasso} también con validación cruzada de 5 pliegues. Se obtuvo \(\lambda_{\min}=\) \textbf{86.85} y \(\lambda_{1se}=\) \textbf{1098.54}. Con \(\lambda_{\min}\), el error de prueba fue MSE \textbf{2,395,665} (RMSE \textbf{1,547.8}), y con \(\lambda_{1se}\) el MSE fue \textbf{3,438,634}. El modelo con \(\lambda_{\min}\) seleccionó \textbf{9} coeficientes distintos de cero: \texttt{Top10perc}, \texttt{Top25perc}, \texttt{F.Undergrad}, \texttt{Room.Board}, \texttt{Personal}, \texttt{S.F.Ratio}, \texttt{perc.alumni}, \texttt{Expend} y \texttt{Grad.Rate}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/lambda_ridge.png}
+        \caption{Selección de $\lambda$ por validación cruzada – Ridge.}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/lambda_lasso.png}
+        \caption{Selección de $\lambda$ por validación cruzada – Lasso.}
+    \end{subfigure}
+    \caption{Comparación de curvas de validación cruzada para la selección de $\lambda$.}
+\end{figure}
+
+\subsection{Inciso e)}
+
+Para PCR (componentes principales como regresores), con escalamiento y validación cruzada, el menor MSEP se obtuvo con \(M=\) \textbf{12} componentes. En prueba, el desempeño fue MSE \textbf{2,389,249} (RMSE \textbf{1,545.7}). Nótese que con 6 componentes se explica aproximadamente el 80.8\% de la varianza en $\mathbf{X}$ y 61.7\% de \texttt{Apps}; con 9 componentes, 91.1\% en $\mathbf{X}$ y 62.7\% en \texttt{Apps}.
+
+\subsection{Inciso f)}
+
+Para PLSR (componentes latentes que maximizan covarianza), la validación cruzada sugirió \(M=\) \textbf{4} componentes. En el conjunto de prueba se obtuvo MSE \textbf{2,457,676} (RMSE \textbf{1,567.7}).
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/m_pcr.png}
+        \caption{Curva de MSEP para PCR.}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figure/m_pls.png}
+        \caption{Curva de MSEP para PLSR.}
+    \end{subfigure}
+    \caption{Selección del número de componentes $M$ mediante validación cruzada.}
+\end{figure}
+
+\subsection{Inciso g)}
+
+En términos de precisión, todos los métodos logran errores de prueba de magnitud similar: RMSE entre \(\approx\) \textbf{1,545} y \textbf{1,600} solicitudes. Dado que el promedio de \texttt{Apps} ronda \(\sim\)\textbf{3,000}, el error típico es del orden de la mitad del promedio, lo que indica capacidad predictiva moderada pero con variabilidad sustancial no explicada. Entre los enfoques, \textbf{PCR (M=12)} y \textbf{Lasso} con \(\lambda_{\min}\) fueron los mejores (MSE \(\approx 2.39\times10^6\)), seguidos de \textbf{Ridge} (ligeramente peor) y \textbf{PLSR}. El modelo lineal MCO quedó rezagado respecto a PCR/Lasso, aunque no por un margen muy grande.
+
+\subsection{Inciso h)}
+
+Una propuesta razonable es utilizar \textbf{Lasso con \(\lambda_{\min}\)}: ofrece un desempeño competitivo (prácticamente el mejor MSE) y además un modelo \textit{parco} con solo 9 predictores, lo que facilita interpretación y despliegue. Usar \(\lambda_{1se}\) reduciría aún más la complejidad, pero en este caso incurre en una pérdida de precisión considerable. Como alternativa si la interpretabilidad de coeficientes es secundaria, \textbf{PCR con \(M=12\)} proporciona un error prácticamente indistinguible del de Lasso. En cualquier caso, se recomienda evaluar con validación cruzada repetida o un esquema de particiones múltiples para estabilizar las estimaciones de error.
+
+Finalmente, el modelo propuesto excluye deliberadamente \texttt{Accept} y \texttt{Enroll} por tratarse de variables que pueden introducir fuga de información. El conjunto de covariables retenido por Lasso incluye factores plausibles desde el punto de vista sustantivo (tamaño de matrícula, cuotas, gasto institucional y tasa de graduación), lo que respalda su uso en la práctica.
 
 
 

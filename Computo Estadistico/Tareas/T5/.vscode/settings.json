@@ -1,5 +1,5 @@
 {
-    "latex-workshop.latex.recipe.default": "Rtex",
+    "latex-workshop.latex.recipe.default": "latexmk",
     "[latex]": {
         "editor.wordWrap": "on",
         "editor.wordWrapColumn": 80,
@@ -10,4 +10,5 @@
         },
         "editor.minimap.enabled": true
     },
+    "r.lsp.promptToInstall": false,
 }

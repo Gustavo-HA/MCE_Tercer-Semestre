@@ -215,11 +215,11 @@ Utilizando el conjunto de datos \texttt{College} disponible en la libreria \text
 
 \subsection{Inciso a)}
 
-Se utilizó el conjunto de datos \texttt{College} y, para evitar fuga de información, se eliminaron las variables \texttt{Accept} y \texttt{Enroll} del análisis, ya que están determinadas después de \texttt{Apps} o están fuertemente condicionadas por ella; incluirlas inflaría artificialmente el desempeño en prueba. Posteriormente, se dividió el conjunto en entrenamiento y prueba usando un \(50\%\) para cada uno (muestra aleatoria con semilla fija).
+Se utilizó el conjunto de datos \texttt{College} y, para evitar data leakage, se eliminaron las variables \texttt{Accept} y \texttt{Enroll} del análisis, ya que están determinadas después de \texttt{Apps} o están fuertemente condicionadas por ella; incluirlas inflaría artificialmente el desempeño en prueba. Posteriormente, se dividió el conjunto en entrenamiento y prueba usando un \(50\%\) para cada uno (muestra aleatoria con semilla fija).
 
 \subsection{Inciso b)}
 
-Se ajustó un modelo lineal utilizando Mínimos Cuadrados Ordinarios (MCO) en el conjunto de entrenamiento, empleando todos los predictores. Las variables que resultaron ser estadísticamente significativas (con $p < 0.1$) en dicho modelo fueron:
+Se ajustó un modelo lineal utilizando Minimos Cuadrados Ordinarios (OLS) en el conjunto de entrenamiento, empleando todos los predictores. Las variables que resultaron ser estadísticamente significativas (con $p < 0.1$) en dicho modelo fueron:
 \begin{itemize}
     \item \texttt{F.Undergrad} ($***$)
     \item \texttt{Room.Board} ($***$)
@@ -232,11 +232,11 @@ mientras que las demás variables no mostraron significancia estadística en el 
 
 \subsection{Inciso c)}
 
-Se ajustó una regresión \textit{ridge} con validación cruzada de 5 pliegues para seleccionar \(\lambda\). El valor \(\lambda_{\min}\) elegido por CV fue \textbf{12.07} (y \(\lambda_{1se}=\) \textbf{4498.43} como alternativa más parsimoniosa). Con \(\lambda_{\min}\), el desempeño en prueba fue: MSE \textbf{2,530,947} (RMSE \textbf{1,590.9}). Con \(\lambda_{1se}\) el error aumentó a MSE \textbf{3,552,978} (RMSE \textbf{1,884.9}).
+Se ajustó una regresión \textit{Ridge} con validación cruzada de 5 pliegues para seleccionar el parámetro de regularización \(\lambda\). El valor de $\lambda$ que minimiza el error \(\lambda_{\min}\) elegido por CV fue \textbf{12.07}, y \(\lambda_{1se}=\) \textbf{4498.43} como alternativa más parsimoniosa (ver Figura \ref{fig:lambda_selection}). Con \(\lambda_{\min}\), el desempeño en prueba fue: MSE \textbf{2,530,947} (RMSE \textbf{1,590.9}). Con \(\lambda_{1se}\) el error aumentó a MSE \textbf{3,552,978} (RMSE \textbf{1,884.9}).
 
 \subsection{Inciso d)}
 
-Se ajustó un modelo \textit{lasso} también con validación cruzada de 5 pliegues. Se obtuvo \(\lambda_{\min}=\) \textbf{86.85} y \(\lambda_{1se}=\) \textbf{1098.54}. Con \(\lambda_{\min}\), el error de prueba fue MSE \textbf{2,395,665} (RMSE \textbf{1,547.8}), y con \(\lambda_{1se}\) el MSE fue \textbf{3,438,634}. El modelo con \(\lambda_{\min}\) seleccionó \textbf{9} coeficientes distintos de cero: \texttt{Top10perc}, \texttt{Top25perc}, \texttt{F.Undergrad}, \texttt{Room.Board}, \texttt{Personal}, \texttt{S.F.Ratio}, \texttt{perc.alumni}, \texttt{Expend} y \texttt{Grad.Rate}.
+Se ajustó un modelo \textit{LASSO} también con validación cruzada de 5 pliegues. Se obtuvo \(\lambda_{\min}=\) \textbf{86.85} y \(\lambda_{1se}=\) \textbf{1098.54}. Con \(\lambda_{\min}\), el error de prueba fue MSE \textbf{2,395,665} (RMSE \textbf{1,547.8}), y con \(\lambda_{1se}\) el MSE fue \textbf{3,438,634}. El modelo con \(\lambda_{\min}\) seleccionó 9 coeficientes distintos de cero, correspondientes a las variables: \texttt{Top10perc}, \texttt{Top25perc}, \texttt{F.Undergrad}, \texttt{Room.Board}, \texttt{Personal}, \texttt{S.F.Ratio}, \texttt{perc.alumni}, \texttt{Expend} y \texttt{Grad.Rate}.
 
 \begin{figure}[H]
     \centering
@@ -250,12 +250,13 @@ Se ajustó un modelo \textit{lasso} también con validación cruzada de 5 pliegu
         \includegraphics[width=\textwidth]{figure/lambda_lasso.png}
         \caption{Selección de $\lambda$ por validación cruzada – Lasso.}
     \end{subfigure}
-    \caption{Comparación de curvas de validación cruzada para la selección de $\lambda$.}
+    \caption{Comparación de curvas de validación cruzada para la selección de $\lambda$. Las líneas verticales indican $\lambda_{\min}$ y $\lambda_{1se}$.}
+    \label{fig:lambda_selection}
 \end{figure}
 
 \subsection{Inciso e)}
 
-Para PCR (componentes principales como regresores), con escalamiento y validación cruzada, el menor MSEP se obtuvo con \(M=\) \textbf{12} componentes. En prueba, el desempeño fue MSE \textbf{2,389,249} (RMSE \textbf{1,545.7}). Nótese que con 6 componentes se explica aproximadamente el 80.8\% de la varianza en $\mathbf{X}$ y 61.7\% de \texttt{Apps}; con 9 componentes, 91.1\% en $\mathbf{X}$ y 62.7\% en \texttt{Apps}.
+Para PCR (componentes principales como regresores), con escalamiento y validación cruzada, el menor MSEP se obtuvo con \(M=\) 12 componentes. En prueba, el desempeño fue MSE \textbf{2,389,249} (RMSE \textbf{1,545.7}). Nótese que con 6 componentes se explica aproximadamente el 80.8\% de la varianza en $\mathbf{X}$ y 61.7\% de \texttt{Apps}; con 9 componentes, 91.1\% en $\mathbf{X}$ y 62.7\% en \texttt{Apps}. Como se espera, aumentar el número de componentes no mejora la explicación de \texttt{Apps} significativamente.
 
 \subsection{Inciso f)}
 
@@ -276,15 +277,39 @@ Para PLSR (componentes latentes que maximizan covarianza), la validación cruzad
     \caption{Selección del número de componentes $M$ mediante validación cruzada.}
 \end{figure}
 
+En esta ocasión, el modelo con 4 componentes explica el 72.01\% de la varianza en \texttt{Apps}, lo que indica que PLSR logra una mejor explicación de la variable respuesta con menos componentes en comparación con PCR.
+
+
+
 \subsection{Inciso g)}
 
-En términos de precisión, todos los métodos logran errores de prueba de magnitud similar: RMSE entre \(\approx\) \textbf{1,545} y \textbf{1,600} solicitudes. Dado que el promedio de \texttt{Apps} ronda \(\sim\)\textbf{3,000}, el error típico es del orden de la mitad del promedio, lo que indica capacidad predictiva moderada pero con variabilidad sustancial no explicada. Entre los enfoques, \textbf{PCR (M=12)} y \textbf{Lasso} con \(\lambda_{\min}\) fueron los mejores (MSE \(\approx 2.39\times10^6\)), seguidos de \textbf{Ridge} (ligeramente peor) y \textbf{PLSR}. El modelo lineal MCO quedó rezagado respecto a PCR/Lasso, aunque no por un margen muy grande.
+Para entender el desempeño de los modelos, debemos entender la variable de respuesta \texttt{Apps}. Esta variable tiene un rango amplio, desde un mínimo de 81 hasta un máximo de 48,094 solicitudes, con un promedio de aproximadamente 3,002 y una mediana de 1,558. La distribución es altamente sesgada a la derecha, con algunas universidades recibiendo un número excepcionalmente alto de solicitudes.
+
+% Resumen de errores de prueba
+\begin{table}[H]
+    \centering
+    \caption{Errores de prueba por modelo}
+    \label{tab:errores-modelos}
+    \begin{tabular}{lrr}
+        \toprule
+        \textbf{Modelo} & \textbf{MSE} & \textbf{RMSE} \\
+        \midrule
+        OLS & 2,551,734 & 1,597.4 \\
+        Ridge ($\lambda_{\min}=12.07$) & 2,530,947 & 1,590.9 \\
+        Lasso ($\lambda_{\min}=86.85$) & 2,395,665 & 1,547.8 \\
+        PCR ($M=12$) & \textbf{2,389,249} & \textbf{1,545.7} \\
+        PLSR ($M=4$) & 2,457,676 & 1,567.7 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+En términos de precisión, todos los métodos logran errores de prueba de magnitud similar: RMSE entre \(\approx\) 1545 y 1600 solicitudes. Dado que el promedio de \texttt{Apps} ronda \(\sim\) $3000$, el error típico es del orden de la mitad del promedio, lo que indica capacidad predictiva moderada pero con variabilidad sustancial no explicada. Entre los enfoques (Cuadro \ref{tab:errores-modelos}), \textbf{PCR (M=12)} y \textbf{Lasso} con \(\lambda_{\min}\) fueron los mejores (MSE \(\approx 2.39\times10^6\)), seguidos de \textbf{Ridge} (ligeramente peor) y \textbf{PLSR}. El modelo lineal MCO quedó rezagado respecto a PCR/Lasso, aunque no por un margen muy grande.
 
 \subsection{Inciso h)}
 
-Una propuesta razonable es utilizar \textbf{Lasso con \(\lambda_{\min}\)}: ofrece un desempeño competitivo (prácticamente el mejor MSE) y además un modelo \textit{parco} con solo 9 predictores, lo que facilita interpretación y despliegue. Usar \(\lambda_{1se}\) reduciría aún más la complejidad, pero en este caso incurre en una pérdida de precisión considerable. Como alternativa si la interpretabilidad de coeficientes es secundaria, \textbf{PCR con \(M=12\)} proporciona un error prácticamente indistinguible del de Lasso. En cualquier caso, se recomienda evaluar con validación cruzada repetida o un esquema de particiones múltiples para estabilizar las estimaciones de error.
+Una propuesta razonable es utilizar \textbf{Lasso con \(\lambda_{\min}\)}: ofrece un desempeño competitivo (prácticamente el mejor MSE) y además un modelo \textit{parco} con solo 9 predictores, lo que facilita interpretación y despliegue. Usar \(\lambda_{1se}\) reduciría aún más la complejidad, pero en este caso incurre en una pérdida de precisión considerable. Como alternativa si la interpretabilidad de coeficientes es secundaria, \textbf{PCR con \(M=12\)} proporciona un error prácticamente indistinguible del de Lasso.
 
-Finalmente, el modelo propuesto excluye deliberadamente \texttt{Accept} y \texttt{Enroll} por tratarse de variables que pueden introducir fuga de información. El conjunto de covariables retenido por Lasso incluye factores plausibles desde el punto de vista sustantivo (tamaño de matrícula, cuotas, gasto institucional y tasa de graduación), lo que respalda su uso en la práctica.
+El conjunto de covariables retenido por Lasso incluye factores plausibles desde el punto de vista sustantivo (tamaño de matrícula, cuotas, gasto institucional y tasa de graduación), lo que respalda su uso en la práctica.
 
 
 
@@ -390,6 +415,53 @@ Supongamos que \(n=2\), \(p=2\), \(x_{11}=x_{12}\), \(x_{21}=x_{22}\). Además, 
 \end{enumerate}
 
 \end{problem}
+
+
+\subsection{Inciso a)}
+
+Bajo las suposiciones $n=2$, $p=2$, $x_{11}=x_{12}$ y $x_{21}=x_{22}$, y además $y_1+y_2=0$ y $x_{12}+x_{22}=0$, el intercepto óptimo es cero. Denotando $s_i=x_{i1}=x_{i2}$, la regresión ridge busca
+\[
+\min_{\beta_1,\beta_2} \sum_{i=1}^2 \big(y_i - \beta_1 x_{i1} - \beta_2 x_{i2}\big)^2 
+\; +\; \lambda\,(\beta_1^2+\beta_2^2)
+\;=\; \min_{\beta_1,\beta_2} \sum_{i=1}^2 \big(y_i - (\beta_1+\beta_2) s_i\big)^2 + \lambda\,(\beta_1^2+\beta_2^2).
+\]
+
+\subsection{Inciso b)}
+
+Sea $\theta = \beta_1+\beta_2$ y $\delta = \beta_1-\beta_2$. Con esta reparametrización,
+\[
+\sum_{i=1}^2 \big(y_i - (\beta_1+\beta_2) s_i\big)^2 = \sum_{i=1}^2 (y_i - \theta s_i)^2,
+\quad \text{y} \quad \beta_1^2+\beta_2^2 = \tfrac{1}{2}(\theta^2+\delta^2).
+\]
+Así, el funcional de ridge queda
+\[ 
+L(\theta,\delta) = \sum_{i=1}^2 (y_i - \theta s_i)^2 + (\lambda/2)(\theta^2+\delta^2),
+\]
+que para $\theta$ fijo es estrictamente creciente en $\delta^2$. Por lo tanto, el mínimo ocurre en $\delta^{\ast}=0$, es decir, $\hat{\beta}_1=\hat{\beta}_2$.
+
+\subsection{Inciso c)}
+
+El problema de optimización para \textit{lasso} bajo las mismas suposiciones es
+\[
+\min_{\beta_1,\beta_2} \sum_{i=1}^2 \big(y_i - (\beta_1+\beta_2) s_i\big)^2 + \lambda\,(|\beta_1|+|\beta_2|).
+\]
+
+\subsection{Inciso d)}
+
+Con $\theta=\beta_1+\beta_2$, la parte de ajuste depende solo de $\theta$, mientras que la penalización \(|\beta_1|+|\beta_2|\) satisface \(|\beta_1|+|\beta_2|\ge |\theta|\) con igualdad cuando $\beta_1$ y $\beta_2$ comparten el signo de $\theta$ (o alguno es cero). Sea $\theta^{\ast}$ el minimizador del problema unidimensional
+\[ \min_{\theta} \sum_{i=1}^2 (y_i - \theta s_i)^2 + \lambda\,|\theta|. \]
+Entonces, todo par $(\hat{\beta}_1,\hat{\beta}_2)$ que cumpla
+\[
+\hat{\beta}_1+\hat{\beta}_2=\theta^{\ast} \quad \text{y} \quad \hat{\beta}_1\,\hat{\beta}_2\ge 0
+\]
+alcanza el mismo valor óptimo: la pérdida de ajuste es idéntica (depende solo de $\theta^{\ast}$) y la penalización vale $|\theta^{\ast}|$. Por tanto, los coeficientes de lasso no son únicos: el conjunto solución es el segmento de recta
+\[
+\big\{(t,\,\theta^{\ast}-t):\; t\in[0,\theta^{\ast}]\big\} \quad \text{si } \theta^{\ast}>0,
+\]
+\[
+\big\{(t,\,\theta^{\ast}-t):\; t\in[\theta^{\ast},0]\big\} \quad \text{si } \theta^{\ast}<0,
+\]
+incluyendo como extremos las soluciones $(\theta^{\ast},0)$ y $(0,\theta^{\ast})$. En el caso límite $\theta^{\ast}=0$, la solución única es $(0,0)$.
 
 
 

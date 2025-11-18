@@ -405,7 +405,7 @@ El conjunto de covariables retenido por Lasso incluye factores plausibles desde 
 \begin{problem}{}
 Es bien sabido que la regresión ridge tiende a dar valores de coeficientes similares a las variables correlacionadas, mientras que lasso puede dar valores de coeficientes totalmente diferentes a las variables correlacionadas. Se explorará esta propiedad en un entorno sencillo.
 
-Supongamos que \(n=2\), \(p=2\), \(x_{11}=x_{12}\), \(x_{21}=x_{22}\). Además, supongamos que \(y_{1}+y_{2}=0\) y \(x_{12}+x_{22}=0\), de modo que la estimación del intercepto en mínimos cuadrados, regresión de Ridge o en el modelo de lasso es cero: \(\hat{\gamma}_{0}=0\).
+Supongamos que \(n=2\), \(p=2\), \(x_{11}=x_{12}\), \(x_{21}=x_{22}\). Además, supongamos que \(y_{1}+y_{2}=0\), \(x_{11}+x_{21}=0\) y \(x_{12}+x_{22}=0\), de modo que la estimación del intercepto en mínimos cuadrados, regresión de Ridge o en el modelo de lasso es cero: \(\hat{\gamma}_{0}=0\).
 
 \begin{enumerate}[a)]
   \item Plantea el problema de la optimización con la regresión ridge bajo estas suposiciones.
@@ -416,52 +416,169 @@ Supongamos que \(n=2\), \(p=2\), \(x_{11}=x_{12}\), \(x_{21}=x_{22}\). Además, 
 
 \end{problem}
 
+Primero, analicemos las condiciones dadas:
+
+\begin{itemize}
+
+\item $n=2, p=2$.
+
+\item $x_{11} = x_{12}$ y $x_{21} = x_{22}$. Esto significa que la columna 1 ($X_1$) y la columna 2 ($X_2$) de la matriz $X$ son idénticas: $X_1 = X_2$. Estamos en un caso de colinealidad perfecta.
+
+\item $y_1 + y_2 = 0$ y $x_{11} + x_{21} = 0$. Dado que $\hat{\gamma}_0 = 0$, esto implica que las variables ($y$, $X_1$, $X_2$) están centradas.
+
+\item Para simplificar, definamos $a = x_{11} = x_{12}$ y $c = y_1$.
+
+\item De las condiciones:
+
+\begin{itemize}
+
+\item $x_{21} = -x_{11} = -a$
+
+\item $x_{22} = -x_{12} = -a$ (consistente con $x_{21} = x_{22}$)
+
+\item $y_2 = -y_1 = -c$
+
+\end{itemize}
+
+\end{itemize}
+
+Nuestros datos son:
+
+$$y = \begin{pmatrix} c \\ -c \end{pmatrix}, \quad X = \begin{pmatrix} a & a \\ -a & -a \end{pmatrix}$$
+
+La suma de cuadrados residuales (RSS) es:
+
+$$RSS(\beta_1, \beta_2) = \sum_{i=1}^{2} (y_i - x_{i1}\beta_1 - x_{i2}\beta_2)^2$$
+
+$$RSS = (y_1 - (x_{11}\beta_1 + x_{12}\beta_2))^2 + (y_2 - (x_{21}\beta_1 + x_{22}\beta_2))^2$$
+
+Sustituyendo nuestros valores:
+
+\begin{align*}
+    RSS &= (c - (a\beta_1 + a\beta_2))^2 + (-c - (-a\beta_1 - a\beta_2))^2 \\
+    RSS &= (c - a(\beta_1 + \beta_2))^2 + (-c + a(\beta_1 + \beta_2))^2 \\
+    RSS &= (c - a(\beta_1 + \beta_2))^2 + (-(c - a(\beta_1 + \beta_2)))^2 \\
+    RSS &= 2(c - a(\beta_1 + \beta_2))^2
+\end{align*}
+
+
+Como podemos ver, el RSS solo depende de la suma de los coeficientes, $S = \beta_1 + \beta_2$.
 
 \subsection{Inciso a)}
 
-Bajo las suposiciones $n=2$, $p=2$, $x_{11}=x_{12}$ y $x_{21}=x_{22}$, y además $y_1+y_2=0$ y $x_{12}+x_{22}=0$, el intercepto óptimo es cero. Denotando $s_i=x_{i1}=x_{i2}$, la regresión ridge busca
-\[
-\min_{\beta_1,\beta_2} \sum_{i=1}^2 \big(y_i - \beta_1 x_{i1} - \beta_2 x_{i2}\big)^2 
-\; +\; \lambda\,(\beta_1^2+\beta_2^2)
-\;=\; \min_{\beta_1,\beta_2} \sum_{i=1}^2 \big(y_i - (\beta_1+\beta_2) s_i\big)^2 + \lambda\,(\beta_1^2+\beta_2^2).
-\]
+La regresión ridge busca minimizar el RSS más una penalización L2:
+
+$$\min_{\beta} \left\{ \sum_{i=1}^{n} (y_i - x_i^T \beta)^2 + \lambda \sum_{j=1}^{p} \beta_j^2 \right\}$$
+
+Bajo las suposiciones dadas y con $\hat{\gamma}_0=0$, el problema de optimización para $\beta_1$ y $\beta_2$ es:
+
+$$\min_{\beta_1, \beta_2} \left\{ (y_1 - x_{11}\beta_1 - x_{12}\beta_2)^2 + (y_2 - x_{21}\beta_1 - x_{22}\beta_2)^2 + \lambda (\beta_1^2 + \beta_2^2) \right\}$$
+
+Sustituyendo la forma simplificada del RSS que encontramos:
+
+$$\min_{\beta_1, \beta_2} \left\{ 2(c - a(\beta_1 + \beta_2))^2 + \lambda (\beta_1^2 + \beta_2^2) \right\}$$
+
+(Donde $c=y_1$ y $a=x_{11}$).
 
 \subsection{Inciso b)}
 
-Sea $\theta = \beta_1+\beta_2$ y $\delta = \beta_1-\beta_2$. Con esta reparametrización,
-\[
-\sum_{i=1}^2 \big(y_i - (\beta_1+\beta_2) s_i\big)^2 = \sum_{i=1}^2 (y_i - \theta s_i)^2,
-\quad \text{y} \quad \beta_1^2+\beta_2^2 = \tfrac{1}{2}(\theta^2+\delta^2).
-\]
-Así, el funcional de ridge queda
-\[ 
-L(\theta,\delta) = \sum_{i=1}^2 (y_i - \theta s_i)^2 + (\lambda/2)(\theta^2+\delta^2),
-\]
-que para $\theta$ fijo es estrictamente creciente en $\delta^2$. Por lo tanto, el mínimo ocurre en $\delta^{\ast}=0$, es decir, $\hat{\beta}_1=\hat{\beta}_2$.
+El argumento se basa en la \textbf{simetría} de la función objetivo de ridge y la \textbf{unicidad} de la penalización L2.
+
+\begin{enumerate}
+
+\item \textbf{Simetría:} Sea la función objetivo $L_{Ridge}(\beta_1, \beta_2) = 2(c - a(\beta_1 + \beta_2))^2 + \lambda (\beta_1^2 + \beta_2^2)$.
+
+\begin{itemize}
+
+\item El término RSS, $2(c - a(\beta_1 + \beta_2))^2$, es simétrico respecto a $\beta_1$ y $\beta_2$. Si los intercambiamos, el valor no cambia.
+
+\item El término de penalización, $\lambda (\beta_1^2 + \beta_2^2)$, también es simétrico.
+
+\item Por lo tanto, la función objetivo total $L_{Ridge}(\beta_1, \beta_2)$ es simétrica.
+
+\end{itemize}
+
+\item \textbf{Unicidad del Mínimo:} Para $\lambda > 0$, la función $L_{Ridge}$ es estrictamente convexa. Esto se debe a que la penalización L2 (una esfera) es estrictamente convexa. Esto garantiza que existe un \textit{único} mínimo global $(\hat{\beta}_1, \hat{\beta}_2)$.
+
+\end{enumerate}
+
+Dado que la función es simétrica y tiene un único mínimo, el minimizador en sí debe ser simétrico, lo que implica $\hat{\beta}_1 = \hat{\beta}_2$.
 
 \subsection{Inciso c)}
 
-El problema de optimización para \textit{lasso} bajo las mismas suposiciones es
-\[
-\min_{\beta_1,\beta_2} \sum_{i=1}^2 \big(y_i - (\beta_1+\beta_2) s_i\big)^2 + \lambda\,(|\beta_1|+|\beta_2|).
-\]
+La regresión lasso busca minimizar el RSS más una penalización L1:
+
+$$\min_{\beta} \left\{ \sum_{i=1}^{n} (y_i - x_i^T \beta)^2 + \lambda \sum_{j=1}^{p} |\beta_j| \right\}$$
+
+Bajo las suposiciones dadas:
+
+$$\min_{\beta_1, \beta_2} \left\{ (y_1 - x_{11}\beta_1 - x_{12}\beta_2)^2 + (y_2 - x_{21}\beta_1 - x_{22}\beta_2)^2 + \lambda (|\beta_1| + |\beta_2|) \right\}$$
+
+Sustituyendo la forma simplificada del RSS:
+
+$$\min_{\beta_1, \beta_2} \left\{ 2(c - a(\beta_1 + \beta_2))^2 + \lambda (|\beta_1| + |\beta_2|) \right\}$$
 
 \subsection{Inciso d)}
 
-Con $\theta=\beta_1+\beta_2$, la parte de ajuste depende solo de $\theta$, mientras que la penalización \(|\beta_1|+|\beta_2|\) satisface \(|\beta_1|+|\beta_2|\ge |\theta|\) con igualdad cuando $\beta_1$ y $\beta_2$ comparten el signo de $\theta$ (o alguno es cero). Sea $\theta^{\ast}$ el minimizador del problema unidimensional
-\[ \min_{\theta} \sum_{i=1}^2 (y_i - \theta s_i)^2 + \lambda\,|\theta|. \]
-Entonces, todo par $(\hat{\beta}_1,\hat{\beta}_2)$ que cumpla
-\[
-\hat{\beta}_1+\hat{\beta}_2=\theta^{\ast} \quad \text{y} \quad \hat{\beta}_1\,\hat{\beta}_2\ge 0
-\]
-alcanza el mismo valor óptimo: la pérdida de ajuste es idéntica (depende solo de $\theta^{\ast}$) y la penalización vale $|\theta^{\ast}|$. Por tanto, los coeficientes de lasso no son únicos: el conjunto solución es el segmento de recta
-\[
-\big\{(t,\,\theta^{\ast}-t):\; t\in[0,\theta^{\ast}]\big\} \quad \text{si } \theta^{\ast}>0,
-\]
-\[
-\big\{(t,\,\theta^{\ast}-t):\; t\in[\theta^{\ast},0]\big\} \quad \text{si } \theta^{\ast}<0,
-\]
-incluyendo como extremos las soluciones $(\theta^{\ast},0)$ y $(0,\theta^{\ast})$. En el caso límite $\theta^{\ast}=0$, la solución única es $(0,0)$.
+A diferencia de Ridge, la penalización L1 no produce un mínimo único en este escenario. El argumento es el siguiente:
+
+\begin{enumerate}
+
+\item \textbf{Descomposición del Problema:} Al igual que con Ridge, podemos descomponer el problema. Sea $S = \beta_1 + \beta_2$.
+
+$$\min_{S} \left\{ 2(c - aS)^2 + \min_{\beta_1+\beta_2=S} \left( \lambda (|\beta_1| + |\beta_2|) \right) \right\}$$
+
+\item \textbf{Problema Interno (Penalización L1):} Consideremos el problema interno $\min (|\beta_1| + |\beta_2|)$ sujeto a $\beta_1+\beta_2=S$.
+
+\begin{itemize}
+
+    \item El valor mínimo de esta penalización es $\lambda |S|$.
+
+    \item Sin embargo, este mínimo \textbf{no es único}. Se alcanza para \textit{cualquier} par $(\beta_1, \beta_2)$ tal que $\beta_1 + \beta_2 = S$ y $\beta_1 \cdot \beta_2 \ge 0$ (es decir, $\beta_1$ y $\beta_2$ tienen el mismo signo o uno es cero).
+
+    \item Por ejemplo, si $S=5$, el mínimo de penalización (5) se alcanza en $(5, 0)$, $(0, 5)$, $(2, 3)$, $(4, 1)$, etc.
+
+\end{itemize}
+
+
+
+\item \textbf{Problema Externo (Encontrar $\hat{S}$):} El problema se reduce a encontrar la \textit{suma} óptima $\hat{S}$ minimizando:
+
+$$\min_{S} \left\{ 2(c - aS)^2 + \lambda |S| \right\}$$
+
+Este es un problema de optimización 1D (un "Lasso 1D") que tiene una solución \textbf{única} para la suma, $\hat{S}$. Esta solución $\hat{S}$ es el resultado de aplicar \textit{soft-thresholding} a la solución OLS ($S_{OLS} = c/a$).
+
+
+
+\item \textbf{Descripción de las Soluciones:}
+
+Una vez que se encuentra el valor único $\hat{S}$, la solución $(\hat{\beta}_1, \hat{\beta}_2)$ es \textit{cualquier} par que cumpla:
+
+\begin{enumerate}
+
+    \item $\hat{\beta}_1 + \hat{\beta}_2 = \hat{S}$
+
+    \item $|\hat{\beta}_1| + |\hat{\beta}_2| = |\hat{S}|$
+
+\end{enumerate}
+
+
+
+Esto describe un conjunto de soluciones (un cojunto convexo):
+
+\begin{itemize}
+
+    \item \textbf{Si $\hat{S} > 0$:} El conjunto de soluciones es el segmento de línea que conecta $(\hat{S}, 0)$ y $(0, \hat{S})$. Es decir, todos los puntos $(\beta_1, \hat{S}-\beta_1)$ para $\beta_1 \in [0, \hat{S}]$.
+
+    \item \textbf{Si $\hat{S} < 0$:} El conjunto de soluciones es el segmento de línea que conecta $(\hat{S}, 0)$ y $(0, \hat{S})$. Es decir, todos los puntos $(\beta_1, \hat{S}-\beta_1)$ para $\beta_1 \in [\hat{S}, 0]$.
+
+    \item \textbf{Si $\hat{S} = 0$:} (Es decir, si $\lambda$ es suficientemente grande), la solución es única: $(\hat{\beta}_1, \hat{\beta}_2) = (0, 0)$.
+
+\end{itemize}
+
+\end{enumerate}
+
+En resumen, mientras que Ridge (L2) identifica la solución simétrica $\hat{\beta}_1 = \hat{\beta}_2$ como la única óptima para una suma dada, Lasso (L1) considera que \textit{todas} las soluciones en el mismo signo (incluyendo las soluciones \textit{sparse} como $(\hat{S}, 0)$ o $(0, \hat{S})$) son igualmente óptimas.
 
 
 

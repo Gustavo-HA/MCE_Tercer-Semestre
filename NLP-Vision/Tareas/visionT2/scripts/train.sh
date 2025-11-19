@@ -3,7 +3,6 @@
 #SBATCH --job-name=CNNs_Training
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --gpus=1
 #SBATCH --time=10:00:00
 #SBATCH --mem=0
 

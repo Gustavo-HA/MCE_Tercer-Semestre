@@ -1,0 +1,20 @@
+\babel@toc {spanish}{}\relax 
+\contentsline {section}{\numberline {1}Ejercicio 1: }{3}{problemcounter.1}%
+\contentsline {subsection}{\numberline {1.1}Inciso a): Escala C-Mayor}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Inciso b): Escala C-Menor}{4}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Ejercicio 2: }{5}{problemcounter.2}%
+\contentsline {subsection}{\numberline {2.1}Inciso a)}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Inciso b)}{6}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Ejercicio 3: }{7}{problemcounter.3}%
+\contentsline {subsection}{\numberline {3.1}Inciso a)}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Inciso b)}{7}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Inciso c)}{8}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Ejercicio 4: }{11}{problemcounter.4}%
+\contentsline {subsection}{\numberline {4.1}Inciso a)}{11}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Inciso b)}{13}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Representación numérica de las obras.}{13}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Random Forest}{13}{subsubsection.4.2.2}%
+\contentsline {section}{\numberline {5}Ejercicio 5: }{15}{problemcounter.5}%
+\contentsline {subsection}{\numberline {5.1}Oramics}{15}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Entendiendo Oramics a través del Curso}{15}{subsection.5.2}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

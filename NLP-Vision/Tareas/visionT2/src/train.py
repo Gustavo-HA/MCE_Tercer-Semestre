@@ -11,13 +11,13 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 
 # Model imports (matching existing file names/classes)
-from src.cnns.lenet5 import LeNet5
-from src.cnns.alexnet import AlexNet
-from src.cnns.vgg import VGG16
-from src.cnns.inception import GoogLeNet
-from src.cnns.movilenet import MobileNet_1_0
-from src.cnns.movilenetv2 import MobileNetV2_1_0
-from src.cnns.restnet import ResNet18
+from cnns.lenet5 import LeNet5
+from cnns.alexnet import AlexNet
+from cnns.vgg import VGG16
+from cnns.inception import GoogLeNet
+from cnns.movilenet import MobileNet_1_0
+from cnns.movilenetv2 import MobileNetV2_1_0
+from cnns.restnet import ResNet18
 
 
 # ---------- Data utilities ----------

@@ -257,46 +257,83 @@ Para realizar la selección de subconjuntos utilizando la función \texttt{regsu
 \end{kframe}
 \end{knitrout}
 
-Luego, aplicamos la función \texttt{regsubsets()} para realizar la selección de subconjuntos y analizamos los resultados utilizando AIC, BIC y \(R^2\) ajustado.
+Luego, aplicamos la función \texttt{regsubsets()} para realizar la selección de subconjuntos y analizamos los resultados utilizando BIC y \(R^2\) ajustado.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-    \hldef{regfit.full} \hlkwb{<-} \hlkwd{regsubsets}\hldef{(Y} \hlopt{~} \hldef{.,} \hlkwc{data} \hldef{= data,} \hlkwc{nvmax} \hldef{=} \hlnum{10}\hldef{)}
+    \hldef{regfit.full} \hlkwb{<-} \hlkwd{regsubsets}\hldef{(Y} \hlopt{~} \hldef{.,} \hlkwc{data} \hldef{= data,} \hlkwc{nbest}\hldef{=}\hlnum{252}\hldef{,} \hlkwc{really.big}\hldef{=T,} \hlkwc{nvmax}\hldef{=}\hlnum{10}\hldef{)}
     \hldef{reg.summary} \hlkwb{<-} \hlkwd{summary}\hldef{(regfit.full)}
 
-    \hlcom{# AIC, BIC y R^2 ajustado}
-    \hldef{aic_values} \hlkwb{<-} \hldef{reg.summary}\hlopt{$}\hldef{bic} \hlopt{+} \hlnum{2} \hlopt{*} \hldef{(}\hlnum{1}\hlopt{:}\hlnum{10}\hldef{)} \hlcom{# AIC approximation}
-    \hlkwd{cat}\hldef{(aic_values)}
-\end{alltt}
-\begin{verbatim}
-## -661.931 -850.7434 -849.675 -843.0792 -837.0971 -832.1326 -826.2726 -820.1073 -813.8585 -807.8952
-\end{verbatim}
-\begin{alltt}
+    \hlcom{# BIC y R^2 ajustado}
     \hldef{bic_values} \hlkwb{<-} \hldef{reg.summary}\hlopt{$}\hldef{bic}
-    \hlkwd{cat}\hldef{(bic_values)}
+    \hldef{adjr2_values} \hlkwb{<-} \hldef{reg.summary}\hlopt{$}\hldef{adjr2}
 \end{alltt}
-\begin{verbatim}
-## -663.931 -854.7434 -855.675 -851.0792 -847.0971 -844.1326 -840.2726 -836.1073 -831.8585 -827.8952
-\end{verbatim}
-\begin{alltt}
-    \hldef{adjr2_values} \hlkwb{<-} \hldef{reg.summary}\hlopt{$}\hldef{adjr2} \hlcom{#$}
-    \hlkwd{cat}\hldef{(adjr2_values)}
-\end{alltt}
-\begin{verbatim}
-## 0.998795 0.9998275 0.9998351 0.9998334 0.9998327 0.9998336 0.999833 0.999832 0.9998307 0.9998299
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
+La función regsubsets nos permite evaluar todos los modelos posibles con hasta 10 predictores, también se introduce el parámetro \texttt{nbest} para obtener los mejores modelos de cada tamaño (hace la busqueda sobre todos los modelos posibles). La función no regresa valores para el AIC directamente.
+
+Bajo ambos criterios, obtenemos que el modelo lineal $$ Y = \beta_0 + \beta_1 X^2 + \beta_2 X^5 + \beta_3 X^7 + \epsilon $$ es el mejor modelo seleccionado. Los coeficientes estimados son:
+\begin{align}
+    \hat{\beta}_0 & = 12.24 \\
+    \hat{\beta}_1 & = -7.399 \\
+    \hat{\beta}_2 & = 8.553\times10^{-4} \\
+    \hat{\beta}_3 & = 3.832\times10^{-7}
+\end{align}
+
+En la figura \ref{fig:comparar_modelo} se muestra la comparación entre los valores reales de \texttt{Y} y los valores predichos por el modelo seleccionado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figure/p1_compare.pdf}
+    \caption{Comparación entre los valores reales de \texttt{Y} y los valores predichos por el modelo seleccionado. La curva roja representa el modelo seleccionado, mientras que la curva verde representa la función original.}
+    \label{fig:comparar_modelo}
+\end{figure}
 
 
+\subsection{Inciso c)}
 
+Realizando el mismo procedimiento utilizando la selección forward stepwise y backward stepwise obtenemos resultados que se resumen en las gráficas de las figuras \ref{fig:forward_stepwise} y \ref{fig:backward_stepwise}.
+
+En el caso de la selección forward stepwise, ambas métricas sugieren diferentes modelos óptimos:
+
+\begin{align}
+    \text{BIC: } & Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \beta_4 X^9 + \beta_5 X^{10} +  \epsilon \\
+    \text{R}^2 \text{ ajustado: } & Y = \beta_0 + \beta_1 X^{10} + \epsilon
+\end{align}
+
+Observando la figura \ref{fig:forward_stepwise}, notamos que el modelo obtenido usando el criterio del $R^2$ ajustado es considerablemente más simple que el modelo sugerido por el BIC, sin embargo, obtiene terribles predicciones para los datos simulados. Mientras que el modelo sugerido por el BIC se acerca mucho más a la función original.
+
+
+En el caso de la selección backward stepwise, ambas métricas nuevamente sugieren diferentes modelos óptimos:
+
+\begin{align}
+    \text{BIC: } & Y = \beta_0 + \beta_1 X^4 + \beta_2 X^5 + \beta_3 X^6 + \beta_4 X^7 + \beta_5 X^8 +  \epsilon \\
+    \text{R}^2 \text{ ajustado: } & Y = \beta_0 + \beta_1 X^5 + \epsilon
+\end{align}
+
+Nuevamente (figura \ref{fig:backward_stepwise}), la métrica $R^2$ ajustado sugiere un modelo mucho más simple que la métrica BIC. Y nuevamente, el modelo BIC predice mucho mejor los datos simulados que el modelo sugerido por el $R^2$ ajustado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figure/p1_forward_compare.pdf}
+    \caption{Selección forward stepwise: BIC y \(R^2\) ajustado para diferentes tamaños de modelo.}
+    \label{fig:forward_stepwise}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figure/p1_backward_compare.pdf}
+    \caption{Selección backward stepwise: BIC y \(R^2\) ajustado para diferentes tamaños de modelo.}
+    \label{fig:backward_stepwise}
+\end{figure}
 
 
 \newpage
-\begin{problem}
-  Se ha visto que a medida que aumenta el número de características de un modelo, el error de entrenamiento disminuirá necesariamente, pero el error de prueba puede que no. Explorar esto con datos simulados.
+\begin{problem}{}
+Se ha visto que a medida que aumenta el número de características de un modelo, el error de entrenamiento disminuirá necesariamente, pero el error de prueba puede que no. Explorar esto con datos simulados.
 
   \begin{enumerate}[a)]
     \item Genera un conjunto de datos con $p=20$ características, $n=1000$ observaciones y un vector de respuesta cuantitativo generado de acuerdo con el modelo
@@ -308,13 +345,68 @@ Luego, aplicamos la función \texttt{regsubsets()} para realizar la selección d
     \item Divide los datos en un conjunto de entrenamiento con 100 observaciones y otro de prueba con 900 observaciones.
     \item Realiza la selección del mejor \textit{subconjunto} sobre el conjunto de entrenamiento y grafica el error de entrenamiento MSE asociado con el mejor modelo en cada tamaño.
     \item Gráfica el error de prueba MSE asociado con el mejor modelo de cada tamaño.
+    \item ¿Para qué tamaño de modelo el error de prueba es mínimo? Comenta tus resultados. Si toma su valor mínimo en un modelo que sólo contiene una interceptación o un modelo que contenga todas las características, entonces juega con la forma en la que estás generando los datos en (a) hasta que aparezca un escenario en el que el error de prueba MSE se minimiza para un tamaño de modelo intermedio.
+    \item ¿Cómo se compara el modelo con el que se minimiza el error de prueba con el modelo verdadero utilizado para generar los datos? Comenta sobre los valores de los coeficientes.
   \end{enumerate}
 \end{problem}
 
+\subsection{Inciso a) y b)}
 
-\newpage
-\bibliographystyle{unsrt} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
-\bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+Se generó un conjunto de datos con $n=1000$ observaciones y $p=20$ características, donde el vector de coeficientes \(\beta\) tiene algunos elementos iguales a cero. La respuesta $Y$ se generó según el modelo especificado con $\epsilon \sim N(0,1)$.
+
+Para crear un modelo parsimonioso, el vector \(\beta\) se definió de tal manera que solo 5 de los 20 predictores tuvieran una relación real con $Y$:
+
+\begin{verbatim}
+--- (f) Comparación de Coeficientes ---
+Modelo Verdadero (k = 5 predictores):
+    Predictor Coeficiente
+1        X2         2.5
+2        X5        -1.5
+3        X8         1.0
+4       X13         0.8
+5       X19        -2.0
+\end{verbatim}
+
+Posteriormente, el conjunto de datos se dividió en un conjunto de entrenamiento con 100 observaciones y otro de prueba con 900 observaciones.
+
+Se utilizó un conjunto de entrenamiento pequeño (100 observaciones) frente al número de predictores para ilustrar mejor el riesgo de overfitting.
+
+\subsection{Inciso c), d) y e)}
+
+Se aplicó la selección de los mejores subconjuntos sobre le conjunto de entrenamiento. Para cada tamaño de modelo $k$, se calculó el MSE tanto en el conjunto de entrenamiento como en el conjunto de prueba.
+
+La figura \ref{fig:p2_compara_error} muestra el MSE de entrenamiento y prueba para los modelos seleccionados de diferentes tamaños. De la figura se desprenden varias observaciones clave:
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figure/problema2_mse_comparacion.png}
+    \caption{Comparación del MSE de entrenamiento (Azul) y prueba (Rojo) para diferentes tamaños de modelo.}
+    \label{fig:p2_compara_error}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{MSE de Entrenamiento:} Como se esperaba teóricamente, el MSE de entrenamiento disminuye monótonamente. Al añadir más predictores (aumentar $k$), el modelo se ajusta cada vez mejor a los datos de entrenamiento, incluso si los predictores añadidos son solo ruido.
+
+    \item \textbf{MSE de Prueba:} Esta curva muestra el comportamiento que buscamos optimizar. El MSE de prueba disminuye drásticamente hasta $k = 5$, y a partir de ahí, comienza a aumentar ligeramente. Este aumento se debe al sobreajuste: el modelo con $k > 5$ comienza a ```memorizar'' el ruido específico del conjunto de entrenamiento, perdiendo su capacidad de generalizar a datos nuevos (el conjunto de prueba).
+\end{itemize}
+
+Tal como se observa en la Figura 0.3, el error de prueba MSE toma su valor mínimo en el modelo con $k = 5$ predictores, alcanzando un $MSE_{min} \approx 1.078$.
+
+\subsection{Inciso f)}
+
+El análisis del MSE de prueba seleccionó un modelo de $k = 5$. El siguiente paso es comparar los predictores de este modelo óptimo con los del modelo verdadero que definimos en el inciso (a).
+
+\begin{verbatim}
+--- (f) Comparación de Coeficientes ---
+Coeficientes del Mejor Modelo (k = 5) según MSE de prueba:
+(Intercept)     X2          X5          X8          X13         X19
+ 0.1466304   2.5157327  -1.2849200   0.9396147   0.9437212  -2.0895941
+\end{verbatim}
+
+
+El resultado es notablemente preciso. El método de selección de los mejores subconjuntos, guiado por el MSE de prueba, identificó exactamente los 5 predictores correctos ($X_2, X_5, X_8, X_{13}, X_{19}$) y excluyó a los 15 predictores que eran ruido.
+
+Los coeficientes estimados son muy cercanos a los valores verdaderos (ej. $X_2$: 2.515 vs 2.5 real; $X_{19}$: -2.089 vs -2.0 real). Las pequeñas diferencias se deben al ruido $\epsilon$ en los datos y al hecho de que el modelo se entrenó con una muestra relativamente pequeña ($n = 100$) de los datos.
 
 
 \end{document}

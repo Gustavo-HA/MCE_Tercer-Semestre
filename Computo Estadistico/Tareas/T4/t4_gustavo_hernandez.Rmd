@@ -9,7 +9,7 @@ output:
     latex_engine: xelatex
 ---
 
-
+ 
 Generación de datos simulados y aplicación de los métodos de selección de subconjuntos.
 
 \begin{enumerate}

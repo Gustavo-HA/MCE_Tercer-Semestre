@@ -219,6 +219,7 @@ Clases/
 mlartifacts/
 model/
 mlruns/
+outputs/
 models/
 logs/
 unsloth_compiled_cache/

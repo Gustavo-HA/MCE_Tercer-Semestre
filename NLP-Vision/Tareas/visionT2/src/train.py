@@ -10,7 +10,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 
-# Model imports (matching existing file names/classes)
+# Model imports
 from cnns.lenet5 import LeNet5
 from cnns.alexnet import AlexNet
 from cnns.vgg import VGG16

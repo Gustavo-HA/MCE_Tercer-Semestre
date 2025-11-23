@@ -1,0 +1,4 @@
+/mlruns
+/outputs
+/data
+.dvc/config

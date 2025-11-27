@@ -1,0 +1,898 @@
+% !TeX recipe = Rtex
+% Optimizado para compilación rápida
+\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}\usepackage[]{graphicx}\usepackage[]{xcolor}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+% Modifications to layout
+\usepackage[shortlabels]{enumitem} % Incisos
+
+\newcommand{\RNum}[1]{\footnotesize\uppercase\expandafter{\romannumeral #1\relax\normalsize}} % Roman numbers
+
+\usepackage{subcaption} % 2x2 graphs
+\usepackage{mwe}
+
+\usepackage{float} % [H] in graphics
+
+\usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
+
+
+\usepackage{booktabs,siunitx,listings}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{theorems}
+\usepackage{cleveref}
+
+% Typography and layout packages
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{xcolor}
+\usepackage[spanish,es-nodecimaldot]{babel} % Language and hyphenation
+\usepackage{amsmath, amsfonts, amsthm, amssymb} % Math packages
+\newtheorem{definition}{Definición} % definition
+\usepackage{fancyvrb}
+\usepackage{sectsty} % Customize section commands
+\usepackage{geometry} % Modify margins
+\usepackage{titlesec} % Customize section titles
+\geometry{margin=3cm,top=2.5cm,bottom=2.5cm} % Simplified geometry
+\allsectionsfont{\centering \normalfont\scshape} % Center and style section titles
+
+% Header and footer customization
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead[L]{\slshape} % Remove section title from header
+\fancyhead[C]{} % Header center
+\fancyhead[R]{\thepage} % Header right with page number
+\fancyfoot[L]{} % Footer left
+\fancyfoot[C]{} % Footer center
+\fancyfoot[R]{\small \slshape Gustavo Hernández Angeles} % Footer right
+\renewcommand{\headrulewidth}{0.4pt} % Header rule
+\renewcommand{\footrulewidth}{0.4pt} % Footer rule
+\setlength{\headheight}{14.5pt} % Header height
+
+
+
+% Paragraph settings
+\setlength\parindent{0pt}
+\setlength{\parskip}{1ex}
+
+% Section spacing
+\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
+
+% --- Theorems, lemma, corollary, postulate, definition ---
+\definecolor{Pantone209C}{HTML}{64293e}
+
+\newcounter{problemcounter}
+
+\numberwithin{equation}{problemcounter} % Number equations within problems
+\numberwithin{figure}{problemcounter} % Number figures within problems
+\numberwithin{table}{problemcounter} % Number tables within problems
+\numberwithin{subsection}{problemcounter} 
+
+\newtcbtheorem[auto counter]{problem}{Ejercicio}{
+    enhanced,
+    breakable,
+    colback = gray!5,
+    colframe = gray!5,
+    boxrule = 0.5pt,
+    sharp corners,
+    borderline west = {2mm}{0mm}{Pantone209C},
+    fonttitle = \bfseries\sffamily,
+    coltitle = Pantone209C,
+    drop fuzzy shadow,
+    parbox = false,
+    before skip = 3ex,
+    after skip = 3ex
+}{problem}
+\makeatletter
+\renewenvironment{problem}[2][]{%
+    \refstepcounter{problemcounter}%
+    \addcontentsline{toc}{section}{\protect\numberline{\theproblemcounter}Ejercicio \theproblemcounter: #2}%
+    \begin{tcolorbox}[
+        enhanced,
+        breakable,
+        colback = gray!5,
+        colframe = gray!5,
+        boxrule = 0.5pt,
+        sharp corners,
+        borderline west = {2mm}{0mm}{Pantone209C},
+        fonttitle = \bfseries\sffamily,
+        coltitle = Pantone209C,
+        drop fuzzy shadow,
+        parbox = false,
+        before skip = 3ex,
+        after skip = 3ex,
+        title={Ejercicio \theproblemcounter: #2}
+    ]
+}{%
+    \end{tcolorbox}
+}
+\makeatother
+
+
+
+
+\tcbuselibrary{skins, breakable}
+% Custom command for a horizontal rule
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} 
+
+% Custom section titles
+\titleformat{\section}
+{\normalfont\Large\bfseries}{}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Title and author
+\title{	
+    \begin{center}
+        \includegraphics[width=3cm]{cimat-logo.png} % Adjust size as needed
+    \end{center}
+    \vspace{0.5cm}
+    \normalfont \normalsize 
+    \textbf{\Large   Centro de Investigación en Matemáticas} \\
+    \Large Unidad Monterrey \\ [25pt] 
+    \horrule{1pt} \\[0.4cm] % Thin top horizontal rule
+    \huge Cómputo Estadístico\\
+    \huge Examen 1 \\ 
+    \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{\large Gustavo Hern\'andez Angeles}    
+
+\date{\normalsize\today} % Today's date
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+\maketitle % Print the title
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 1 %%%%%%%%%%%
+\begin{problem}{}
+Se tiene la siguiente tabla donde se eligen varios niveles de ronquidos y se ponen en relación con una enfermedad cardíaca. Se toman como puntuaciones relativas de ronquidos los valores \(\{0,2,4,5\}\).
+
+\begin{center}
+\begin{tabular}{lrrr}
+\hline
+Ronquido & SI & NO & Proporción de SI \\
+\hline
+(0) Nunca & 24 & 1355 & 0.017 \\
+(2) Ocasional & 35 & 603 & 0.055 \\
+(4) Casi cada noche & 21 & 192 & 0.099 \\
+(5) Cada noche & 30 & 224 & 0.118 \\
+\hline
+\end{tabular}
+\end{center}
+
+Ajuste un modelo logit y un modelo probit a estos datos e interprete los resultados.
+Compare los dos modelos y determine cuál es mejor.
+\end{problem}
+
+
+\subsection{\textbf{Solución:}}
+
+Primero construimos los datos en un dataframe de \texttt{R}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{ronq} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0}\hldef{,} \hlnum{2}\hldef{,} \hlnum{4}\hldef{,} \hlnum{5}\hldef{)}
+\hldef{SI} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{24}\hldef{,} \hlnum{35}\hldef{,} \hlnum{21}\hldef{,} \hlnum{30}\hldef{)}
+\hldef{NO} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{1355}\hldef{,} \hlnum{603}\hldef{,} \hlnum{192}\hldef{,} \hlnum{224}\hldef{)}
+\hldef{df} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{ronq} \hldef{= ronq,} \hlkwc{SI} \hldef{= SI,} \hlkwc{NO} \hldef{= NO)}
+\hldef{df}\hlopt{$}\hldef{N} \hlkwb{<-} \hldef{df}\hlopt{$}\hldef{SI} \hlopt{+} \hldef{df}\hlopt{$}\hldef{NO}
+\hldef{df}\hlopt{$}\hldef{prop} \hlkwb{<-} \hldef{df}\hlopt{$}\hldef{SI} \hlopt{/} \hldef{df}\hlopt{$}\hldef{N}
+\hlkwd{print}\hldef{(df)}
+\end{alltt}
+\begin{verbatim}
+##   ronq SI   NO    N       prop
+## 1    0 24 1355 1379 0.01740392
+## 2    2 35  603  638 0.05485893
+## 3    4 21  192  213 0.09859155
+## 4    5 30  224  254 0.11811024
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Ajustamos ambos modelos (logit y probit) e imprimimos los resúmenes.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{m_logit} \hlkwb{<-} \hlkwd{glm}\hldef{(}\hlkwd{cbind}\hldef{(SI, NO)} \hlopt{~} \hldef{ronq,} \hlkwc{data} \hldef{= df,} \hlkwc{family} \hldef{=} \hlkwd{binomial}\hldef{(}\hlkwc{link} \hldef{=} \hlsng{"logit"}\hldef{))}
+\hldef{m_probit} \hlkwb{<-} \hlkwd{glm}\hldef{(}\hlkwd{cbind}\hldef{(SI, NO)} \hlopt{~} \hldef{ronq,} \hlkwc{data} \hldef{= df,} \hlkwc{family} \hldef{=} \hlkwd{binomial}\hldef{(}\hlkwc{link} \hldef{=} \hlsng{"probit"}\hldef{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Veamos el resumen del modelo logit.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{print}\hldef{(}\hlkwd{summary}\hldef{(m_logit))}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = cbind(SI, NO) ~ ronq, family = binomial(link = "logit"), 
+##     data = df)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept) -3.86625    0.16621 -23.261  < 2e-16 ***
+## ronq         0.39734    0.05001   7.945 1.94e-15 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 65.9045  on 3  degrees of freedom
+## Residual deviance:  2.8089  on 2  degrees of freedom
+## AIC: 27.061
+## 
+## Number of Fisher Scoring iterations: 4
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Podemos observar que el coeficiente de la variable 'ronq' es positivo (0.3973) para el modelo logit, lo que indicaría que a medida que aumenta el nivel de ronquido, también aumenta la probabilidad de enfermedad cardíaca. Además, el intercepto es negativo (con magnitud 3.86), lo que sugiere que en ausencia de ronquidos (ronq = 0), la probabilidad de enfermedad cardíaca es baja. Ambas variables son estadísticamente significativas, contando con un p-valor muy cercano al 0.
+
+El valor del intercepto en el modelo logit representa el logaritmo del odds (razón de probabilidades) de tener la enfermedad cardíaca cuando el nivel de ronquido es cero. En este caso, utilizando el valor del intercepto (-3.86), podemos calcular el odds como \(e^{-3.86} \approx 0.021\). Esto indica que, cuando no hay ronquidos, la probabilidad de tener la enfermedad cardíaca es baja en comparación con no tenerla.
+
+El valor del coeficiente de 'ronq' (0.3973) representa el cambio en el logaritmo del odds por cada unidad adicional en el nivel de ronquido. Para interpretar esto en términos de odds ratio, podemos calcular \(e^{0.3973} \approx 1.487\). Esto significa que por cada aumento de una unidad en el nivel de ronquido, los odds de tener la enfermedad cardíaca aumentan en un factor de aproximadamente 1.487, lo que indica un aumento significativo en la probabilidad de enfermedad cardíaca con niveles más altos de ronquidos.
+
+Ahora veamos el resumen del modelo probit.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{print}\hldef{(}\hlkwd{summary}\hldef{(m_probit))}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## glm(formula = cbind(SI, NO) ~ ronq, family = binomial(link = "probit"), 
+##     data = df)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept) -2.06055    0.07017 -29.367  < 2e-16 ***
+## ronq         0.18777    0.02348   7.997 1.28e-15 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 65.9045  on 3  degrees of freedom
+## Residual deviance:  1.8716  on 2  degrees of freedom
+## AIC: 26.124
+## 
+## Number of Fisher Scoring iterations: 4
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Nuevamente, observamos que el coeficiente de la variable 'ronq' es positivo (0.1877) para el modelo probit, lo que indica que a medida que aumenta el nivel de ronquido, también aumenta la probabilidad de enfermedad cardíaca. El intercepto es negativo (con magnitud 2.06), sugiriendo una baja probabilidad de enfermedad cardíaca cuando no hay ronquidos. Al igual que en el modelo logit, ambas variables son estadísticamente significativas con p-valores cercanos a 0. 
+
+Para comparar ambos modelos, podemos utilizar criterios como el AIC (Criterio de Información de Akaike) y el BIC (Criterio de Información Bayesiano). Estos criterios penalizan la complejidad del modelo y ayudan a seleccionar el modelo que mejor se ajusta a los datos sin sobreajustar.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{comp} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}
+    \hlkwc{Model} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"logit"}\hldef{,} \hlsng{"probit"}\hldef{),}
+    \hlkwc{AIC} \hldef{=} \hlkwd{c}\hldef{(}\hlkwd{AIC}\hldef{(m_logit),} \hlkwd{AIC}\hldef{(m_probit)),}
+    \hlkwc{BIC} \hldef{=} \hlkwd{c}\hldef{(}\hlkwd{BIC}\hldef{(m_logit),} \hlkwd{BIC}\hldef{(m_probit))}
+\hldef{)}
+\hlkwd{print}\hldef{(comp)}
+\end{alltt}
+\begin{verbatim}
+##    Model      AIC      BIC
+## 1  logit 27.06147 25.83406
+## 2 probit 26.12412 24.89670
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\textbf{Conclusión}: Ambos modelos capturan un efecto positivo y significativo de `ronq` sobre la probabilidad de enfermedad cardíaca. No obstante, el modelo \emph{probit} presenta mejor ajuste global: AIC = 26.12 y BIC = 24.90 frente a AIC = 27.06 y BIC = 25.83 del \emph{logit}. Las conclusiones sustantivas sobre el efecto de los ronquidos son equivalentes en ambos modelos.
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 2 %%%%%%%%%%%
+\begin{problem}{}
+    Suponga el siguiente experimento: se escoge al azar una moneda (A o B) y luego tiramos un volado con con esa moneda; los resultados posibles son Sol y Águila. El resultado de este experimento es:
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+Ejercicio & Moneda & Resultado \\
+\hline
+1 & A & Sol \\
+2 & B & Águila \\
+3 & A & Águila \\
+4 & B & Sol \\
+5 & B & Águila \\
+6 & Dato faltante & Águila \\
+\hline
+\end{tabular}
+\end{center}
+
+Si parametrizamos de la siguiente manera:
+
+\begin{itemize}
+\item \(\theta = \text{Probabilidad que la moneda sea A} \)
+\item \(\theta_A = \text{Probabilidad que el resultado sea Sol dado que es la moneda A} \)
+\item \(\theta_B = \text{Probabilidad que el resultado sea Sol dado que es la moneda B} \)
+\end{itemize}
+
+
+Utilice las técnicas del algoritmo EM para estimar los parámetros \(\theta\), \(\theta_A\) y \(\theta_B\) tomando en cuenta la presencia de datos faltantes.
+\end{problem}
+
+\subsection{\textbf{Solución:}}
+
+Primero codificamos los datos (moneda observada o faltante y resultado del volado).
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{moneda} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlsng{'A'}\hldef{,}\hlsng{'B'}\hldef{,}\hlsng{'A'}\hldef{,}\hlsng{'B'}\hldef{,}\hlsng{'B'}\hldef{,} \hlnum{NA}\hldef{)}
+\hldef{resultado} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlsng{'Sol'}\hldef{,}\hlsng{'Aguila'}\hldef{,}\hlsng{'Aguila'}\hldef{,}\hlsng{'Sol'}\hldef{,}\hlsng{'Aguila'}\hldef{,}\hlsng{'Aguila'}\hldef{)}
+\hldef{df_em} \hlkwb{<-} \hlkwd{data.frame}\hldef{(moneda, resultado,} \hlkwc{stringsAsFactors} \hldef{=} \hlnum{FALSE}\hldef{)}
+\hldef{df_em}
+\end{alltt}
+\begin{verbatim}
+##   moneda resultado
+## 1      A       Sol
+## 2      B    Aguila
+## 3      A    Aguila
+## 4      B       Sol
+## 5      B    Aguila
+## 6   <NA>    Aguila
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Implementamos el algoritmo EM. En la E, calculamos la probabilidad posterior de que la observación faltante provenga de la moneda A dado su resultado; en la M, actualizamos
+\(\theta\), \(\theta_A\) y \(\theta_B\) con los conteos esperados.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{em_moneda} \hlkwb{<-} \hlkwa{function}\hldef{(}\hlkwc{df}\hldef{,} \hlkwc{theta}\hldef{=}\hlnum{0.5}\hldef{,} \hlkwc{thetaA}\hldef{=}\hlnum{0.5}\hldef{,} \hlkwc{thetaB}\hldef{=}\hlnum{0.5}\hldef{,} \hlkwc{tol}\hldef{=}\hlnum{1e-10}\hldef{,} \hlkwc{maxit}\hldef{=}\hlnum{1000}\hldef{)\{}
+    \hlcom{# log-verosimilitud observada}
+    \hldef{loglik} \hlkwb{<-} \hlkwa{function}\hldef{(}\hlkwc{th}\hldef{,} \hlkwc{thA}\hldef{,} \hlkwc{thB}\hldef{)\{}
+        \hlkwd{sapply}\hldef{(}\hlkwd{seq_len}\hldef{(}\hlkwd{nrow}\hldef{(df)),} \hlkwa{function}\hldef{(}\hlkwc{i}\hldef{)\{}
+            \hldef{res} \hlkwb{<-} \hldef{df}\hlopt{$}\hldef{resultado[i]}
+            \hlkwa{if} \hldef{(}\hlkwd{is.na}\hldef{(df}\hlopt{$}\hldef{moneda[i]))\{}
+                \hldef{pA} \hlkwb{<-} \hldef{th} \hlopt{*} \hlkwd{ifelse}\hldef{(res}\hlopt{==}\hlsng{'Sol'}\hldef{, thA,} \hlnum{1}\hlopt{-}\hldef{thA)}
+                \hldef{pB} \hlkwb{<-} \hldef{(}\hlnum{1}\hlopt{-}\hldef{th)} \hlopt{*} \hlkwd{ifelse}\hldef{(res}\hlopt{==}\hlsng{'Sol'}\hldef{, thB,} \hlnum{1}\hlopt{-}\hldef{thB)}
+                \hlkwd{log}\hldef{(pA} \hlopt{+} \hldef{pB)}
+            \hldef{\}} \hlkwa{else if} \hldef{(df}\hlopt{$}\hldef{moneda[i]}\hlopt{==}\hlsng{'A'}\hldef{)\{}
+                \hlkwd{log}\hldef{(th)} \hlopt{+} \hlkwd{log}\hldef{(}\hlkwd{ifelse}\hldef{(res}\hlopt{==}\hlsng{'Sol'}\hldef{, thA,} \hlnum{1}\hlopt{-}\hldef{thA))}
+            \hldef{\}} \hlkwa{else} \hldef{\{}
+                \hlkwd{log}\hldef{(}\hlnum{1}\hlopt{-}\hldef{th)} \hlopt{+} \hlkwd{log}\hldef{(}\hlkwd{ifelse}\hldef{(res}\hlopt{==}\hlsng{'Sol'}\hldef{, thB,} \hlnum{1}\hlopt{-}\hldef{thB))}
+            \hldef{\}}
+        \hldef{\}) |>} \hlkwd{sum}\hldef{()}
+    \hldef{\}}
+
+    \hldef{it} \hlkwb{<-} \hlnum{0L}\hldef{; conv} \hlkwb{<-} \hlnum{FALSE}
+    \hlkwa{repeat} \hldef{\{}
+        \hldef{it} \hlkwb{<-} \hldef{it} \hlopt{+} \hlnum{1L}
+        \hlcom{# E-step: pesos gamma para las observaciones con moneda faltante}
+        \hldef{res_miss} \hlkwb{<-} \hldef{df}\hlopt{$}\hldef{resultado[}\hlkwd{is.na}\hldef{(df}\hlopt{$}\hldef{moneda)]}
+        \hlkwa{if} \hldef{(}\hlkwd{length}\hldef{(res_miss)} \hlopt{==} \hlnum{0L}\hldef{) gammaA} \hlkwb{<-} \hlkwd{numeric}\hldef{(}\hlnum{0}\hldef{)} \hlkwa{else} \hldef{\{}
+            \hldef{pA_miss} \hlkwb{<-} \hldef{theta} \hlopt{*} \hlkwd{ifelse}\hldef{(res_miss}\hlopt{==}\hlsng{'Sol'}\hldef{, thetaA,} \hlnum{1}\hlopt{-}\hldef{thetaA)}
+            \hldef{pB_miss} \hlkwb{<-} \hldef{(}\hlnum{1}\hlopt{-}\hldef{theta)} \hlopt{*} \hlkwd{ifelse}\hldef{(res_miss}\hlopt{==}\hlsng{'Sol'}\hldef{, thetaB,} \hlnum{1}\hlopt{-}\hldef{thetaB)}
+            \hldef{gammaA} \hlkwb{<-} \hldef{pA_miss} \hlopt{/} \hldef{(pA_miss} \hlopt{+} \hldef{pB_miss)}  \hlcom{# P(moneda=A | resultado)}
+        \hldef{\}}
+
+        \hlcom{# Conteos esperados}
+        \hldef{nA_k} \hlkwb{<-} \hlkwd{sum}\hldef{(df}\hlopt{$}\hldef{moneda}\hlopt{==}\hlsng{'A'}\hldef{,} \hlkwc{na.rm}\hldef{=}\hlnum{TRUE}\hldef{)}
+        \hldef{nB_k} \hlkwb{<-} \hlkwd{sum}\hldef{(df}\hlopt{$}\hldef{moneda}\hlopt{==}\hlsng{'B'}\hldef{,} \hlkwc{na.rm}\hldef{=}\hlnum{TRUE}\hldef{)}
+        \hldef{n_miss} \hlkwb{<-} \hlkwd{sum}\hldef{(}\hlkwd{is.na}\hldef{(df}\hlopt{$}\hldef{moneda))}
+        \hldef{nA_exp} \hlkwb{<-} \hldef{nA_k} \hlopt{+} \hlkwd{sum}\hldef{(gammaA)}
+        \hldef{nB_exp} \hlkwb{<-} \hldef{nB_k} \hlopt{+} \hldef{n_miss} \hlopt{-} \hlkwd{sum}\hldef{(gammaA)}
+
+        \hldef{solA_k} \hlkwb{<-} \hlkwd{sum}\hldef{(df}\hlopt{$}\hldef{moneda}\hlopt{==}\hlsng{'A'} \hlopt{&} \hldef{df}\hlopt{$}\hldef{resultado}\hlopt{==}\hlsng{'Sol'}\hldef{,} \hlkwc{na.rm}\hldef{=}\hlnum{TRUE}\hldef{)}
+        \hldef{solB_k} \hlkwb{<-} \hlkwd{sum}\hldef{(df}\hlopt{$}\hldef{moneda}\hlopt{==}\hlsng{'B'} \hlopt{&} \hldef{df}\hlopt{$}\hldef{resultado}\hlopt{==}\hlsng{'Sol'}\hldef{,} \hlkwc{na.rm}\hldef{=}\hlnum{TRUE}\hldef{)}
+        \hldef{sol_miss} \hlkwb{<-} \hldef{(res_miss} \hlopt{==} \hlsng{'Sol'}\hldef{)}
+        \hldef{solA_exp} \hlkwb{<-} \hldef{solA_k} \hlopt{+} \hlkwd{sum}\hldef{(gammaA[sol_miss])}
+        \hldef{solB_exp} \hlkwb{<-} \hldef{solB_k} \hlopt{+} \hlkwd{sum}\hldef{((}\hlnum{1}\hlopt{-}\hldef{gammaA)[sol_miss])}
+
+        \hlcom{# M-step}
+        \hldef{theta_new}  \hlkwb{<-} \hldef{nA_exp} \hlopt{/} \hldef{(nA_exp} \hlopt{+} \hldef{nB_exp)}
+        \hldef{thetaA_new} \hlkwb{<-} \hlkwd{ifelse}\hldef{(nA_exp}\hlopt{>}\hlnum{0}\hldef{, solA_exp} \hlopt{/} \hldef{nA_exp, thetaA)}
+        \hldef{thetaB_new} \hlkwb{<-} \hlkwd{ifelse}\hldef{(nB_exp}\hlopt{>}\hlnum{0}\hldef{, solB_exp} \hlopt{/} \hldef{nB_exp, thetaB)}
+
+        \hlcom{# Criterio de convergencia}
+        \hldef{delta} \hlkwb{<-} \hlkwd{max}\hldef{(}\hlkwd{abs}\hldef{(}\hlkwd{c}\hldef{(theta_new}\hlopt{-}\hldef{theta, thetaA_new}\hlopt{-}\hldef{thetaA, thetaB_new}\hlopt{-}\hldef{thetaB)))}
+        \hldef{theta} \hlkwb{<-} \hldef{theta_new; thetaA} \hlkwb{<-} \hldef{thetaA_new; thetaB} \hlkwb{<-} \hldef{thetaB_new}
+        \hlkwa{if} \hldef{(delta} \hlopt{<} \hldef{tol} \hlopt{||} \hldef{it} \hlopt{>=} \hldef{maxit) \{ conv} \hlkwb{<-} \hldef{(delta} \hlopt{<} \hldef{tol);} \hlkwa{break} \hldef{\}}
+    \hldef{\}}
+
+    \hlkwd{list}\hldef{(}\hlkwc{theta}\hldef{=theta,} \hlkwc{thetaA}\hldef{=thetaA,} \hlkwc{thetaB}\hldef{=thetaB,} \hlkwc{iter}\hldef{=it,} \hlkwc{converged}\hldef{=conv,}
+             \hlkwc{logLik}\hldef{=}\hlkwd{loglik}\hldef{(theta, thetaA, thetaB),}
+             \hlkwc{gamma_missing}\hldef{=}\hlkwa{if} \hldef{(}\hlkwd{exists}\hldef{(}\hlsng{'gammaA'}\hldef{)) gammaA} \hlkwa{else} \hlnum{NA_real_}\hldef{)}
+\hldef{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Ahora, ajustamos el modelo EM a los datos, utilizando como valores iniciales \(\theta=0.6\), \(\theta_A=0.6\) y \(\theta_B=0.5\). Aunque pueden usarse otros valores.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{set.seed}\hldef{(}\hlnum{1}\hldef{)} \hlcom{# Para reproducibilidad}
+\hldef{fit_em} \hlkwb{<-} \hlkwd{em_moneda}\hldef{(df_em,} \hlkwc{theta}\hldef{=}\hlnum{0.5}\hldef{,} \hlkwc{thetaA}\hldef{=}\hlnum{0.6}\hldef{,} \hlkwc{thetaB}\hldef{=}\hlnum{0.5}\hldef{)}
+\hldef{fit_em}
+\end{alltt}
+\begin{verbatim}
+## $theta
+## [1] 0.3888889
+## 
+## $thetaA
+## [1] 0.4285714
+## 
+## $thetaB
+## [1] 0.2727273
+## 
+## $iter
+## [1] 16
+## 
+## $converged
+## [1] TRUE
+## 
+## $logLik
+## [1] -7.114922
+## 
+## $gamma_missing
+## [1] 0.3333333
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+De esta forma, obtenemos los valores estimados de los parámetros.
+
+$$ \theta \approx 0.39, \quad \theta_A \approx 0.43, \quad \theta_B \approx 0.27 $$
+
+Con las estimaciones finales también podemos calcular la probabilidad posterior de que la observación faltante (resultado = Águila) corresponda a la moneda A.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{theta}  \hlkwb{<-} \hldef{fit_em}\hlopt{$}\hldef{theta}
+\hldef{thetaA} \hlkwb{<-} \hldef{fit_em}\hlopt{$}\hldef{thetaA}
+\hldef{thetaB} \hlkwb{<-} \hldef{fit_em}\hlopt{$}\hldef{thetaB}
+
+\hlcom{# Posterior de A para la observación faltante con resultado "Aguila"}
+\hldef{gamma_A} \hlkwb{<-} \hldef{theta}\hlopt{*}\hldef{(}\hlnum{1}\hlopt{-}\hldef{thetaA)} \hlopt{/} \hldef{(theta}\hlopt{*}\hldef{(}\hlnum{1}\hlopt{-}\hldef{thetaA)} \hlopt{+} \hldef{(}\hlnum{1}\hlopt{-}\hldef{theta)}\hlopt{*}\hldef{(}\hlnum{1}\hlopt{-}\hldef{thetaB))}
+\hldef{gamma_A} \hlcom{#$ }
+\end{alltt}
+\begin{verbatim}
+## [1] 0.3333333
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\textbf{Conclusión}: El algoritmo EM converge rápidamente. Las estimaciones típicas (con los datos dados) son \(\hat\theta\approx 0.39\), \(\hat\theta_A\approx 0.43\) y \(\hat\theta_B\approx 0.27\). Esto sugiere que la moneda A se selecciona alrededor del 39\% de las veces; la probabilidad de \emph{Sol} es mayor con la moneda A que con la B. Para la observación con moneda desconocida y resultado \emph{Águila}, la probabilidad posterior de que se haya usado la moneda A es \(\approx 0.34\), por lo que es más probable que proviniera de la moneda B.
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 3 %%%%%%%%%%%
+\begin{problem}{}
+    Ratones bajo tratamiento o no para prolongar su supervivencia después de una cirugía invasiva.
+
+Datos:
+
+
+\[
+\textbf{Tratamiento: } 94,\,197,\,16,\,38,\,99,\,141,\,23.
+\]
+
+
+
+\[
+\textbf{Control: } 52,\,104,\,146,\,10,\,51,\,30,\,40,\,27,\,46.
+\]
+
+
+
+1. Utilice técnicas de Bootstrap para determinar si existe diferencia significativa entre las medias.
+
+2. Compare los resultados del inciso 1 con una prueba t estándar para comparación de medias.
+
+3. Utilice técnicas de Bootstrap para determinar si existe diferencia significativa entre las medianas.
+
+\end{problem}
+
+\subsection{\textbf{Solución:}}
+
+
+Primero ingresamos los datos de supervivencia para ambos grupos.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{trat} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{94}\hldef{,} \hlnum{197}\hldef{,} \hlnum{16}\hldef{,} \hlnum{38}\hldef{,} \hlnum{99}\hldef{,} \hlnum{141}\hldef{,} \hlnum{23}\hldef{)}
+\hldef{ctrl} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{52}\hldef{,} \hlnum{104}\hldef{,} \hlnum{146}\hldef{,} \hlnum{10}\hldef{,} \hlnum{51}\hldef{,} \hlnum{30}\hldef{,} \hlnum{40}\hldef{,} \hlnum{27}\hldef{,} \hlnum{46}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Calculamos estadísticas descriptivas básicas (tamaño, media y mediana) para tener una referencia inicial.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data.frame}\hldef{(}
+    \hlkwc{grupo} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"Tratamiento"}\hldef{,} \hlsng{"Control"}\hldef{),}
+    \hlkwc{n} \hldef{=} \hlkwd{c}\hldef{(}\hlkwd{length}\hldef{(trat),} \hlkwd{length}\hldef{(ctrl)),}
+    \hlkwc{media} \hldef{=} \hlkwd{c}\hldef{(}\hlkwd{mean}\hldef{(trat),} \hlkwd{mean}\hldef{(ctrl)),}
+    \hlkwc{mediana} \hldef{=} \hlkwd{c}\hldef{(}\hlkwd{median}\hldef{(trat),} \hlkwd{median}\hldef{(ctrl))}
+\hldef{)}
+\end{alltt}
+\begin{verbatim}
+##         grupo n    media mediana
+## 1 Tratamiento 7 86.85714      94
+## 2     Control 9 56.22222      46
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Definimos una función genérica de bootstrap para la diferencia entre grupos en media o mediana. En cada réplica re-muestreamos con reemplazo de cada grupo por separado y computamos la estadística.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{boot_2samp} \hlkwb{<-} \hlkwa{function}\hldef{(}\hlkwc{x}\hldef{,} \hlkwc{y}\hldef{,} \hlkwc{B} \hldef{=} \hlnum{20000L}\hldef{,} \hlkwc{stat} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"mean"}\hldef{,} \hlsng{"median"}\hldef{))\{}
+    \hldef{stat} \hlkwb{<-} \hlkwd{match.arg}\hldef{(stat)}
+    \hldef{sfun} \hlkwb{<-} \hlkwa{if} \hldef{(stat} \hlopt{==} \hlsng{"mean"}\hldef{) mean} \hlkwa{else} \hldef{median}
+    \hldef{n1} \hlkwb{<-} \hlkwd{length}\hldef{(x); n2} \hlkwb{<-} \hlkwd{length}\hldef{(y)}
+    \hldef{obs} \hlkwb{<-} \hlkwd{sfun}\hldef{(x)} \hlopt{-} \hlkwd{sfun}\hldef{(y)}
+    \hldef{boots} \hlkwb{<-} \hlkwd{replicate}\hldef{(B, \{}
+        \hldef{bx} \hlkwb{<-} \hlkwd{sample}\hldef{(x, n1,} \hlkwc{replace} \hldef{=} \hlnum{TRUE}\hldef{)}
+        \hldef{by} \hlkwb{<-} \hlkwd{sample}\hldef{(y, n2,} \hlkwc{replace} \hldef{=} \hlnum{TRUE}\hldef{)}
+        \hlkwd{sfun}\hldef{(bx)} \hlopt{-} \hlkwd{sfun}\hldef{(by)}
+    \hldef{\})}
+    \hlkwd{list}\hldef{(}\hlkwc{obs} \hldef{= obs,} \hlkwc{boots} \hldef{= boots)}
+\hldef{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\subsubsection{Diferencia significativa entre medias}
+
+Aplicamos bootstrap para la diferencia de medias. Fijamos semilla para reproducibilidad.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{set.seed}\hldef{(}\hlnum{2025}\hldef{)}
+\hldef{res_mean} \hlkwb{<-} \hlkwd{boot_2samp}\hldef{(trat, ctrl,} \hlkwc{B} \hldef{=} \hlnum{20000}\hldef{,} \hlkwc{stat} \hldef{=} \hlsng{"mean"}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Obtenemos un intervalo de confianza al 95\% por percentiles y un p-valor a dos colas centrando la distribución bootstrap en su media. Planteamos la prueba de hipótesis para la diferencia de medias con bootstrap: \(H_0:\,\mu_{trat}-\mu_{ctrl}=0\) frente a \(H_1:\,\mu_{trat}-\mu_{ctrl}\neq 0\) al nivel \(\alpha=0.05\). Tomamos la decisión con el p-valor bootstrap calculado. 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{ci_mean} \hlkwb{<-} \hlkwd{quantile}\hldef{(res_mean}\hlopt{$}\hldef{boots,} \hlkwd{c}\hldef{(}\hlnum{0.025}\hldef{,} \hlnum{0.975}\hldef{))}
+\hldef{center_m} \hlkwb{<-} \hlkwd{mean}\hldef{(res_mean}\hlopt{$}\hldef{boots)}
+\hldef{p_mean} \hlkwb{<-} \hlkwd{mean}\hldef{(}\hlkwd{abs}\hldef{(res_mean}\hlopt{$}\hldef{boots} \hlopt{-} \hldef{center_m)} \hlopt{>=} \hlkwd{abs}\hldef{(res_mean}\hlopt{$}\hldef{obs} \hlopt{-} \hldef{center_m))}
+\hlkwd{list}\hldef{(}
+    \hlkwc{diferencia_media_obs} \hldef{= res_mean}\hlopt{$}\hldef{obs,}
+    \hlkwc{ci_media_95} \hldef{=} \hlkwd{unname}\hldef{(ci_mean),}
+    \hlkwc{p_boot_media_2colas} \hldef{= p_mean}
+\hldef{)} \hlcom{#$}
+\end{alltt}
+\begin{verbatim}
+## $diferencia_media_obs
+## [1] 30.63492
+## 
+## $ci_media_95
+## [1] -20.36508  85.34960
+## 
+## $p_boot_media_2colas
+## [1] 0.98365
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+\textbf{Conclusión}: La diferencia media observada fue de 30.63 unidades a favor del grupo con tratamiento. El p-valor bootstrap fue de 0.98, muy superior a 0.05, por lo que no rechazamos \(H_0\) y concluimos que no hay evidencia suficiente para afirmar que la diferencia de medias es significativa. Consistentemente, el IC del 95\% por percentiles contiene 0, indicando que la diferencia observada es compatible con la variabilidad muestral.
+
+
+\subsubsection{Prueba t estándar para diferencia de medias}
+
+Comparamos con una prueba t de Welch (dos muestras, varianzas desiguales) para la diferencia de medias.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{tt_welch} \hlkwb{<-} \hlkwd{t.test}\hldef{(trat, ctrl,} \hlkwc{var.equal} \hldef{=} \hlnum{FALSE}\hldef{,} \hlkwc{alternative} \hldef{=} \hlsng{"two.sided"}\hldef{)}
+\hldef{tt_welch}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  trat and ctrl
+## t = 1.0587, df = 9.6545, p-value = 0.3155
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -34.15279  95.42263
+## sample estimates:
+## mean of x mean of y 
+##  86.85714  56.22222
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+En esta ocasión, el p-valor de la prueba fue de 0.3155, por lo que no se rechaza \(H_0\) la igualdad de medias. El IC del 95\% para la diferencia de medias fue \((-34.15, 95.42)\), que nuevamente incluye al 0 y es muy amplio, señal de alta incertidumbre con el tamaño muestral y variablidad presentes. 
+
+\textbf{Conclusión}: La prueba t de Welch coincide con el bootstrap en no rechazar \(H_0\) y no encontrar evidencia concluyente de diferencia significativa entre las medias de ambos grupos. El IC del 95\% es amplio y contiene 0, indicando que la diferencia observada puede ser atribuible a la variabilidad muestral.
+
+
+\subsubsection{Diferencia significativa entre medianas}
+Ahora repetimos el procedimiento de bootstrap para la diferencia de medianas.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{set.seed}\hldef{(}\hlnum{2025}\hldef{)}
+\hldef{res_med} \hlkwb{<-} \hlkwd{boot_2samp}\hldef{(trat, ctrl,} \hlkwc{B} \hldef{=} \hlnum{20000}\hldef{,} \hlkwc{stat} \hldef{=} \hlsng{"median"}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Calculamos el intervalo de confianza al 95\% por percentiles y un p-valor bootstrap a dos colas para la mediana.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{ci_med} \hlkwb{<-} \hlkwd{quantile}\hldef{(res_med}\hlopt{$}\hldef{boots,} \hlkwd{c}\hldef{(}\hlnum{0.025}\hldef{,} \hlnum{0.975}\hldef{))}
+\hldef{center_md} \hlkwb{<-} \hlkwd{mean}\hldef{(res_med}\hlopt{$}\hldef{boots)}
+\hldef{p_med} \hlkwb{<-} \hlkwd{mean}\hldef{(}\hlkwd{abs}\hldef{(res_med}\hlopt{$}\hldef{boots} \hlopt{-} \hldef{center_md)} \hlopt{>=} \hlkwd{abs}\hldef{(res_med}\hlopt{$}\hldef{obs} \hlopt{-} \hldef{center_md))}
+\hlkwd{list}\hldef{(}
+    \hlkwc{diferencia_mediana_obs} \hldef{= res_med}\hlopt{$}\hldef{obs,}
+    \hlkwc{ci_mediana_95} \hldef{=} \hlkwd{unname}\hldef{(ci_med),}
+    \hlkwc{p_boot_mediana_2colas} \hldef{= p_med}
+\hldef{)} \hlcom{#$}
+\end{alltt}
+\begin{verbatim}
+## $diferencia_mediana_obs
+## [1] 48
+## 
+## $ci_mediana_95
+## [1] -29 111
+## 
+## $p_boot_mediana_2colas
+## [1] 0.8659
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+La diferencia entre las medianas observada fue de 48 unidades a favor del grupo con tratamiento. El p-valor bootstrap fue de 0.86, muy superior a 0.05, por lo que no rechazamos \(H_0\) de que las medianas son iguales. El IC del 95\% por percentiles fue \((-29, 111)\), que nuevamente contiene al 0, indicando que la diferencia observada es compatible con la variabilidad muestral.
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \nocite{*}
+% \bibliographystyle{plainnat} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+% \bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+
+\end{document}
+                                                                                                                                                                                                                                                                                                                                                        

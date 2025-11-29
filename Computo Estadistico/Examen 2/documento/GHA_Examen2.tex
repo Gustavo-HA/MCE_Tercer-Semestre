@@ -1,0 +1,436 @@
+% Optimizado para compilación rápida
+\documentclass[paper=letter, fontsize=11pt, draft=false]{scrartcl}\usepackage[]{graphicx}\usepackage[]{xcolor}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+% Modifications to layout
+\usepackage[shortlabels]{enumitem} % Incisos
+
+\newcommand{\RNum}[1]{\footnotesize\uppercase\expandafter{\romannumeral #1\relax\normalsize}} % Roman numbers
+
+\usepackage{subcaption} % 2x2 graphs
+\usepackage{mwe}
+
+\usepackage{float} % [H] in graphics
+
+\usepackage[hidelinks]{hyperref}  % Hipervínculos en la TOC
+
+
+\usepackage{booktabs,siunitx,listings}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{theorems}
+\usepackage{cleveref}
+
+% Typography and layout packages
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{xcolor}
+\usepackage[spanish,es-nodecimaldot]{babel} % Language and hyphenation
+\usepackage{amsmath, amsfonts, amsthm, amssymb} % Math packages
+\newtheorem{definition}{Definición} % definition
+\usepackage{fancyvrb}
+\usepackage{sectsty} % Customize section commands
+\usepackage{geometry} % Modify margins
+\usepackage{titlesec} % Customize section titles
+\geometry{margin=3cm,top=2.5cm,bottom=2.5cm} % Simplified geometry
+\allsectionsfont{\centering \normalfont\scshape} % Center and style section titles
+
+% Header and footer customization
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead[L]{\slshape} % Remove section title from header
+\fancyhead[C]{} % Header center
+\fancyhead[R]{\thepage} % Header right with page number
+\fancyfoot[L]{} % Footer left
+\fancyfoot[C]{} % Footer center
+\fancyfoot[R]{\small \slshape Gustavo Hernández Angeles} % Footer right
+\renewcommand{\headrulewidth}{0.4pt} % Header rule
+\renewcommand{\footrulewidth}{0.4pt} % Footer rule
+\setlength{\headheight}{14.5pt} % Header height
+
+
+
+% Paragraph settings
+\setlength\parindent{0pt}
+\setlength{\parskip}{1ex}
+
+% Section spacing
+\titlespacing*{\section}{0cm}{0.50cm}{0.25cm}
+
+% --- Theorems, lemma, corollary, postulate, definition ---
+\definecolor{Pantone209C}{HTML}{64293e}
+
+\newcounter{problemcounter}
+
+\numberwithin{equation}{problemcounter} % Number equations within problems
+\numberwithin{figure}{problemcounter} % Number figures within problems
+\numberwithin{table}{problemcounter} % Number tables within problems
+\numberwithin{subsection}{problemcounter} 
+
+\newtcbtheorem[auto counter]{problem}{Ejercicio}{
+    enhanced,
+    breakable,
+    colback = gray!5,
+    colframe = gray!5,
+    boxrule = 0.5pt,
+    sharp corners,
+    borderline west = {2mm}{0mm}{Pantone209C},
+    fonttitle = \bfseries\sffamily,
+    coltitle = Pantone209C,
+    drop fuzzy shadow,
+    parbox = false,
+    before skip = 3ex,
+    after skip = 3ex
+}{problem}
+\makeatletter
+\renewenvironment{problem}[2][]{%
+    \refstepcounter{problemcounter}%
+    \addcontentsline{toc}{section}{\protect\numberline{\theproblemcounter}Ejercicio \theproblemcounter: #2}%
+    \begin{tcolorbox}[
+        enhanced,
+        breakable,
+        colback = gray!5,
+        colframe = gray!5,
+        boxrule = 0.5pt,
+        sharp corners,
+        borderline west = {2mm}{0mm}{Pantone209C},
+        fonttitle = \bfseries\sffamily,
+        coltitle = Pantone209C,
+        drop fuzzy shadow,
+        parbox = false,
+        before skip = 3ex,
+        after skip = 3ex,
+        title={Ejercicio \theproblemcounter: #2}
+    ]
+}{%
+    \end{tcolorbox}
+}
+\makeatother
+
+
+
+
+\tcbuselibrary{skins, breakable}
+% Custom command for a horizontal rule
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} 
+
+% Custom section titles
+\titleformat{\section}
+{\normalfont\Large\bfseries}{}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Title and author
+\title{	
+    \begin{center}
+        \includegraphics[width=3cm]{cimat-logo.png} % Adjust size as needed
+    \end{center}
+    \vspace{0.5cm}
+    \normalfont \normalsize 
+    \textbf{\Large   Centro de Investigación en Matemáticas} \\
+    \Large Unidad Monterrey \\ [25pt] 
+    \horrule{1pt} \\[0.4cm] % Thin top horizontal rule
+    \huge Cómputo Estadístico\\
+    \huge Examen 2 \\ 
+    \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{\large Gustavo Hern\'andez Angeles}    
+
+\date{\normalsize\today} % Today's date
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+\maketitle % Print the title
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%% PROBLEMA 1 %%%%%%%%%%%
+\begin{problem}{}
+Considera un conjunto de datos completos (sin datos faltantes) que te interese, con dos variables $x$, $y$. Llama a estos los ``datos completos''.
+
+\begin{enumerate}[(a)]
+  \item Escribe un programa en \texttt{R} que elimine aproximadamente la mitad de los valores de $x$. Diseña este mecanismo de no respuesta para que sea aleatorio pero no completamente aleatorio; es decir, la probabilidad de que $x$ sea faltante debería depender de $y$. Llama a este nuevo conjunto de datos (con datos faltantes en $x$) los ``datos disponibles''.
+  \item Realiza la regresión de $x$ sobre $y$ (con $y$ como predictor y $x$ como respuesta) utilizando solo los datos para los que se observan ambas variables (casos completos) y demuestra que es coherente con la regresión utilizando los datos completos.
+  \item Realiza la regresión de $y$ sobre $x$ usando los casos completos y demuestra que no es consistente con la regresión correspondiente utilizando los datos completos.
+  \item Usando solo los datos disponibles, ajusta un modelo en \texttt{R} para $x$ dado $y$, y usa este modelo para imputar aleatoriamente los datos faltantes de $x$. Realiza la regresión de $y$ sobre $x$ utilizando este conjunto de datos imputados y compáralo con tus resultados de (c).
+\end{enumerate}
+
+\end{problem}
+
+
+Para este problema, se utilizará el conjunto de datos \texttt{Salary.csv}, que contiene 35 observaciones sobre los años de experiencia y los salarios anuales (USD) correspondientes. En este conjunto de datos, la variable $x$ representa los años de experiencia (\texttt{YearsExperience}) y la variable $y$ representa el salario anual (\texttt{Salary}).
+
+\subsection{Inciso (a)}
+Se elimina aproximadamente la mitad de los valores de $x$ de manera que la probabilidad de que $x$ sea faltante dependa de $y$. El siguiente código en R realiza esta tarea:
+
+\begin{verbatim}
+set.seed(123)  # Para reproducibilidad
+n <- nrow(data)
+prob_missing <- plogis((data$Salary - mean(data$Salary)) / sd(data$Salary))
+missing_indices <- rbinom(n, 1, prob_missing) == 1
+data_available <- data
+data_available$YearsExperience[missing_indices] <- NA
+\end{verbatim}
+
+El código anterior utiliza la función logística para definir la probabilidad de que $x$ sea faltante en función de $y$. Entonces, se genera un vector de índices faltantes y se asignan valores NA a los correspondientes en $x$. Este mecanismo de borrado hace que los valores faltantes en $x$ incrementen a medida que los valores de $y$ aumentan (Figura \ref{fig:missing_data}). Con este mecanismo, redujimos el número de observaciones de 35 a 20.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\input{figure/datacompleta.tex}}
+        \caption{}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{\input{figure/datadisponible.tex}}
+        \caption{}
+    \end{subfigure}
+    \caption{Visualización de los datos completos (a) y el efecto del mecanismo de pérdida de datos (b).}
+    \label{fig:missing_data}
+\end{figure}
+
+
+
+
+
+\subsection{Inciso (b)}
+Se realiza la regresión de $x$ (Años de experiencia) sobre $y$ (Salario) utilizando únicamente los datos disponibles (casos completos). Al comparar este modelo con el ajustado sobre los datos completos, observamos una notable coherencia en las estimaciones.
+
+El coeficiente estimado para \texttt{Salary} en el modelo con datos disponibles es $\hat{\beta}_{Salario} \approx 1.026 \times 10^{-4}$ (Error Estándar: $5.82 \times 10^{-6}$), el cual es muy cercano al obtenido con los datos completos, $\hat{\beta}_{Salario} \approx 1.105 \times 10^{-4}$ (Error Estándar: $3.66 \times 10^{-6}$). De manera similar, los interceptos son comparables: $-2.465$ frente a $-2.970$.
+
+Esta consistencia se explica teóricamente porque el mecanismo de pérdida de datos depende exclusivamente de la variable predictora $y$ en este modelo. Al condicionar sobre $y$, la distribución de $x$ no se ve alterada por el hecho de que falten observaciones en ciertos rangos de $y$; simplemente tenemos menos información en esas regiones, lo que se refleja en errores estándar ligeramente mayores debido a la reducción del tamaño de muestra ($n=20$ vs $n=35$), pero las estimaciones puntuales permanecen insesgadas.
+
+\subsection{Inciso (c)}
+Por otro lado, al realizar la regresión inversa de $y$ (Salario) sobre $x$ (Años de experiencia) utilizando los casos completos, los resultados discrepan significativamente del modelo original.
+
+El coeficiente para \texttt{YearsExperience} cambia de $8731.9$ (datos completos) a $9186.6$ (datos disponibles), y el intercepto disminuye de $28859.5$ a $27143.9$. Aunque a primera vista las diferencias podrían parecer moderadas, conceptualmente representan un problema grave.
+
+La inconsistencia surge porque aquí la variable que determina la falta de datos ($y$) es la variable respuesta. Esto introduce un sesgo de selección: estamos observando preferentemente valores bajos de $y$ (dado el mecanismo diseñado en el inciso a), lo que trunca la distribución condicional de $y$ dado $x$. Como resultado, la relación estimada deja de ser representativa de la población original. Es importante notar que, aunque el mecanismo es técnicamente MAR  dado que $y$ se observa completamente, el análisis de casos completos produce estimadores sesgados cuando la probabilidad de ser observado depende de la variable respuesta.
+
+
+
+\subsection{Inciso (d)}
+
+Utilizando los datos disponibles, se ajusta un modelo lineal para predecir $x$ (Años de experiencia) dado $y$ (Salario). Este modelo se utiliza posteriormente para imputar los valores faltantes de $x$. La Figura \ref{fig:imputed_data} muestra los datos originales junto con los valores imputados, los cuales, al provenir de una predicción determinista (sin añadir ruido aleatorio), se alinean perfectamente sobre la recta de regresión ajustada.
+
+
+\begin{figure}
+  \centering
+  \resizebox{0.5\linewidth}{!}{\input{figure/dataimputadaa.tex}}
+  \caption{Datos disponibles con valores imputados para $x$ (Años de experiencia) utilizando un modelo ajustado de $x$ dado $y$.}
+  \label{fig:imputed_data}
+\end{figure}
+
+Posteriormente, se realiza la regresión de $y$ sobre $x$ utilizando este conjunto de datos completado (imputado). Los resultados muestran un coeficiente estimado para \texttt{YearsExperience} de $9381$ y un intercepto de $25229$.
+
+Al comparar estos resultados con los del inciso (c) (coeficiente $9186.6$), observamos que la imputación determinista ha reforzado la tendencia observada en los datos disponibles, alejándose aún más de los valores originales de los datos completos (coeficiente $8731.9$). Además, el error estándar del coeficiente ha disminuido drásticamente a $206$ (comparado con $288.8$ en los datos completos y $521.6$ en los disponibles). Esto es una consecuencia directa de la imputación simple sin componente estocástico: al rellenar los huecos con valores que caen exactamente sobre una línea, estamos artificialmente inflando la correlación ($R^2 = 0.9843$ vs $0.9652$ original) y subestimando la varianza real de los datos, lo que lleva a intervalos de confianza excesivamente optimistas y potencialmente engañosos.
+
+
+
+\newpage
+
+
+
+
+
+\begin{problem}{}
+Los datos en el archivo \texttt{Cancerdata.xls} provienen de un estudio realizado sobre el efecto del cáncer de los padres sobre los problemas de conducta en los hijos. La variable dependiente es \texttt{totbpt} que representa el puntaje total de problemas de conducta, de acuerdo a la lista de Achenbach sobre el comportamiento del Niño. Las variables género del paciente con cáncer (sexP), puntuaciones de ansiedad y depresión del paciente de cáncer (AnxtP y DeptP) y del cónyuge (AnxtS y DeptS), se consideran variables potencialmente predictoras del comportamiento de los hijos. Desafortunadamente
+muchas de las observaciones son datos faltantes.  
+
+\begin{enumerate}[(a)]
+  \item Considerando solo los casos completos construye un modelo de regresion lineal múltiple para predecir la variable dependiente \texttt{totbpt} con las 5 variables predictoras mencionadas.
+  \item Aplica el test de Little para probar si los datos faltantes siguen un patrón completamente aleatorio (MCAR).
+  \item Aplica el enfoque de máxima verosimilitud (con algoritmo EM) o el enfoque de imputación múltiple para estimar los datos faltantes en todas las variables.
+  \item Con los datos completos obtenidos en (c), construye un modelo de regresión lineal y compara los resultados con los obtenidos en (a).
+\end{enumerate}
+\end{problem}
+
+\subsection{Inciso (a)}
+Se ajusta un modelo de regresión lineal múltiple para predecir la variable dependiente \texttt{totbpt} utilizando las 5 variables predictoras (\texttt{SexP}, \texttt{AnxtP}, \texttt{DeptP}, \texttt{AnxtS}, \texttt{DeptS}), considerando únicamente los casos completos.
+
+El modelo resultante se basa en solo 26 observaciones (de un total de 89), ya que 63 observaciones fueron eliminadas debido a datos faltantes. A pesar de la reducción drástica en el tamaño de la muestra, el modelo es estadísticamente significativo ($F_{5,20} = 7.706$, $p < 0.001$) y explica aproximadamente el 57.3\% de la variabilidad ajustada ($R^2_{adj} = 0.5729$).
+
+Los coeficientes estimados son:
+\begin{itemize}
+    \item \texttt{DeptP}: $0.888$ ($p < 0.001$)
+    \item \texttt{AnxtS}: $0.608$ ($p < 0.01$)
+    \item \texttt{DeptS}: $-0.355$ ($p < 0.05$)
+\end{itemize}
+Las variables \texttt{SexP} y \texttt{AnxtP} no resultaron significativas en este modelo reducido.
+
+\subsection{Inciso (b)}
+Para evaluar si el mecanismo de pérdida de datos es completamente aleatorio (MCAR), se aplicó el test de Little.
+La hipótesis nula ($H_0$) establece que los datos faltan completamente al azar.
+
+El resultado del test arroja un estadístico $\chi^2 = 27.2$ con 21 grados de libertad y un valor $p = 0.163$.
+Dado que $p > 0.05$, no hay evidencia suficiente para rechazar la hipótesis nula. Por lo tanto, es razonable asumir que el patrón de datos faltantes es MCAR. Esto sugiere que el análisis de casos completos realizado en el inciso (a), aunque ineficiente por la pérdida de datos, no debería estar sesgado.
+
+\subsection{Inciso (c)}
+Se procedió a imputar los valores faltantes utilizando el enfoque de Imputación Múltiple por Ecuaciones Encadenadas (MICE). Se generaron $m=5$ conjuntos de datos imputados.
+Para respetar la naturaleza de las variables, se especificaron los siguientes métodos de imputación:
+\begin{itemize}
+    \item \texttt{logreg} (Regresión Logística) para la variable binaria \texttt{SexP}.
+    \item \texttt{pmm} (Predictive Mean Matching) para las variables continuas (\texttt{Totbpt}, \texttt{AnxtP}, \texttt{DeptP}, \texttt{AnxtS}, \texttt{DeptS}).
+\end{itemize}
+Este enfoque permite utilizar toda la información disponible en las 89 observaciones, en lugar de limitarse a las 26 completas.
+
+\subsection{Inciso (d)}
+Se ajustó el modelo de regresión lineal a cada uno de los 5 conjuntos de datos imputados y se combinaron los resultados utilizando las reglas de Rubin (pooling).
+
+Al comparar los coeficientes del modelo imputado (IM) con los del modelo de casos completos (CC), observamos consistencia en la dirección y magnitud de las asociaciones, pero con mejoras en la precisión (errores estándar menores) debido al aumento del tamaño de muestra efectivo.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Variable & Est. (CC) & Error Est. (CC) & Est. (IM) & Error Est. (IM) \\
+\midrule
+(Intercept) & -6.708 & 11.32 & -3.453 & 7.65 \\
+SexP & -3.769 & 2.80 & -4.106 & 2.61 \\
+AnxtP & -0.064 & 0.17 & -0.046 & 0.19 \\
+DeptP & 0.888 & 0.20 & 0.851 & 0.18 \\
+AnxtS & 0.608 & 0.17 & 0.635 & 0.13 \\
+DeptS & -0.355 & 0.16 & -0.409 & 0.13 \\
+\bottomrule
+\end{tabular}
+\caption{Comparación de coeficientes entre el modelo de casos completos y el modelo con imputación múltiple.}
+\label{tab:comparison_coefficients}
+\end{table}
+
+Las variables \texttt{DeptP}, \texttt{AnxtS} y \texttt{DeptS} se mantienen significativas en ambos modelos. Notablemente, el error estándar del intercepto y de la mayoría de los predictores disminuyó con la imputación múltiple (e.g., el error de \texttt{AnxtS} bajó de 0.17 a 0.13), lo que indica una estimación más eficiente al aprovechar toda la información disponible.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \nocite{*}
+% \bibliographystyle{plainnat} % Elige un estilo (otros: abbrvnat, unsrtnat, etc.)
+% \bibliography{bib} % Indica el nombre de tu archivo .bib (sin la extensión)
+
+\end{document}
+                                                                                                                                                                                                                                                                                                                                                        

@@ -33,6 +33,10 @@ prob_missing <- plogis((data$Salary - mean(data$Salary)) / sd(data$Salary))  # P
 missing_indices <- rbinom(n, 1, prob_missing) == 1
 data_available <- data
 data_available$YearsExperience[missing_indices] <- NA
+n_missing <- sum(is.na(data_available$YearsExperience))
+cat("Total de observaciones:", n, "\n")
+cat("Número de valores faltantes en X:", n_missing, "\n")
+
 
 ggplot(data_available, aes(x = YearsExperience, y = Salary)) +
     geom_point() +
@@ -40,6 +44,9 @@ ggplot(data_available, aes(x = YearsExperience, y = Salary)) +
          x = "Años de Experiencia",
          y = "Salario") +
     theme_minimal()
+
+cat("Proporción de valores faltantes en X:", 
+    mean(is.na(data_available$YearsExperience)), "\n")
 
 ### Inciso b)
 ### Realiza la regresion de x sobre y utilizando solo los datos para los que se
@@ -61,3 +68,32 @@ summary(model_y_on_x_available)
 
 model_y_on_x_complete <- lm(Salary ~ YearsExperience, data = data)
 summary(model_y_on_x_complete)
+
+
+### Inciso d)
+### Utilizando los datos disponibles, ajusta un modelo en R para x dado y, y usa este modelo para imputar aleatoriamente
+### los valores faltantes de x. Realiza la regresion de y sobre x utilizando este conjunto de datos imputados
+### y comparalos con tus resultados de (c).
+
+model_impute <- lm(YearsExperience ~ Salary, data = data_available, na.action = na.omit)
+predicted_values <- predict(model_impute, newdata = data_available[is.na(data_available$YearsExperience), ])
+data_imputed <- data_available
+data_imputed$YearsExperience[is.na(data_imputed$YearsExperience)] <- predicted_values
+
+model_y_on_x_imputed <- lm(Salary ~ YearsExperience, data = data_imputed)
+summary(model_y_on_x_imputed)
+
+ggplot(data_imputed, aes(x = YearsExperience, y = Salary)) +
+    geom_point() +
+    labs(title = "Datos Imputados",
+         x = "Años de Experiencia",
+         y = "Salario") +
+    theme_minimal()
+
+
+
+
+
+
+
+

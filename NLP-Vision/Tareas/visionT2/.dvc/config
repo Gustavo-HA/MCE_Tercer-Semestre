@@ -1,5 +1,0 @@
-[core]
-    remote = visiont2
-['remote "visiont2"']
-    url = gdrive://1Xlyv-gRb4KaAy9J3yts6aerqmxPpo-RV
-    gdrive_acknowledge_abuse = true
